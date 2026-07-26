@@ -372,6 +372,59 @@ struct ClaudeHooksTests {
         #expect(payload.terminalApp == "Claude.app")
     }
 
+    /// Verifies an Orca-hosted Claude session is tagged `Orca.app` via the
+    /// authoritative `ORCA_PANE_KEY` signal. Orca runs Claude Code in a pane as
+    /// a TTY-less subprocess invisible to process discovery, so this tag lets
+    /// liveness follow the Orca app instead of a non-existent terminal.
+    @Test
+    func claudeInferTerminalAppRecognizesOrcaViaPaneKey() {
+        let payload = ClaudeHookPayload(
+            cwd: "/tmp/demo", hookEventName: .sessionStart, sessionID: "s1"
+        ).withRuntimeContext(
+            environment: ["ORCA_PANE_KEY": "pane-123"],
+            currentTTYProvider: { nil },
+            terminalLocatorProvider: { _ in (sessionID: nil, tty: nil, title: nil) }
+        )
+
+        #expect(payload.terminalApp == "Orca.app")
+        #expect(payload.defaultJumpTarget.terminalApp == "Orca.app")
+    }
+
+    /// Verifies the `__CFBundleIdentifier=com.stablyai.orca` fallback also tags
+    /// the session `Orca.app` — the hook binary inherits that bundle id when
+    /// launched as a subprocess of Orca.
+    @Test
+    func claudeInferTerminalAppRecognizesOrcaViaBundleIdentifier() {
+        let payload = ClaudeHookPayload(
+            cwd: "/tmp/demo", hookEventName: .sessionStart, sessionID: "s1"
+        ).withRuntimeContext(
+            environment: ["__CFBundleIdentifier": "com.stablyai.orca"],
+            currentTTYProvider: { nil },
+            terminalLocatorProvider: { _ in (sessionID: nil, tty: nil, title: nil) }
+        )
+
+        #expect(payload.terminalApp == "Orca.app")
+    }
+
+    /// Verifies the Orca pane signal wins over a leaked `TERM_PROGRAM` — Orca can
+    /// inherit the launching shell's `TERM_PROGRAM`, but the session must still
+    /// classify as `Orca.app`, not the launching terminal.
+    @Test
+    func claudeInferTerminalAppPrefersOrcaOverLeakedTermProgram() {
+        let payload = ClaudeHookPayload(
+            cwd: "/tmp/demo", hookEventName: .sessionStart, sessionID: "s1"
+        ).withRuntimeContext(
+            environment: [
+                "ORCA_PANE_KEY": "pane-123",
+                "TERM_PROGRAM": "ghostty",
+            ],
+            currentTTYProvider: { nil },
+            terminalLocatorProvider: { _ in (sessionID: nil, tty: nil, title: nil) }
+        )
+
+        #expect(payload.terminalApp == "Orca.app")
+    }
+
     @Test
     func claudePermissionRequestReturnsAllowDirectiveAfterApproval() async throws {
         let socketURL = BridgeSocketLocation.uniqueTestURL()

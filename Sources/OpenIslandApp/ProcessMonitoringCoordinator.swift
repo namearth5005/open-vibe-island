@@ -568,6 +568,24 @@ final class ProcessMonitoringCoordinator {
             }
         }
 
+        // Orca-hosted sessions: Orca runs Claude Code in a pane as a TTY-less
+        // subprocess (same invisibility to ps/lsof as Claude Desktop). Keep them
+        // alive while Orca is running; completed sessions expire after the same
+        // staleness window. Identified by the "Orca.app" tag stamped by the hook.
+        if Self.isOrcaAppRunning() {
+            for session in sessions
+            where session.tool == .claudeCode
+                && !session.isDemoSession
+                && session.jumpTarget?.terminalApp == "Orca.app" {
+                if session.isSessionEnded { continue }
+                let isStale = session.phase == .completed
+                    && session.updatedAt.addingTimeInterval(Self.claudeDesktopStalenessTimeout) < Date.now
+                if !isStale {
+                    aliveIDs.insert(session.id)
+                }
+            }
+        }
+
         // Synthetic sessions: always alive if the process exists.
         let syntheticSessions = sessions.filter { isSyntheticClaudeSession($0) }
         for session in syntheticSessions {
@@ -1291,6 +1309,17 @@ final class ProcessMonitoringCoordinator {
     static func isClaudeDesktopAppRunning() -> Bool {
         NSWorkspace.shared.runningApplications.contains { app in
             app.bundleIdentifier == "com.anthropic.claudefordesktop"
+        }
+    }
+
+    /// Check whether the Orca app is currently running.  Orca hosts Claude Code
+    /// as a TTY-less subprocess (same shape as Claude Desktop), so session
+    /// liveness follows the running app.  Uses
+    /// `NSWorkspace.shared.runningApplications` for the same transient-empty
+    /// reason as ``isClaudeDesktopAppRunning()``.
+    static func isOrcaAppRunning() -> Bool {
+        NSWorkspace.shared.runningApplications.contains { app in
+            app.bundleIdentifier == "com.stablyai.orca"
         }
     }
 
