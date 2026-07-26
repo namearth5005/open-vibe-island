@@ -1036,13 +1036,24 @@ struct IslandPanelView: View {
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.74))
 
-            Text(provider.peakWindowLabel)
-                .font(.system(size: 10.5, weight: .semibold, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.42))
+            // Show every window (5h · 7d) on the face, each tinted by its own
+            // usage. The peak is no longer singled out — both limits are visible
+            // at a glance, with reset times still available via .help() on hover.
+            ForEach(Array(provider.windows.enumerated()), id: \.element.id) { index, window in
+                if index > 0 {
+                    Text("·")
+                        .font(.system(size: 10.5, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.28))
+                }
 
-            Text("\(provider.peakUsagePercentage)%")
-                .font(.system(size: 11.5, weight: .bold, design: .monospaced))
-                .foregroundStyle(usageColor(for: provider.peakUsedPercentage))
+                Text(window.label)
+                    .font(.system(size: 10.5, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(.white.opacity(0.42))
+
+                Text("\(window.roundedUsedPercentage)%")
+                    .font(.system(size: 11.5, weight: .bold, design: .monospaced))
+                    .foregroundStyle(usageColor(for: window.usedPercentage))
+            }
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
