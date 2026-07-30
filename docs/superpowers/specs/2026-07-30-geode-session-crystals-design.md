@@ -34,6 +34,47 @@ Honest record of what is and isn't validated:
   absorbing enough to fill a wait is a distraction with better branding. Geode targets the
   involuntary two-second glance instead.
 
+## Phase 0 gate outcome — 2026-07-30
+
+**Result: passed, with amendments.** Judged by rendering the shipping generator to
+PNG at true 20pt (Retina 2×) against the real pill background, twenty rolls at a time.
+
+**Amendments now in force, overriding earlier text in this document:**
+
+1. **"Crystal" is renamed "shard"** throughout. The generator produces angular,
+   irregular silhouettes — not minerals. The name was chosen before anyone had seen
+   what the math draws. `CrystalForm`/`CrystalSeed` are now `ShardForm`/`ShardSeed`.
+2. **Identity is carried by colour, not shape.** Ten agent brand colours are instantly
+   separable at 20pt; ten silhouettes in one colour are only marginally so. The pill
+   therefore answers *which agent, how long, is it stuck*. Per-session identity moves
+   to the Phase 2 shelf, where shards render large enough for silhouette to matter.
+3. **`ShardForm.scale` added.** Growth previously only added facets at a fixed radius,
+   which reads as rounder rather than bigger — so the shard never appeared to grow,
+   which is the entire premise. Stage now drives size from 0.32 of the frame to 1.0.
+4. **Tilt spans a full rotation.** The original ±20° range made every shard lean the
+   same way and read as the same shape at 20pt.
+
+**Accepted for Phase 1, not yet implemented:** finer growth steps (13 rather than 7,
+same 31-minute span) and an overshoot-then-settle pop on each step. **Deferred:** the
+pill widening at two or three large milestones — good, but it moves layout in
+peripheral vision and needs care, so it is not Phase 1 work.
+
+**Tried and rejected, with reasons — do not revisit without new information:**
+
+| Candidate | Why rejected |
+|---|---|
+| Quartz point (hexagonal column, pyramid tip) | Reads as an orange bullet or crayon; three parameters give almost no variety |
+| Cut gem (symmetric brilliant) | Prettiest single object, but all rolls look identical — no identity |
+| Quartz cluster | Best "reads as a mineral", but less varied than the shard and needs more drawing |
+| "Tightened" shard (even facet counts, narrowed ranges) | Backfired badly. Forcing even counts with alternating radii can only produce n/2-fold symmetric stars, which mathematically eliminates every irregular shape — i.e. all the identity. Constrain extremes, never impose symmetry. |
+| Interior detail past the size cap (cleave lines, bright core) | At 20pt the bright core reads as a hole and the lines vanish |
+| Hand-drawn sprite set (~20 sprites) | Would look better than anything procedural at this size, and the content cost is genuinely small. Held open as a later swap — the renderer sits behind one function, so this is not a one-way door. |
+
+**Known limit accepted:** at true size the shards read as "small angular mark, tilted".
+Variety exists but is subtle. This is a real constraint of 40 physical pixels, not a
+defect to engineer away — roughly 1,200px of area carries two or three bits of shape
+information, while hue is a full channel that survives at any size.
+
 ## Non-goals
 
 Explicitly out of scope. None of these are implied by shipping this feature:
