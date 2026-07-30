@@ -74,13 +74,18 @@ struct GeodeShardFormTests {
         #expect(ShardForm.make(seed: 11, stage: 6).scale == 1.0)
     }
 
-    /// A mature shard should cover several times the area of a new one, or the
-    /// growth signal is too weak to notice at 20pt.
+    /// Growth must be clearly visible, but not by making a new shard so small it
+    /// disappears — at 18pt in the real pill a 0.32 minimum drew a ~3pt mark that
+    /// could not be seen at all. Both ends matter, so both are asserted.
     @Test
-    func matureCrystalCoversAtLeastFiveTimesTheAreaOfANewOne() {
+    func matureShardIsSubstantiallyBiggerThanANewOneWithoutHidingTheNewOne() {
         let new = ShardForm.make(seed: 11, stage: 0).scale
         let mature = ShardForm.make(seed: 11, stage: 6).scale
-        #expect((mature * mature) / (new * new) >= 5.0)
+        let areaRatio = (mature * mature) / (new * new)
+        #expect(areaRatio >= 2.0)
+        // A brand-new shard must still occupy over half the frame or it vanishes
+        // against the pill at real size.
+        #expect(new >= 0.55)
     }
 
     @Test

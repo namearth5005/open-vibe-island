@@ -131,6 +131,41 @@ public struct GeodeState: Equatable, Sendable {
         shardsBySessionID = shardsBySessionID.filter { liveSessionIDs.contains($0.key) }
     }
 
+    /// Back-fill shards for sessions that never produced a `sessionStarted`
+    /// event, and drop shards whose session has gone.
+    ///
+    /// Sessions can reach `SessionState` without passing through `apply(_:)` —
+    /// startup discovery, debug snapshots, and direct assignment all do this.
+    /// Without back-filling, the shard slot renders empty while the agents grid
+    /// shows tiles, which reads as a broken feature. Existing shards are never
+    /// overwritten, so event-derived state always wins over inference.
+    public mutating func reconcile(with sessions: [AgentSession], now: Date) {
+        for session in sessions where shardsBySessionID[session.id] == nil {
+            let isDone = session.phase == .completed
+            let needsAttention = session.phase.requiresAttention
+            let endpoint = isDone ? session.updatedAt : now
+            let elapsed = max(0, endpoint.timeIntervalSince(session.firstSeenAt))
+
+            shardsBySessionID[session.id] = GeodeShard(
+                sessionID: session.id,
+                tool: session.tool,
+                startedAt: session.firstSeenAt,
+                frozenSeconds: 0,
+                frozenSince: needsAttention ? session.updatedAt : nil,
+                stallCount: needsAttention ? 1 : 0,
+                stage: ShardForm.stage(forDuration: elapsed),
+                isSet: isDone,
+                // Inference cannot tell a clean finish from an interrupt, and
+                // claiming a fracture that did not happen is worse than missing
+                // one, so back-filled shards are never fractured.
+                isFractured: false,
+                updatedAt: session.updatedAt
+            )
+        }
+
+        prune(keeping: Set(sessions.map(\.id)))
+    }
+
     private mutating func freeze(_ sessionID: String, at timestamp: Date) {
         guard var shard = shardsBySessionID[sessionID], shard.frozenSince == nil else { return }
         shard.frozenSince = timestamp

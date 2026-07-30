@@ -223,6 +223,83 @@ struct GeodeStateTests {
         #expect(a.shard(id: "same-id")?.form == b.shard(id: "same-id")?.form)
     }
 
+    // MARK: - Reconcile
+
+    private func listSession(
+        _ id: String,
+        tool: AgentTool = .claudeCode,
+        phase: SessionPhase,
+        firstSeenAt: Date,
+        updatedAt: Date
+    ) -> AgentSession {
+        var session = AgentSession(
+            id: id,
+            title: id,
+            tool: tool,
+            phase: phase,
+            summary: "",
+            updatedAt: updatedAt,
+            firstSeenAt: firstSeenAt
+        )
+        session.isProcessAlive = true
+        return session
+    }
+
+    /// Sessions found at startup never emit `sessionStarted`, so without
+    /// back-filling the shard slot is empty while the agents grid shows tiles.
+    @Test
+    func reconcileBackFillsSessionsThatNeverEmittedAStartEvent() {
+        var state = GeodeState()
+        let session = listSession("discovered", phase: .running,
+                                  firstSeenAt: t0, updatedAt: t0.addingTimeInterval(60))
+        state.reconcile(with: [session], now: t0.addingTimeInterval(450))
+        #expect(state.shard(id: "discovered") != nil)
+        #expect(state.displayed?.sessionID == "discovered")
+        // ~7.5 minutes of elapsed time is growth stage 4.
+        #expect(state.shard(id: "discovered")?.stage == 4)
+    }
+
+    @Test
+    func reconcileMarksCompletedSessionsAsSetSoTheyDoNotDisplay() {
+        var state = GeodeState()
+        let session = listSession("done", phase: .completed,
+                                  firstSeenAt: t0, updatedAt: t0.addingTimeInterval(120))
+        state.reconcile(with: [session], now: t0.addingTimeInterval(500))
+        #expect(state.shard(id: "done")?.isSet == true)
+        #expect(state.displayed == nil)
+    }
+
+    @Test
+    func reconcileMarksBlockedSessionsAsFrozen() {
+        var state = GeodeState()
+        let session = listSession("blocked", phase: .waitingForApproval,
+                                  firstSeenAt: t0, updatedAt: t0.addingTimeInterval(30))
+        state.reconcile(with: [session], now: t0.addingTimeInterval(90))
+        #expect(state.shard(id: "blocked")?.isFrozen == true)
+    }
+
+    /// Event-derived state is authoritative: a shard built from real events must
+    /// never be clobbered by inference from a session snapshot.
+    @Test
+    func reconcileDoesNotOverwriteShardsBuiltFromEvents() {
+        var state = GeodeState()
+        state.apply(started("s1", at: t0))
+        state.apply(completed("s1", at: t0.addingTimeInterval(60), interrupt: true))
+        let session = listSession("s1", phase: .running,
+                                  firstSeenAt: t0, updatedAt: t0.addingTimeInterval(60))
+        state.reconcile(with: [session], now: t0.addingTimeInterval(500))
+        #expect(state.shard(id: "s1")?.isFractured == true)
+        #expect(state.shard(id: "s1")?.isSet == true)
+    }
+
+    @Test
+    func reconcileDropsShardsWhoseSessionDisappeared() {
+        var state = GeodeState()
+        state.apply(started("gone", at: t0))
+        state.reconcile(with: [], now: t0.addingTimeInterval(10))
+        #expect(state.shard(id: "gone") == nil)
+    }
+
     @Test
     func pruneDropsShardsForSessionsNoLongerTracked() {
         var state = GeodeState()

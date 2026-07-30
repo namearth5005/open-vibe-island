@@ -49,6 +49,12 @@ final class AppModel {
             _cachedSessionBuckets = nil
             pruneAgentsGridObservationTicketsIfNeeded()
             bridgeServer.updateStateSnapshot(state)
+            // Single funnel every path shares, including direct assignment from
+            // startup discovery and debug snapshots. Without this the shard slot
+            // renders empty whenever a session arrived without a sessionStarted
+            // event, while the agents grid happily shows it.
+            geodeState.reconcile(with: state.sessions, now: Date())
+            updateGeodeGrowthTicker()
         }
     }
     @ObservationIgnored private var _cachedSessionBuckets: (primary: [AgentSession], overflow: [AgentSession])?

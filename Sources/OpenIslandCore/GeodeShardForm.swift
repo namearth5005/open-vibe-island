@@ -67,7 +67,15 @@ public struct ShardForm: Equatable, Sendable {
     }
 
     /// Frame fraction a freshly-seeded stage-0 shard occupies.
-    static let minimumScale = 0.32
+    ///
+    /// This was 0.32, which measured fine in a side-by-side render and was
+    /// invisible in the real pill: 0.32 of an 18pt box, further reduced by facet
+    /// multipliers and the alternating notch, drew a mark about 3pt across.
+    /// A new session has to be *visible*, so growth is the change in size rather
+    /// than the difference between nothing and something. The cost is a smaller
+    /// growth range — roughly 2.6x the area from stage 0 to 6 instead of 10x —
+    /// which is the right trade at this scale.
+    static let minimumScale = 0.62
 }
 
 /// Small deterministic PRNG so the same seed always walks the same sequence.
