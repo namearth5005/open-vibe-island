@@ -10,6 +10,12 @@ struct SessionLogBackfillTests {
         return root
     }
 
+    /// Built per call rather than shared: `ISO8601DateFormatter` is not Sendable,
+    /// and Swift Testing runs these concurrently.
+    private func isoString(_ date: Date) -> String {
+        ISO8601DateFormatter().string(from: date)
+    }
+
     @discardableResult
     private func writeTranscript(
         root: URL,
@@ -17,20 +23,19 @@ struct SessionLogBackfillTests {
         sessionID: String,
         lines: Int,
         startedAt: String = "2026-07-30T10:00:00.000Z",
-        modifiedAt: Date
+        endedAt: Date
     ) -> URL {
         let dir = root.appendingPathComponent(project, isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         let fileURL = dir.appendingPathComponent("\(sessionID).jsonl")
 
         var body = "{\"timestamp\":\"\(startedAt)\",\"type\":\"user\"}\n"
-        for index in 1..<max(1, lines) {
+        for index in 1..<max(1, lines - 1) {
             body += "{\"type\":\"assistant\",\"n\":\(index)}\n"
         }
+        // Duration comes from the last in-file timestamp, never file mtime.
+        body += "{\"timestamp\":\"\(isoString(endedAt))\",\"type\":\"assistant\"}\n"
         try? body.write(to: fileURL, atomically: true, encoding: .utf8)
-        try? FileManager.default.setAttributes(
-            [.modificationDate: modifiedAt], ofItemAtPath: fileURL.path
-        )
         return fileURL
     }
 
@@ -40,7 +45,7 @@ struct SessionLogBackfillTests {
     func derivesARecordFromATranscript() {
         let root = makeRoot()
         writeTranscript(root: root, sessionID: "abc-123", lines: 10,
-                        modifiedAt: start.addingTimeInterval(600))
+                        endedAt: start.addingTimeInterval(600))
 
         let records = SessionLogBackfill(rootURL: root).derivedRecords(existingSessionIDs: [])
         #expect(records.count == 1)
@@ -56,7 +61,7 @@ struct SessionLogBackfillTests {
     func derivedRecordsNeverClaimInterruptsOrLatencies() {
         let root = makeRoot()
         writeTranscript(root: root, sessionID: "s1", lines: 10,
-                        modifiedAt: start.addingTimeInterval(600))
+                        endedAt: start.addingTimeInterval(600))
         let record = SessionLogBackfill(rootURL: root).derivedRecords(existingSessionIDs: []).first
         #expect(record?.wasInterrupted == false)
         #expect(record?.meanGateLatency == nil)
@@ -69,7 +74,7 @@ struct SessionLogBackfillTests {
     func alreadyKnownSessionsAreSkipped() {
         let root = makeRoot()
         writeTranscript(root: root, sessionID: "known", lines: 10,
-                        modifiedAt: start.addingTimeInterval(600))
+                        endedAt: start.addingTimeInterval(600))
         let records = SessionLogBackfill(rootURL: root)
             .derivedRecords(existingSessionIDs: ["known"])
         #expect(records.isEmpty)
@@ -79,7 +84,7 @@ struct SessionLogBackfillTests {
     func tinyTranscriptsAreSkippedAsAbortedStarts() {
         let root = makeRoot()
         writeTranscript(root: root, sessionID: "stub", lines: 2,
-                        modifiedAt: start.addingTimeInterval(600))
+                        endedAt: start.addingTimeInterval(600))
         #expect(SessionLogBackfill(rootURL: root).derivedRecords(existingSessionIDs: []).isEmpty)
     }
 
@@ -87,7 +92,7 @@ struct SessionLogBackfillTests {
     func veryShortSessionsAreSkipped() {
         let root = makeRoot()
         writeTranscript(root: root, sessionID: "blink", lines: 10,
-                        modifiedAt: start.addingTimeInterval(5))
+                        endedAt: start.addingTimeInterval(5))
         #expect(SessionLogBackfill(rootURL: root).derivedRecords(existingSessionIDs: []).isEmpty)
     }
 
@@ -98,8 +103,40 @@ struct SessionLogBackfillTests {
         let root = makeRoot()
         writeTranscript(root: root, project: "-Users-someone-repo/subagents",
                         sessionID: "sub-1", lines: 10,
-                        modifiedAt: start.addingTimeInterval(600))
+                        endedAt: start.addingTimeInterval(600))
         #expect(SessionLogBackfill(rootURL: root).derivedRecords(existingSessionIDs: []).isEmpty)
+    }
+
+    /// A resumed session appended to across days has a first-to-last span of
+    /// wall-clock calendar time, not agent runtime. Real data produced a 104-hour
+    /// "session"; counting that as runtime would make the headline meaningless.
+    @Test
+    func multiDaySpansAreExcludedRatherThanClamped() {
+        let root = makeRoot()
+        writeTranscript(root: root, sessionID: "resumed", lines: 10,
+                        endedAt: start.addingTimeInterval(104 * 3600))
+        #expect(SessionLogBackfill(rootURL: root).derivedRecords(existingSessionIDs: []).isEmpty)
+    }
+
+    @Test
+    func aSessionJustUnderTheDurationCapIsKept() {
+        let root = makeRoot()
+        writeTranscript(root: root, sessionID: "long-but-plausible", lines: 10,
+                        endedAt: start.addingTimeInterval(11 * 3600))
+        #expect(SessionLogBackfill(rootURL: root).derivedRecords(existingSessionIDs: []).count == 1)
+    }
+
+    @Test
+    func lastTimestampIsUsedForTheEndNotFileModificationTime() {
+        let root = makeRoot()
+        let url = writeTranscript(root: root, sessionID: "mtime-lies", lines: 10,
+                                  endedAt: start.addingTimeInterval(600))
+        // Push mtime years into the future; the derived duration must ignore it.
+        try? FileManager.default.setAttributes(
+            [.modificationDate: start.addingTimeInterval(400 * 86_400)], ofItemAtPath: url.path
+        )
+        let record = SessionLogBackfill(rootURL: root).derivedRecords(existingSessionIDs: []).first
+        #expect(record?.duration == 600)
     }
 
     @Test
