@@ -39,15 +39,44 @@ public struct GeodeState: Equatable, Sendable {
         shardsBySessionID[id]
     }
 
-    /// The shard the closed pill should render, or nil when nothing is live.
+    /// How long a finished shard stays on screen before the pill goes quiet.
     ///
-    /// Stalled sessions win outright: the freeze is the notification channel, so
-    /// it must never be hidden behind a session that merely started later.
-    public var displayed: GeodeShard? {
+    /// Without this the reward for finishing work is a sound and then nothing —
+    /// the shard vanishes the instant it is earned. Lingering leaves a visible
+    /// trace of the thing you just completed.
+    public static let lingerWindow: TimeInterval = 45
+
+    /// The shard the closed pill should render, or nil when nothing is live and
+    /// nothing finished recently.
+    ///
+    /// Priority: stalled beats running beats recently-finished. The freeze is the
+    /// notification channel, so it must never be hidden behind a session that
+    /// merely started later.
+    public func displayed(at now: Date) -> GeodeShard? {
         let live = shardsBySessionID.values.filter { !$0.isSet }
         let stalled = live.filter(\.isFrozen)
-        let pool = stalled.isEmpty ? live : stalled
-        return pool.max { lhs, rhs in
+
+        if let shard = mostRecent(stalled) { return shard }
+        if let shard = mostRecent(live) { return shard }
+
+        return mostRecent(
+            shardsBySessionID.values.filter {
+                $0.isSet && now.timeIntervalSince($0.updatedAt) <= Self.lingerWindow
+            }
+        )
+    }
+
+    /// Shards finished cleanly on the same local day as `now`. Drives the small
+    /// tally beside the live shard — the first thing in this feature that
+    /// accumulates rather than evaporating.
+    public func completedCount(on now: Date, calendar: Calendar = .current) -> Int {
+        shardsBySessionID.values.filter {
+            $0.isSet && !$0.isFractured && calendar.isDate($0.updatedAt, inSameDayAs: now)
+        }.count
+    }
+
+    private func mostRecent(_ shards: some Collection<GeodeShard>) -> GeodeShard? {
+        shards.max { lhs, rhs in
             if lhs.updatedAt == rhs.updatedAt {
                 return lhs.sessionID < rhs.sessionID
             }

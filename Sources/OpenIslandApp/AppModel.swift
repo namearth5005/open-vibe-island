@@ -914,10 +914,11 @@ final class AppModel {
     /// Cues are keyed off the *displayed* shard rather than any session, so a
     /// background session completing while another is on screen stays silent.
     private func applyGeodeEvent(_ event: AgentEvent) {
-        let wasFrozen = geodeState.displayed?.isFrozen == true
+        let now = Date()
+        let wasFrozen = geodeState.displayed(at: now)?.isFrozen == true
         geodeState.apply(event)
 
-        if geodeState.displayed?.isFrozen == true, !wasFrozen {
+        if geodeState.displayed(at: now)?.isFrozen == true, !wasFrozen {
             playGeodeCue(GeodeCue.stall)
         } else if case let .sessionCompleted(payload) = event,
                   let shard = geodeState.shard(id: payload.sessionID),
@@ -940,7 +941,7 @@ final class AppModel {
     /// the `islandRightSlot` setter. That keeps the setter free of side effects
     /// and costs at most one extra two-second tick after switching away.
     private func updateGeodeGrowthTicker() {
-        guard islandRightSlot == .geode, geodeState.displayed != nil else { return }
+        guard islandRightSlot == .geode, geodeState.displayed(at: Date()) != nil else { return }
         guard geodeGrowthTask == nil else { return }
 
         // `AppModel` is @MainActor, so this inherits main-actor isolation and
@@ -949,7 +950,8 @@ final class AppModel {
             while !Task.isCancelled {
                 try? await Task.sleep(for: AppModel.geodeGrowthInterval)
                 guard !Task.isCancelled, let self else { return }
-                guard self.islandRightSlot == .geode, self.geodeState.displayed != nil else {
+                guard self.islandRightSlot == .geode,
+                      self.geodeState.displayed(at: Date()) != nil else {
                     self.geodeGrowthTask = nil
                     return
                 }
@@ -971,8 +973,9 @@ final class AppModel {
             guard n > 0 else { return nil }
             return .count(n)
         case .geode:
-            guard let shard = geodeState.displayed else { return nil }
-            return .geode(shard)
+            let now = Date()
+            guard let shard = geodeState.displayed(at: now) else { return nil }
+            return .geode(shard, finishedToday: geodeState.completedCount(on: now))
         case .agents:
             // Display order = order-of-first-observation-in-the-island. A
             // session that later flips visibility (e.g. attachment churn,

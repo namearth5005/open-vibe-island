@@ -24,7 +24,8 @@ enum AgentGridCell: Equatable {
 enum IslandRightSlotContent: Equatable {
     case count(Int)              // "×N" badge
     case agents([AgentGridCell]) // balanced grid, one tile per session
-    case geode(GeodeShard)       // procedural shard for the featured session
+    // Shard for the featured session, plus how many finished cleanly today.
+    case geode(GeodeShard, finishedToday: Int)
 }
 
 // MARK: - Right-slot renderers
@@ -42,13 +43,29 @@ struct V6RightSlotView: View {
                 .foregroundStyle(V6Palette.paper.opacity(0.72))
         case .agents(let cells):
             AgentsGridBody(cells: cells)
-        case .geode(let shard):
-            GeodeShardView(shard: shard, size: Self.geodeSize)
+        case .geode(let shard, let finishedToday):
+            HStack(spacing: Self.geodeTallyGap) {
+                GeodeShardView(shard: shard, size: Self.geodeSize)
+                if finishedToday > 0 {
+                    Text("\(finishedToday)")
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(V6Palette.paper.opacity(0.6))
+                        .fixedSize()
+                }
+            }
         }
     }
 
     /// Fits inside the pill's ~20pt internal vertical budget with breathing room.
     static let geodeSize: CGFloat = 18
+    static let geodeTallyGap: CGFloat = 4
+
+    static func geodeIntrinsicWidth(finishedToday: Int) -> CGFloat {
+        guard finishedToday > 0 else { return geodeSize }
+        // 10pt mono is ~6.6pt/char.
+        let digits = CGFloat(String(finishedToday).count)
+        return geodeSize + geodeTallyGap + digits * 6.6
+    }
 
     /// Intrinsic width used by the fluid-layout math. Values are slightly
     /// padded beyond the raw text measurement so the pill always reserves
@@ -67,11 +84,11 @@ struct V6RightSlotView: View {
             let maxRow = rows.max() ?? 0
             let geom = cellGeometry(rowCount: rows.count)
             return CGFloat(maxRow) * geom.cell + CGFloat(max(0, maxRow - 1)) * geom.gap
-        case .geode:
-            // Fixed width: the shard grows within its box, so the pill must not
-            // resize on every growth step — that would be motion in peripheral
-            // vision every couple of minutes.
-            return geodeSize
+        case .geode(_, let finishedToday):
+            // The shard itself grows inside a fixed box so the pill does not
+            // resize on every growth step; only the tally can change the width,
+            // and that changes at most once per finished session.
+            return geodeIntrinsicWidth(finishedToday: finishedToday)
         }
     }
 
@@ -329,7 +346,7 @@ enum V6ClosedLayout: Equatable {
 private enum RightSlotKey: Hashable {
     case count(Int)
     case agents(Int)
-    case geode
+    case geode(Int)
 
     init(_ content: IslandRightSlotContent) {
         switch content {
@@ -338,7 +355,7 @@ private enum RightSlotKey: Hashable {
         // Deliberately carries no payload: the shard changes every growth step,
         // and keying the pill's width animation on it would restart that
         // animation every two seconds for no visual gain.
-        case .geode:           self = .geode
+        case .geode(_, let n):  self = .geode(n)
         }
     }
 }

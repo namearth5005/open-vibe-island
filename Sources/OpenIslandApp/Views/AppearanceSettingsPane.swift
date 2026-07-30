@@ -656,7 +656,7 @@ struct AppearanceSettingsPane: View {
         case .agents:
             return .agents(previewAgentCells)
         case .geode:
-            return previewGeodeShard.map { .geode($0) }
+            return previewGeodeShard.map { .geode($0, finishedToday: 3) }
         }
     }
 
@@ -680,7 +680,7 @@ struct AppearanceSettingsPane: View {
             )
         )
         state.advance(to: now)
-        return state.displayed
+        return state.displayed(at: now)
     }
 
     private var previewSessionSections: [AppearanceSessionPreviewSection] {

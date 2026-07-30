@@ -188,7 +188,7 @@ struct GeodeStateTests {
         state.apply(started("stuck", tool: .codex, at: t0))
         state.apply(phaseChange("stuck", .waitingForApproval, at: t0.addingTimeInterval(1)))
         state.apply(started("running", at: t0.addingTimeInterval(5)))
-        #expect(state.displayed?.sessionID == "stuck")
+        #expect(state.displayed(at: t0.addingTimeInterval(600))?.sessionID == "stuck")
     }
 
     @Test
@@ -196,7 +196,7 @@ struct GeodeStateTests {
         var state = GeodeState()
         state.apply(started("old", at: t0))
         state.apply(started("new", tool: .codex, at: t0.addingTimeInterval(5)))
-        #expect(state.displayed?.sessionID == "new")
+        #expect(state.displayed(at: t0.addingTimeInterval(600))?.sessionID == "new")
     }
 
     @Test
@@ -204,12 +204,12 @@ struct GeodeStateTests {
         var state = GeodeState()
         state.apply(started("s1", at: t0))
         state.apply(completed("s1", at: t0.addingTimeInterval(10)))
-        #expect(state.displayed == nil)
+        #expect(state.displayed(at: t0.addingTimeInterval(600)) == nil)
     }
 
     @Test
     func displayedIsNilOnEmptyState() {
-        #expect(GeodeState().displayed == nil)
+        #expect(GeodeState().displayed(at: t0) == nil)
     }
 
     // MARK: - Determinism and lifecycle
@@ -221,6 +221,66 @@ struct GeodeStateTests {
         a.apply(started("same-id", at: t0))
         b.apply(started("same-id", at: t0))
         #expect(a.shard(id: "same-id")?.form == b.shard(id: "same-id")?.form)
+    }
+
+    // MARK: - Linger and tally
+
+    /// Finishing work used to leave nothing behind: the shard vanished the moment
+    /// it was earned. It now lingers so the reward has a visible trace.
+    @Test
+    func aFinishedShardLingersBrieflyThenClears() {
+        var state = GeodeState()
+        state.apply(started("s1", at: t0))
+        let finishedAt = t0.addingTimeInterval(120)
+        state.apply(completed("s1", at: finishedAt))
+
+        #expect(state.displayed(at: finishedAt.addingTimeInterval(5))?.sessionID == "s1")
+        #expect(state.displayed(at: finishedAt.addingTimeInterval(GeodeState.lingerWindow - 1)) != nil)
+        #expect(state.displayed(at: finishedAt.addingTimeInterval(GeodeState.lingerWindow + 1)) == nil)
+    }
+
+    /// A running session must still outrank a lingering finished one, or the pill
+    /// would show stale work while something is actually happening.
+    @Test
+    func aRunningSessionOutranksALingeringFinishedOne() {
+        var state = GeodeState()
+        state.apply(started("done", at: t0))
+        state.apply(completed("done", at: t0.addingTimeInterval(10)))
+        state.apply(started("live", tool: .codex, at: t0.addingTimeInterval(12)))
+        #expect(state.displayed(at: t0.addingTimeInterval(20))?.sessionID == "live")
+    }
+
+    @Test
+    func completedCountTalliesCleanFinishesOnTheSameDay() {
+        var state = GeodeState()
+        for index in 0..<3 {
+            let id = "s\(index)"
+            state.apply(started(id, at: t0))
+            state.apply(completed(id, at: t0.addingTimeInterval(60)))
+        }
+        #expect(state.completedCount(on: t0.addingTimeInterval(60)) == 3)
+    }
+
+    /// Interrupted work is a record, not an achievement — it must not inflate the
+    /// tally, or the number stops meaning "work I finished".
+    @Test
+    func completedCountExcludesFracturedAndUnfinishedShards() {
+        var state = GeodeState()
+        state.apply(started("clean", at: t0))
+        state.apply(completed("clean", at: t0.addingTimeInterval(60)))
+        state.apply(started("broken", tool: .codex, at: t0))
+        state.apply(completed("broken", at: t0.addingTimeInterval(60), interrupt: true))
+        state.apply(started("running", tool: .cursor, at: t0))
+        #expect(state.completedCount(on: t0.addingTimeInterval(60)) == 1)
+    }
+
+    @Test
+    func completedCountIgnoresOtherDays() {
+        var state = GeodeState()
+        state.apply(started("yesterday", at: t0))
+        state.apply(completed("yesterday", at: t0.addingTimeInterval(60)))
+        let nextDay = t0.addingTimeInterval(60 * 60 * 30)
+        #expect(state.completedCount(on: nextDay) == 0)
     }
 
     // MARK: - Reconcile
@@ -254,7 +314,7 @@ struct GeodeStateTests {
                                   firstSeenAt: t0, updatedAt: t0.addingTimeInterval(60))
         state.reconcile(with: [session], now: t0.addingTimeInterval(450))
         #expect(state.shard(id: "discovered") != nil)
-        #expect(state.displayed?.sessionID == "discovered")
+        #expect(state.displayed(at: t0.addingTimeInterval(600))?.sessionID == "discovered")
         // ~7.5 minutes of elapsed time is growth stage 4.
         #expect(state.shard(id: "discovered")?.stage == 4)
     }
@@ -266,7 +326,7 @@ struct GeodeStateTests {
                                   firstSeenAt: t0, updatedAt: t0.addingTimeInterval(120))
         state.reconcile(with: [session], now: t0.addingTimeInterval(500))
         #expect(state.shard(id: "done")?.isSet == true)
-        #expect(state.displayed == nil)
+        #expect(state.displayed(at: t0.addingTimeInterval(600)) == nil)
     }
 
     @Test
