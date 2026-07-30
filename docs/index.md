@@ -27,6 +27,11 @@ This index is the repository map for humans and coding agents. Read these files 
 ## Superpowers Plans
 
 - [docs/superpowers/plans/2026-04-18-opencode-stability.md](./superpowers/plans/2026-04-18-opencode-stability.md) for the OpenCode stability implementation plan
+- [docs/superpowers/plans/2026-07-30-geode-phase-0-1.md](./superpowers/plans/2026-07-30-geode-phase-0-1.md) for the Geode session-shard Phase 0–1 implementation plan
+
+## Superpowers Specs
+
+- [docs/superpowers/specs/2026-07-30-geode-session-crystals-design.md](./superpowers/specs/2026-07-30-geode-session-crystals-design.md) for the Geode session-shard design, including the Phase 0 legibility gate outcome and rejected shape candidates
 
 ## Runtime And Product Notes
 
