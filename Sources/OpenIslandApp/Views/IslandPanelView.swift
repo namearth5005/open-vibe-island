@@ -705,6 +705,10 @@ struct IslandPanelView: View {
             }
 
             Spacer(minLength: 0)
+
+            // History lives here rather than only in Settings: the panel is what
+            // you actually open, and a statistic nobody sees motivates nobody.
+            shippedTodayBadge
         }
         .padding(.leading, sessionListSideInset)
         .padding(.trailing, sessionListSideInset)
@@ -713,6 +717,39 @@ struct IslandPanelView: View {
             Rectangle()
                 .fill(.white.opacity(0.055))
                 .frame(height: 1)
+        }
+    }
+
+    /// Today's clean finishes, with this week against last week.
+    ///
+    /// Reads the same `SessionStats` call as the pill tally and the Stats tab, so
+    /// all three can never disagree. Hidden entirely at zero — a zero here would
+    /// read as a reproach on a day you have not shipped yet, and nothing in this
+    /// feature is allowed to ask anything of the user.
+    @ViewBuilder
+    private var shippedTodayBadge: some View {
+        let now = Date()
+        let today = SessionStats.cleanFinishesToday(records: model.sessionLogRecords, now: now)
+
+        if today > 0 {
+            let comparison = SessionStats.comparison(records: model.sessionLogRecords, now: now)
+            HStack(spacing: 5) {
+                Text(model.lang.t("island.shippedToday", today))
+                    .font(.system(size: 10.5, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(V6Palette.paper.opacity(0.48))
+
+                if comparison.priorSeven > 0, comparison.delta != 0 {
+                    Text(comparison.delta > 0 ? "+\(comparison.delta)" : "\(comparison.delta)")
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(
+                            comparison.delta > 0
+                                ? IslandDesignPalette.Status.completed
+                                : V6Palette.paper.opacity(0.3)
+                        )
+                }
+            }
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
         }
     }
 

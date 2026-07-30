@@ -242,3 +242,4 @@
 "settings.stats.comparison.bestToday" = "今天追平了你的最佳单日。";
 "settings.stats.byAgent" = "按代理";
 "settings.stats.empty" = "还没有完成的会话。运行一个代理后这里就会有数据。";
+"island.shippedToday" = "今天完成 %lld";
