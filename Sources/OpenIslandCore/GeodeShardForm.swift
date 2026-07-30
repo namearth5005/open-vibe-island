@@ -1,11 +1,11 @@
 import Foundation
 
-/// Deterministic seed for a session's crystal.
+/// Deterministic seed for a session's shard.
 ///
 /// Deliberately NOT `hashValue`: Swift seeds `Hasher` randomly per process, so
-/// using it would give the same session a different crystal on every launch and
+/// using it would give the same session a different shard on every launch and
 /// break the spec's recomputability guarantee. FNV-1a is stable forever.
-public enum CrystalSeed {
+public enum ShardSeed {
     public static func value(for sessionID: String) -> UInt64 {
         var hash: UInt64 = 0xcbf29ce484222325
         for byte in sessionID.utf8 {
@@ -16,18 +16,22 @@ public enum CrystalSeed {
     }
 }
 
-/// Geometry parameters for one crystal. Derived, never stored.
-public struct CrystalForm: Equatable, Sendable {
+/// Geometry parameters for one shard. Derived, never stored.
+public struct ShardForm: Equatable, Sendable {
     /// Per-facet radius multipliers, walking the silhouette clockwise.
     public let facets: [Double]
-    /// Rotation of the whole silhouette, radians.
+    /// Rotation of the whole silhouette, radians, over a full turn.
+    ///
+    /// A narrow tilt range made every shard lean the same way, which read as
+    /// "the same shape" at 20pt even when the facets differed. Free rotation is
+    /// the cheapest source of apparent variety at this size.
     public let tilt: Double
     /// Vertical stretch. 1.0 is round; below 1 is squat, above is tall.
     public let elongation: Double
     /// Fraction of the available frame the silhouette fills, driven by stage.
     ///
     /// Without this, growth only added facets — and more facets at a fixed radius
-    /// reads as *rounder*, not *bigger*, so the crystal never appeared to grow.
+    /// reads as *rounder*, not *bigger*, so the shard never appeared to grow.
     /// Stage 0 fills about a third of the frame; stage 6 fills it.
     public let scale: Double
 
@@ -46,7 +50,7 @@ public struct CrystalForm: Equatable, Sendable {
         return min(6, max(0, Int(value.rounded(.down))))
     }
 
-    public static func make(seed: UInt64, stage: Int) -> CrystalForm {
+    public static func make(seed: UInt64, stage: Int) -> ShardForm {
         var rng = SplitMix64(state: seed)
         let clampedStage = min(6, max(0, stage))
         // 3 facets at stage 0 growing to 9 at stage 6.
@@ -54,15 +58,15 @@ public struct CrystalForm: Equatable, Sendable {
         let facets = (0..<facetCount).map { _ in
             0.55 + rng.nextUnitDouble() * 0.45
         }
-        let tilt = (rng.nextUnitDouble() - 0.5) * 0.7
+        let tilt = rng.nextUnitDouble() * 2 * Double.pi
         let elongation = 0.75 + rng.nextUnitDouble() * 0.6
-        // Linear in stage, so a stage-6 crystal covers roughly 10x the area of
+        // Linear in stage, so a stage-6 shard covers roughly 10x the area of
         // a stage-0 one — growth has to be obvious at 20pt or it isn't growth.
         let scale = Self.minimumScale + Double(clampedStage) / 6.0 * (1.0 - Self.minimumScale)
-        return CrystalForm(facets: facets, tilt: tilt, elongation: elongation, scale: scale)
+        return ShardForm(facets: facets, tilt: tilt, elongation: elongation, scale: scale)
     }
 
-    /// Frame fraction a freshly-seeded stage-0 crystal occupies.
+    /// Frame fraction a freshly-seeded stage-0 shard occupies.
     static let minimumScale = 0.32
 }
 
