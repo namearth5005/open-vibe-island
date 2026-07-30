@@ -21,6 +21,13 @@ final class OpenIslandAppDelegate: NSObject, NSApplicationDelegate {
             model.harnessRuntimeMonitor = harnessRuntimeMonitor
             harnessRuntimeMonitor.recordLog(model.lastActionMessage)
 
+            // Real launches only. Under a harness scenario the session log would
+            // be polluted with synthetic runs, and the back-fill's transcript
+            // walk would slow deterministic smoke runs for no benefit.
+            if harnessLaunchConfiguration.scenario == nil {
+                model.startSessionLogging()
+            }
+
             model.ignoresPointerExitDuringHarness = harnessLaunchConfiguration.scenario != nil
             model.disablesOverlayEventMonitoringDuringHarness = harnessLaunchConfiguration.scenario != nil
             model.startIfNeeded(

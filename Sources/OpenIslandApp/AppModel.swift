@@ -626,10 +626,10 @@ final class AppModel {
             startWatchRelay()
         }
 
-        // Before any UI renders: the pill tally reads this during layout, and an
-        // empty mirror would flash a zero before the real number arrives.
-        loadSessionLog()
-        backfillSessionLogIfNeeded()
+        // Session logging is started explicitly from the app entry point, not
+        // here: `init` must stay free of filesystem work so tests can construct
+        // an AppModel without reading the user's real log or walking every
+        // transcript in ~/.claude/projects. See `startSessionLogging()`.
 
         overlay.appModel = self
         overlay.restoreDisplayPreference()
@@ -904,6 +904,17 @@ final class AppModel {
     /// sessions finish — the pill tally is read during view rendering, and
     /// touching the filesystem there would be wrong.
     private(set) var sessionLogRecords: [SessionLogRecord] = []
+
+    /// Load history and kick off back-fill. Called once from the app entry
+    /// point.
+    ///
+    /// Deliberately not called from `init`: constructing an `AppModel` happens
+    /// in dozens of tests, and doing filesystem work there would read and write
+    /// the user's real log and walk every transcript on disk on every one.
+    func startSessionLogging() {
+        loadSessionLog()
+        backfillSessionLogIfNeeded()
+    }
 
     func loadSessionLog() {
         sessionLogRecords = sessionLog.load()
