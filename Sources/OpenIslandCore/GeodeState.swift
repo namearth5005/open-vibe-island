@@ -25,6 +25,17 @@ public struct GeodeShard: Equatable, Sendable {
     public var form: ShardForm {
         ShardForm.make(seed: ShardSeed.value(for: sessionID), stage: stage)
     }
+
+    /// Mean seconds the human took to answer this session's gates.
+    ///
+    /// Frozen time is, by construction, exactly the time spent waiting on the
+    /// human — so total frozen seconds over stall count is the mean answer
+    /// latency, with no extra bookkeeping. `nil` when there were no gates, which
+    /// is meaningfully different from zero.
+    public var meanGateLatency: Double? {
+        guard stallCount > 0 else { return nil }
+        return frozenSeconds / Double(stallCount)
+    }
 }
 
 /// Pure reducer over `AgentEvent`, mirroring the project rule that session

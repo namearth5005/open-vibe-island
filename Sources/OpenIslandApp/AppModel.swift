@@ -626,6 +626,11 @@ final class AppModel {
             startWatchRelay()
         }
 
+        // Before any UI renders: the pill tally reads this during layout, and an
+        // empty mirror would flash a zero before the real number arrives.
+        loadSessionLog()
+        backfillSessionLogIfNeeded()
+
         overlay.appModel = self
         overlay.restoreDisplayPreference()
         overlay.startObservingDisplayChanges()
@@ -891,6 +896,70 @@ final class AppModel {
     /// projection — nothing outside `GeodeState.apply(_:)` may mutate it.
     private(set) var geodeState = GeodeState()
 
+    /// Durable history of finished sessions. The Stats view and the pill tally
+    /// both read this, so they cannot disagree.
+    let sessionLog = SessionLogStore()
+
+    /// In-memory mirror of the log. Loaded once at launch and appended to as
+    /// sessions finish — the pill tally is read during view rendering, and
+    /// touching the filesystem there would be wrong.
+    private(set) var sessionLogRecords: [SessionLogRecord] = []
+
+    func loadSessionLog() {
+        sessionLogRecords = sessionLog.load()
+    }
+
+    /// Derive history from transcripts already on disk, once, in the background.
+    ///
+    /// Runs off the main actor because it walks every transcript in
+    /// `~/.claude/projects` — over a thousand files on an established machine —
+    /// and blocking launch on that would be unacceptable for a feature nobody
+    /// asked to wait for. Idempotent: sessions already in the log are skipped, so
+    /// this is safe to run on every launch, and anything the live event path
+    /// recorded always wins over inference.
+    func backfillSessionLogIfNeeded() {
+        // Only the file URL crosses the actor boundary. `SessionLogStore` holds a
+        // FileManager and is deliberately not Sendable, so it is rebuilt inside
+        // the task rather than captured.
+        let fileURL = sessionLog.fileURL
+        let known = Set(sessionLogRecords.map(\.sessionID))
+
+        Task.detached(priority: .utility) {
+            let derived = SessionLogBackfill().derivedRecords(existingSessionIDs: known)
+            guard !derived.isEmpty else { return }
+
+            let store = SessionLogStore(fileURL: fileURL)
+            for record in derived {
+                store.append(record)
+            }
+
+            await MainActor.run { [weak self] in
+                self?.loadSessionLog()
+            }
+        }
+    }
+
+    /// Record a finished session. Best-effort: a logging failure must never
+    /// affect monitoring, so there is nothing to surface on the failure path.
+    private func recordFinishedSession(_ sessionID: String) {
+        guard let shard = geodeState.shard(id: sessionID), shard.isSet else { return }
+        guard !sessionLogRecords.contains(where: { $0.sessionID == sessionID }) else { return }
+
+        let record = SessionLogRecord(
+            sessionID: sessionID,
+            tool: shard.tool,
+            workspace: state.session(id: sessionID)?.jumpTarget?.workspaceName,
+            startedAt: shard.startedAt,
+            endedAt: shard.updatedAt,
+            wasInterrupted: shard.isFractured,
+            stallCount: shard.stallCount,
+            meanGateLatency: shard.meanGateLatency
+        )
+
+        sessionLogRecords.append(record)
+        sessionLog.append(record)
+    }
+
     /// Drives shard growth. Elapsed time is not an event, so it needs a tick.
     /// Runs only while the geode slot is selected and something is live, so an
     /// idle machine or a user on another slot does no work at all.
@@ -924,6 +993,10 @@ final class AppModel {
                   let shard = geodeState.shard(id: payload.sessionID),
                   shard.isSet {
             playGeodeCue(shard.isFractured ? GeodeCue.fracture : GeodeCue.set)
+        }
+
+        if case let .sessionCompleted(payload) = event {
+            recordFinishedSession(payload.sessionID)
         }
 
         updateGeodeGrowthTicker()
@@ -975,7 +1048,10 @@ final class AppModel {
         case .geode:
             let now = Date()
             guard let shard = geodeState.displayed(at: now) else { return nil }
-            return .geode(shard, finishedToday: geodeState.completedCount(on: now))
+            // Reads the durable log rather than in-memory shard state, so the
+            // tally survives a relaunch and matches the Stats view exactly.
+            let tally = SessionStats.cleanFinishesToday(records: sessionLogRecords, now: now)
+            return .geode(shard, finishedToday: tally)
         case .agents:
             // Display order = order-of-first-observation-in-the-island. A
             // session that later flips visibility (e.g. attachment churn,
