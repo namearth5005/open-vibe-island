@@ -1,7 +1,7 @@
 # Session Log and Stats
 
 **Date:** 2026-07-31
-**Status:** Design approved, not yet implemented
+**Status:** Implemented — see the Implementation notes at the end
 **Depends on:** the Geode shard shipped in `docs/geode-spec` (its in-memory tally is rewired to read from this log)
 
 ## Summary
@@ -180,3 +180,39 @@ requirement. New keys under `settings.tab.stats` and `settings.stats.*`.
 - Open Island's roadmap marks product ideas "Conditionally Open — open an issue first." An
   issue must be filed and accepted before a PR lands. That decision is the maintainer's.
 - Conventional commits; PR targets `main`; project is GPL-3.0.
+
+
+## Implementation notes — 2026-07-31
+
+Shipped on `docs/geode-spec`. Deviations from the design above, all deliberate:
+
+**Back-fill was built, not deferred.** The spec listed it under Risks as "worth
+reconsidering before release". It was promoted because empty stats on day one is the
+single biggest threat to the feature landing, and the user had ~1,249 transcripts sitting
+on disk. Against real data it yields 55 historical sessions.
+
+**Back-fill derives end times from the last in-transcript timestamp, not file mtime.**
+Probing real data with mtime produced a "session" of 104 hours, because a resumed session
+rewrites its mtime days after the work happened. Spans over 12 hours are now excluded
+outright rather than clamped — clamping would be inventing a duration. This moved the
+derived count from 115 to 55, all of them true.
+
+**Back-fill reads only the head and tail of each transcript.** Reading all 1,249 files in
+full took 27 seconds; head-and-tail takes 0.86.
+
+**Session logging starts from the app entry point, not `AppModel.init`.** Doing filesystem
+work in `init` meant every `AppModel` constructed in a test read the real log and walked
+every transcript — the suite went from 1.5s to 6.4s and gained failures. It is also skipped
+under a harness scenario so smoke runs stay deterministic.
+
+**Stats also appear in the island panel**, not only in Settings: the session-list header
+carries today's clean finishes and the week-over-week delta. A statistic nobody sees
+motivates nobody. It is hidden entirely at zero, so it never reads as a reproach.
+
+**Observed on real data at time of writing:** 6 finished today, 31 in the last 7 days
+against 8 the week before, best day 8, 131 agent-hours all time.
+
+**Still not done:** the `AppModelSessionListTests` and `AgentsGridRightSlotTests` suites
+fail with 6 issues, reproduced identically on a pre-change baseline worktree. Those tests
+leak real `UserDefaults` and are environment-dependent. Not caused by this work, and worth
+a separate fix.

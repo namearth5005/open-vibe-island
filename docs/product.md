@@ -47,6 +47,7 @@ CLI coding agents are powerful, but they pull attention away from the editor and
 
 ## Features
 
+- **Stats** — durable log of finished sessions with today / 7-day / all-time views, per-agent split, week-over-week comparison and personal best; back-filled from existing transcripts on first launch
 - **Session shard** — optional right-slot mode: a procedural shard that grows while an agent runs, desaturates when a session blocks on you, and fractures on interrupt
 - **Notch overlay** — sits in the notch area on notch Macs, falls back to a compact top-center bar on external displays or non-notch Macs
 - **Settings** — hook install/uninstall, usage dashboard, General, Display, Sound, Shortcuts, Lab, About
