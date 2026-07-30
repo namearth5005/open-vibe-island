@@ -10,6 +10,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case display
     case sound
     case appearance
+    case stats
     case watch
     case shortcuts
     case lab
@@ -22,6 +23,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .general:    lang.t("settings.tab.general")
         case .setup:      lang.t("settings.tab.setup")
         case .appearance: lang.t("settings.tab.appearance")
+        case .stats:      lang.t("settings.tab.stats")
         case .display:    lang.t("settings.tab.display")
         case .sound:      lang.t("settings.tab.sound")
         case .watch:      "Watch"
@@ -36,6 +38,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .general:    "gearshape.fill"
         case .setup:      "arrow.down.circle.fill"
         case .appearance: "paintbrush.fill"
+        case .stats:      "chart.bar.fill"
         case .display:    "textformat.size"
         case .sound:      "speaker.wave.2.fill"
         case .watch:      "applewatch"
@@ -50,6 +53,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .general:    .gray
         case .setup:      .orange
         case .appearance: .purple
+        case .stats:      .yellow
         case .display:    .blue
         case .sound:      .green
         case .watch:      .cyan
@@ -61,7 +65,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
 
     var section: SettingsSection {
         switch self {
-        case .general, .setup, .display, .sound, .appearance, .watch: .system
+        case .general, .setup, .display, .sound, .appearance, .stats, .watch: .system
         case .shortcuts, .lab:                                        .advanced
         case .about:                                                  .app
         }
@@ -142,6 +146,8 @@ struct SettingsView: View {
                 SetupSettingsPane(model: model)
             case .appearance:
                 AppearanceSettingsPane(model: model)
+            case .stats:
+                StatsSettingsPane(model: model)
             case .display:
                 DisplaySettingsPane(model: model)
             case .sound:

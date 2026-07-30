@@ -226,3 +226,19 @@
 
 /* Window Titles */
 "window.settings" = "Open Island Settings";
+
+// Stats
+"settings.tab.stats" = "Stats";
+"settings.stats.range.today" = "Today";
+"settings.stats.range.sevenDays" = "7 days";
+"settings.stats.range.allTime" = "All time";
+"settings.stats.metric.finished" = "Sessions finished";
+"settings.stats.metric.runtime" = "Agent runtime";
+"settings.stats.metric.gateLatency" = "Median reply time";
+"settings.stats.metric.interrupted" = "Interrupted";
+"settings.stats.comparison.title" = "Compared with before";
+"settings.stats.comparison.thisWeek" = "Last 7 days";
+"settings.stats.comparison.best" = "Best day";
+"settings.stats.comparison.bestToday" = "Today matches your best day.";
+"settings.stats.byAgent" = "By agent";
+"settings.stats.empty" = "No finished sessions yet. Run an agent and this fills in.";

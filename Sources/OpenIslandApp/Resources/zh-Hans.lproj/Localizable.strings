@@ -226,3 +226,19 @@
 
 /* Window Titles */
 "window.settings" = "Open Island 设置";
+
+// Stats
+"settings.tab.stats" = "统计";
+"settings.stats.range.today" = "今天";
+"settings.stats.range.sevenDays" = "近 7 天";
+"settings.stats.range.allTime" = "全部";
+"settings.stats.metric.finished" = "完成的会话";
+"settings.stats.metric.runtime" = "代理运行时长";
+"settings.stats.metric.gateLatency" = "响应中位时间";
+"settings.stats.metric.interrupted" = "被中断";
+"settings.stats.comparison.title" = "与此前对比";
+"settings.stats.comparison.thisWeek" = "近 7 天";
+"settings.stats.comparison.best" = "最佳单日";
+"settings.stats.comparison.bestToday" = "今天追平了你的最佳单日。";
+"settings.stats.byAgent" = "按代理";
+"settings.stats.empty" = "还没有完成的会话。运行一个代理后这里就会有数据。";
