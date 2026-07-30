@@ -28,6 +28,7 @@ enum TrackedEventIngress {
 enum IslandRightSlot: String, CaseIterable, Identifiable, Sendable {
     case count   // "×N" badge
     case agents  // colored dot stack, one per active agent tool
+    case geode   // procedural shard for the featured session, grows as it runs
     case none    // pill collapses — useful if you just want the bars
 
     var id: String { rawValue }

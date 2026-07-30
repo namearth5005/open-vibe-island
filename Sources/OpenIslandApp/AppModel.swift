@@ -879,6 +879,79 @@ final class AppModel {
         }
     }
 
+    // MARK: - Geode
+
+    /// Shard state derived from the same event stream as `state`. Purely a
+    /// projection — nothing outside `GeodeState.apply(_:)` may mutate it.
+    private(set) var geodeState = GeodeState()
+
+    /// Drives shard growth. Elapsed time is not an event, so it needs a tick.
+    /// Runs only while the geode slot is selected and something is live, so an
+    /// idle machine or a user on another slot does no work at all.
+    private var geodeGrowthTask: Task<Void, Never>?
+
+    /// Shards accrete roughly every two seconds, so a two-second tick is enough
+    /// to look continuous without waking the main actor needlessly.
+    private static let geodeGrowthInterval: Duration = .seconds(2)
+
+    /// System sounds rather than synthesised cues: they ship no asset files and
+    /// already honour the user's mute toggle. `stall` is the load-bearing one —
+    /// it is the audible half of the notification.
+    private enum GeodeCue {
+        static let stall = "Morse"
+        static let set = "Glass"
+        static let fracture = "Basso"
+    }
+
+    /// Feeds the shard reducer and fires at most one cue per event.
+    ///
+    /// Cues are keyed off the *displayed* shard rather than any session, so a
+    /// background session completing while another is on screen stays silent.
+    private func applyGeodeEvent(_ event: AgentEvent) {
+        let wasFrozen = geodeState.displayed?.isFrozen == true
+        geodeState.apply(event)
+
+        if geodeState.displayed?.isFrozen == true, !wasFrozen {
+            playGeodeCue(GeodeCue.stall)
+        } else if case let .sessionCompleted(payload) = event,
+                  let shard = geodeState.shard(id: payload.sessionID),
+                  shard.isSet {
+            playGeodeCue(shard.isFractured ? GeodeCue.fracture : GeodeCue.set)
+        }
+
+        updateGeodeGrowthTicker()
+    }
+
+    private func playGeodeCue(_ name: String) {
+        guard islandRightSlot == .geode, !isSoundMuted else { return }
+        NotificationSoundService.play(name)
+    }
+
+    /// Starts the growth ticker if it should be running.
+    ///
+    /// The ticker re-checks its own preconditions every tick and retires itself
+    /// when the slot changes or nothing is live, rather than being stopped from
+    /// the `islandRightSlot` setter. That keeps the setter free of side effects
+    /// and costs at most one extra two-second tick after switching away.
+    private func updateGeodeGrowthTicker() {
+        guard islandRightSlot == .geode, geodeState.displayed != nil else { return }
+        guard geodeGrowthTask == nil else { return }
+
+        // `AppModel` is @MainActor, so this inherits main-actor isolation and
+        // mutates `geodeState` safely without an explicit hop.
+        geodeGrowthTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: AppModel.geodeGrowthInterval)
+                guard !Task.isCancelled, let self else { return }
+                guard self.islandRightSlot == .geode, self.geodeState.displayed != nil else {
+                    self.geodeGrowthTask = nil
+                    return
+                }
+                self.geodeState.advance(to: Date())
+            }
+        }
+    }
+
     /// Right-slot payload derived from the user's `islandRightSlot`
     /// preference and current live state. Returns nil when the preference
     /// is `.none` or there's nothing meaningful to show.
@@ -891,6 +964,9 @@ final class AppModel {
             let n = sessions.count
             guard n > 0 else { return nil }
             return .count(n)
+        case .geode:
+            guard let shard = geodeState.displayed else { return nil }
+            return .geode(shard)
         case .agents:
             // Display order = order-of-first-observation-in-the-island. A
             // session that later flips visibility (e.g. attachment churn,
@@ -1499,6 +1575,7 @@ final class AppModel {
         }
 
         state.apply(event)
+        applyGeodeEvent(event)
         reconcileIslandSurfaceAfterStateChange()
         if ingress == .bridge {
             monitoring.markSessionAttached(for: event)

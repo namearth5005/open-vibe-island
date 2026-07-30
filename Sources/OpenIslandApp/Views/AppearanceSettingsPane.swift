@@ -263,6 +263,8 @@ struct AppearanceSettingsPane: View {
                           title: lang.t("settings.appearance.rightSlot.count"))
             rightSlotCard(.agents, icon: { AgentsMiniGridPreview() },
                           title: lang.t("settings.appearance.rightSlot.agents"))
+            rightSlotCard(.geode,  icon: { GeodeMiniPreview() },
+                          title: lang.t("settings.appearance.rightSlot.geode"))
             rightSlotCard(.none,   icon: { Text("—")
                                       .font(.system(size: 14, weight: .semibold, design: .monospaced))
                                       .foregroundStyle(V6Palette.paper.opacity(0.5)) },
@@ -653,7 +655,32 @@ struct AppearanceSettingsPane: View {
         case .count: return .count(3)
         case .agents:
             return .agents(previewAgentCells)
+        case .geode:
+            return previewGeodeShard.map { .geode($0) }
         }
+    }
+
+    /// Built by driving the real reducer rather than constructing a shard
+    /// directly, so the preview cannot drift from shipping behaviour.
+    private var previewGeodeShard: GeodeShard? {
+        guard previewMode != .idle else { return nil }
+        let now = Date()
+        var state = GeodeState()
+        state.apply(
+            .sessionStarted(
+                SessionStarted(
+                    sessionID: "appearance-preview",
+                    title: "Preview",
+                    tool: .claudeCode,
+                    initialPhase: previewMode == .waiting ? .waitingForApproval : .running,
+                    summary: "",
+                    // ~7.5 minutes back, which lands on growth stage 4 of 6.
+                    timestamp: now.addingTimeInterval(-450)
+                )
+            )
+        )
+        state.advance(to: now)
+        return state.displayed
     }
 
     private var previewSessionSections: [AppearanceSessionPreviewSection] {
@@ -1355,6 +1382,18 @@ private struct CountBadgePreview: View {
         Text("×\(count)")
             .font(.system(size: 12, weight: .semibold, design: .monospaced))
             .foregroundStyle(V6Palette.paper.opacity(0.72))
+    }
+}
+
+/// Static shard thumbnail for the right-slot option card. Uses a fixed seed so
+/// the card looks the same every time the pane is opened.
+private struct GeodeMiniPreview: View {
+    var body: some View {
+        GeodeShardShape(
+            form: ShardForm.make(seed: ShardSeed.value(for: "settings-card"), stage: 4)
+        )
+        .fill(Color(hex: AgentTool.claudeCode.brandColorHex) ?? .white)
+        .frame(width: 16, height: 16)
     }
 }
 

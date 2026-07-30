@@ -58,6 +58,7 @@
 "settings.appearance.rightSlot.note" = "What shows on the right of the closed island.";
 "settings.appearance.rightSlot.count" = "Count";
 "settings.appearance.rightSlot.agents" = "Agents";
+"settings.appearance.rightSlot.geode" = "Shard";
 "settings.appearance.rightSlot.none" = "None";
 "settings.appearance.centerLabel.title" = "02 · Center label";
 "settings.appearance.centerLabel.note" = "External displays only — the physical notch covers this space on MacBook.";
