@@ -32,6 +32,7 @@ This index is the repository map for humans and coding agents. Read these files 
 ## Superpowers Specs
 
 - [docs/superpowers/specs/2026-07-30-geode-session-crystals-design.md](./superpowers/specs/2026-07-30-geode-session-crystals-design.md) for the Geode session-shard design, including the Phase 0 legibility gate outcome and rejected shape candidates
+- [docs/superpowers/specs/2026-07-31-session-log-and-stats-design.md](./superpowers/specs/2026-07-31-session-log-and-stats-design.md) for the session log and Stats view design
 
 ## Runtime And Product Notes
 
