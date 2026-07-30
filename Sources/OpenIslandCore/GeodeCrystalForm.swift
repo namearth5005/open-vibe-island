@@ -1,0 +1,76 @@
+import Foundation
+
+/// Deterministic seed for a session's crystal.
+///
+/// Deliberately NOT `hashValue`: Swift seeds `Hasher` randomly per process, so
+/// using it would give the same session a different crystal on every launch and
+/// break the spec's recomputability guarantee. FNV-1a is stable forever.
+public enum CrystalSeed {
+    public static func value(for sessionID: String) -> UInt64 {
+        var hash: UInt64 = 0xcbf29ce484222325
+        for byte in sessionID.utf8 {
+            hash ^= UInt64(byte)
+            hash = hash &* 0x100000001b3
+        }
+        return hash
+    }
+}
+
+/// Geometry parameters for one crystal. Derived, never stored.
+public struct CrystalForm: Equatable, Sendable {
+    /// Per-facet radius multipliers, walking the silhouette clockwise.
+    public let facets: [Double]
+    /// Rotation of the whole silhouette, radians.
+    public let tilt: Double
+    /// Vertical stretch. 1.0 is round; below 1 is squat, above is tall.
+    public let elongation: Double
+
+    public init(facets: [Double], tilt: Double, elongation: Double) {
+        self.facets = facets
+        self.tilt = tilt
+        self.elongation = elongation
+    }
+
+    /// Growth stage 0...6 from elapsed run seconds.
+    /// `floor(log2(1 + duration / 30))`, so stage 6 lands at ~31.5 minutes.
+    public static func stage(forDuration seconds: TimeInterval) -> Int {
+        guard seconds > 0 else { return 0 }
+        let value = Foundation.log2(1.0 + seconds / 30.0)
+        return min(6, max(0, Int(value.rounded(.down))))
+    }
+
+    public static func make(seed: UInt64, stage: Int) -> CrystalForm {
+        var rng = SplitMix64(state: seed)
+        let clampedStage = min(6, max(0, stage))
+        // 3 facets at stage 0 growing to 9 at stage 6.
+        let facetCount = 3 + clampedStage
+        let facets = (0..<facetCount).map { _ in
+            0.55 + rng.nextUnitDouble() * 0.45
+        }
+        let tilt = (rng.nextUnitDouble() - 0.5) * 0.7
+        let elongation = 0.75 + rng.nextUnitDouble() * 0.6
+        return CrystalForm(facets: facets, tilt: tilt, elongation: elongation)
+    }
+}
+
+/// Small deterministic PRNG so the same seed always walks the same sequence.
+struct SplitMix64 {
+    private var state: UInt64
+
+    init(state: UInt64) {
+        self.state = state
+    }
+
+    mutating func next() -> UInt64 {
+        state = state &+ 0x9e3779b97f4a7c15
+        var z = state
+        z = (z ^ (z >> 30)) &* 0xbf58476d1ce4e5b9
+        z = (z ^ (z >> 27)) &* 0x94d049bb133111eb
+        return z ^ (z >> 31)
+    }
+
+    /// Uniform in 0..<1.
+    mutating func nextUnitDouble() -> Double {
+        Double(next() >> 11) * (1.0 / 9_007_199_254_740_992.0)
+    }
+}
