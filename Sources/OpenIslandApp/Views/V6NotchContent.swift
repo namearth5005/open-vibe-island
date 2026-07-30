@@ -26,6 +26,9 @@ enum IslandRightSlotContent: Equatable {
     case agents([AgentGridCell]) // balanced grid, one tile per session
     // Shard for the featured session, plus how many finished cleanly today.
     case geode(GeodeShard, finishedToday: Int)
+    // Nothing running, but work was finished today. Keeps the pill informative
+    // on a day you have shipped rather than blanking the moment agents go quiet.
+    case geodeTallyOnly(finishedToday: Int)
 }
 
 // MARK: - Right-slot renderers
@@ -47,13 +50,21 @@ struct V6RightSlotView: View {
             HStack(spacing: Self.geodeTallyGap) {
                 GeodeShardView(shard: shard, size: Self.geodeSize)
                 if finishedToday > 0 {
-                    Text("\(finishedToday)")
-                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(V6Palette.paper.opacity(0.6))
-                        .fixedSize()
+                    geodeTally(finishedToday)
                 }
             }
+        case .geodeTallyOnly(let finishedToday):
+            // Dimmer than the live variant: this is a record of what happened,
+            // not a report of something happening now.
+            geodeTally(finishedToday, opacity: 0.42)
         }
+    }
+
+    private func geodeTally(_ count: Int, opacity: Double = 0.6) -> some View {
+        Text("\(count)")
+            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+            .foregroundStyle(V6Palette.paper.opacity(opacity))
+            .fixedSize()
     }
 
     /// Fits inside the pill's ~20pt internal vertical budget with breathing room.
@@ -89,6 +100,8 @@ struct V6RightSlotView: View {
             // resize on every growth step; only the tally can change the width,
             // and that changes at most once per finished session.
             return geodeIntrinsicWidth(finishedToday: finishedToday)
+        case .geodeTallyOnly(let finishedToday):
+            return CGFloat(String(finishedToday).count) * 6.6
         }
     }
 
@@ -347,6 +360,7 @@ private enum RightSlotKey: Hashable {
     case count(Int)
     case agents(Int)
     case geode(Int)
+    case geodeTally(Int)
 
     init(_ content: IslandRightSlotContent) {
         switch content {
@@ -355,7 +369,8 @@ private enum RightSlotKey: Hashable {
         // Deliberately carries no payload: the shard changes every growth step,
         // and keying the pill's width animation on it would restart that
         // animation every two seconds for no visual gain.
-        case .geode(_, let n):  self = .geode(n)
+        case .geode(_, let n):        self = .geode(n)
+        case .geodeTallyOnly(let n):  self = .geodeTally(n)
         }
     }
 }

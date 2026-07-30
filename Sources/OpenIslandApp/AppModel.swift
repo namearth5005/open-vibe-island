@@ -1058,10 +1058,15 @@ final class AppModel {
             return .count(n)
         case .geode:
             let now = Date()
-            guard let shard = geodeState.displayed(at: now) else { return nil }
             // Reads the durable log rather than in-memory shard state, so the
             // tally survives a relaunch and matches the Stats view exactly.
             let tally = SessionStats.cleanFinishesToday(records: sessionLogRecords, now: now)
+            guard let shard = geodeState.displayed(at: now) else {
+                // Nothing live, but the day's work still counts. Falling back to
+                // the tally keeps the pill informative instead of blanking the
+                // moment the last agent goes quiet.
+                return tally > 0 ? .geodeTallyOnly(finishedToday: tally) : nil
+            }
             return .geode(shard, finishedToday: tally)
         case .agents:
             // Display order = order-of-first-observation-in-the-island. A
