@@ -47,6 +47,31 @@ struct GeodeCrystalFormTests {
         }
     }
 
+    /// The whole premise is that the crystal visibly grows. Facet count alone
+    /// reads as "rounder", not "bigger", so scale must rise with stage.
+    @Test
+    func scaleGrowsMonotonicallyWithStage() {
+        let scales = (0...6).map { CrystalForm.make(seed: 11, stage: $0).scale }
+        for (lower, higher) in zip(scales, scales.dropFirst()) {
+            #expect(higher > lower)
+        }
+    }
+
+    @Test
+    func scaleSpansMinimumToFullFrame() {
+        #expect(CrystalForm.make(seed: 11, stage: 0).scale == CrystalForm.minimumScale)
+        #expect(CrystalForm.make(seed: 11, stage: 6).scale == 1.0)
+    }
+
+    /// A mature crystal should cover several times the area of a new one, or the
+    /// growth signal is too weak to notice at 20pt.
+    @Test
+    func matureCrystalCoversAtLeastFiveTimesTheAreaOfANewOne() {
+        let new = CrystalForm.make(seed: 11, stage: 0).scale
+        let mature = CrystalForm.make(seed: 11, stage: 6).scale
+        #expect((mature * mature) / (new * new) >= 5.0)
+    }
+
     @Test
     func stageForDurationFollowsTheSpecCurve() {
         #expect(CrystalForm.stage(forDuration: 0) == 0)

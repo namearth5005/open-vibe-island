@@ -24,11 +24,18 @@ public struct CrystalForm: Equatable, Sendable {
     public let tilt: Double
     /// Vertical stretch. 1.0 is round; below 1 is squat, above is tall.
     public let elongation: Double
+    /// Fraction of the available frame the silhouette fills, driven by stage.
+    ///
+    /// Without this, growth only added facets — and more facets at a fixed radius
+    /// reads as *rounder*, not *bigger*, so the crystal never appeared to grow.
+    /// Stage 0 fills about a third of the frame; stage 6 fills it.
+    public let scale: Double
 
-    public init(facets: [Double], tilt: Double, elongation: Double) {
+    public init(facets: [Double], tilt: Double, elongation: Double, scale: Double) {
         self.facets = facets
         self.tilt = tilt
         self.elongation = elongation
+        self.scale = scale
     }
 
     /// Growth stage 0...6 from elapsed run seconds.
@@ -49,8 +56,14 @@ public struct CrystalForm: Equatable, Sendable {
         }
         let tilt = (rng.nextUnitDouble() - 0.5) * 0.7
         let elongation = 0.75 + rng.nextUnitDouble() * 0.6
-        return CrystalForm(facets: facets, tilt: tilt, elongation: elongation)
+        // Linear in stage, so a stage-6 crystal covers roughly 10x the area of
+        // a stage-0 one — growth has to be obvious at 20pt or it isn't growth.
+        let scale = Self.minimumScale + Double(clampedStage) / 6.0 * (1.0 - Self.minimumScale)
+        return CrystalForm(facets: facets, tilt: tilt, elongation: elongation, scale: scale)
     }
+
+    /// Frame fraction a freshly-seeded stage-0 crystal occupies.
+    static let minimumScale = 0.32
 }
 
 /// Small deterministic PRNG so the same seed always walks the same sequence.
