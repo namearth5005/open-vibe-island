@@ -235,6 +235,14 @@ final class OverlayUICoordinator {
     func ensureOverlayPanel() {
         guard let appModel else { return }
         overlayPanelController.ensurePanel(model: appModel, preferredScreenID: preferredOverlayScreenID)
+        // Resolve placement once here, at startup, so `activeAppearanceProfile`
+        // is correct before any preference is read or written. Previously the
+        // first resolution happened lazily on some later refresh, which meant a
+        // preference written before it landed in one profile and was read back
+        // from the other.
+        overlayPlacementDiagnostics = overlayPanelController.placementDiagnostics(
+            preferredScreenID: preferredOverlayScreenID
+        )
     }
 
     // Legacy compatibility
@@ -275,7 +283,17 @@ final class OverlayUICoordinator {
         )
     }
 
+    /// Reposition only when the overlay is actually on screen.
+    ///
+    /// The name always promised this; the body did not check, so every
+    /// appearance-preference write repositioned the panel and re-resolved
+    /// placement. Because `activeAppearanceProfile` is derived from that
+    /// placement, a write could flip the active profile between itself and the
+    /// following read — the value went into one profile and came back from the
+    /// other. Startup placement is resolved in `ensureOverlayPanel`, so the
+    /// profile is already correct by the time anything reads it.
     func refreshOverlayPlacementIfVisible() {
+        guard isOverlayVisible else { return }
         refreshOverlayPlacement()
     }
 
