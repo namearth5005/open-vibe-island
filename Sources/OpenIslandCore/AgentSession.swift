@@ -149,6 +149,12 @@ public struct JumpTarget: Equatable, Codable, Sendable {
     /// `"Codex.app"`, the jump uses the `codex://threads/<id>` URL scheme
     /// to open the conversation directly rather than just activating the app.
     public var codexThreadID: String?
+    /// Orca pane identity, verbatim from `ORCA_PANE_KEY` — a `tabId:leafId`
+    /// pair. Orca hosts Claude Code in panes as a TTY-less subprocess, so none
+    /// of the usual pane handles (TTY, session id) exist; this is the only way
+    /// to tell one Orca pane from another. Without it a jump can activate the
+    /// app but not reach the pane the session is actually in.
+    public var orcaPaneKey: String?
 
     public init(
         terminalApp: String,
@@ -160,7 +166,8 @@ public struct JumpTarget: Equatable, Codable, Sendable {
         tmuxTarget: String? = nil,
         tmuxSocketPath: String? = nil,
         warpPaneUUID: String? = nil,
-        codexThreadID: String? = nil
+        codexThreadID: String? = nil,
+        orcaPaneKey: String? = nil
     ) {
         self.terminalApp = terminalApp
         self.workspaceName = workspaceName
@@ -172,6 +179,7 @@ public struct JumpTarget: Equatable, Codable, Sendable {
         self.tmuxSocketPath = tmuxSocketPath
         self.warpPaneUUID = warpPaneUUID
         self.codexThreadID = codexThreadID
+        self.orcaPaneKey = orcaPaneKey
     }
 }
 

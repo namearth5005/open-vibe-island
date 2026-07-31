@@ -86,6 +86,7 @@ Think of it as an open-source [Vibe Island](https://vibeisland.app/) — **free,
 | **iTerm2** | Full | Jump-back with session ID / TTY matching |
 | **tmux** (multiplexer) | Full | Jump-back with session/window/pane targeting |
 | **Zellij** | Full | Jump-back via CLI pane/tab targeting |
+| **Orca** | Full | Agent orchestrator hosting Claude Code in panes. Jump-back via `orca terminal switch` using the `ORCA_PANE_KEY` pane identity |
 | **VS Code** | Workspace | Activate workspace via `code` CLI |
 | **Cursor** | Workspace | Activate workspace via `cursor` CLI |
 | **Windsurf** | Workspace | Activate workspace via `windsurf` CLI |

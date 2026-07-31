@@ -371,6 +371,11 @@ struct TerminalJumpService {
                 }
             case "dev.warp.Warp-Stable":
                 return try jumpToWarpPane(target)
+            case "com.stablyai.orca":
+                if let cliPath = orcaCLIPath(),
+                   jumpToOrcaPane(target, cliPath: cliPath) {
+                    return "Focused the matching Orca pane."
+                }
             case "fun.tw93.kaku", "com.github.wez.wezterm":
                 if let cliPath = weztermFamilyCLIPath(for: descriptor.bundleIdentifier),
                    jumpToWeztermFamilyTerminal(target, cliPath: cliPath, bundleIdentifier: descriptor.bundleIdentifier) {
@@ -500,6 +505,121 @@ struct TerminalJumpService {
             return false
         }
         return processRunner(cli, [projectPath])
+    }
+
+
+    // MARK: - Orca
+
+    /// One live Orca-managed terminal, as reported by `orca terminal list --json`.
+    struct OrcaTerminal: Decodable {
+        let handle: String
+        let tabId: String?
+        let leafId: String?
+        let worktreePath: String?
+    }
+
+    private struct OrcaTerminalList: Decodable {
+        struct Result: Decodable { let terminals: [OrcaTerminal] }
+        let ok: Bool?
+        let result: Result?
+    }
+
+    private func orcaCLIPath() -> String? {
+        // Bundle path first, matching the wezterm-family resolution order: it is
+        // the one location that cannot be shadowed by a stale shim on PATH.
+        //
+        // Note the Linux caveat from Orca's own docs does not apply here — this
+        // is macOS-only, so bare `orca` cannot collide with the GNOME screen
+        // reader of the same name.
+        let candidates = [
+            "/Applications/Orca.app/Contents/MacOS/orca",
+            NSHomeDirectory() + "/Applications/Orca.app/Contents/MacOS/orca",
+            "/usr/local/bin/orca",
+            "/opt/homebrew/bin/orca",
+        ]
+        return candidates.first { FileManager.default.isExecutableFile(atPath: $0) }
+    }
+
+    private func orcaListTerminals(cliPath: String) -> [OrcaTerminal]? {
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: cliPath)
+        task.arguments = ["terminal", "list", "--json"]
+
+        let outputPipe = Pipe()
+        task.standardOutput = outputPipe
+        task.standardError = FileHandle.nullDevice
+
+        do {
+            try task.run()
+            task.waitUntilExit()
+        } catch {
+            return nil
+        }
+
+        guard task.terminationStatus == 0 else { return nil }
+
+        let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        return try? JSONDecoder().decode(OrcaTerminalList.self, from: data).result?.terminals
+    }
+
+    private func orcaSwitch(cliPath: String, handle: String) -> Bool {
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: cliPath)
+        task.arguments = ["terminal", "switch", "--terminal", handle]
+        task.standardOutput = FileHandle.nullDevice
+        task.standardError = FileHandle.nullDevice
+
+        do {
+            try task.run()
+            task.waitUntilExit()
+            return task.terminationStatus == 0
+        } catch {
+            return false
+        }
+    }
+
+    /// Resolve the session's pane and focus it.
+    ///
+    /// `ORCA_PANE_KEY` is `tabId:leafId`; both halves appear verbatim in
+    /// `orca terminal list --json`, which also carries the runtime-issued handle
+    /// that `orca terminal switch` requires. Falling back to the worktree path
+    /// keeps older sessions working — those were recorded before the pane key was
+    /// captured, so they have no key at all.
+    func jumpToOrcaPane(_ target: JumpTarget, cliPath: String) -> Bool {
+        guard let terminals = orcaListTerminals(cliPath: cliPath), !terminals.isEmpty else {
+            return false
+        }
+
+        guard let handle = Self.matchOrcaHandle(target: target, terminals: terminals) else {
+            return false
+        }
+
+        guard orcaSwitch(cliPath: cliPath, handle: handle) else { return false }
+        // Switch selects the tab inside Orca; the app itself still has to come
+        // forward, exactly as the wezterm-family path does after activate-pane.
+        try? openAction(["-b", "com.stablyai.orca"])
+        return true
+    }
+
+    /// Pure matching so the precedence is testable without a live Orca runtime.
+    static func matchOrcaHandle(target: JumpTarget, terminals: [OrcaTerminal]) -> String? {
+        if let key = target.orcaPaneKey, !key.isEmpty {
+            let parts = key.split(separator: ":", maxSplits: 1).map(String.init)
+            if parts.count == 2,
+               let exact = terminals.first(where: { $0.tabId == parts[0] && $0.leafId == parts[1] }) {
+                return exact.handle
+            }
+        }
+
+        // Worktree fallback. Only unambiguous when a single pane matches — with
+        // several panes open on one worktree, guessing would land on the wrong
+        // one, which is the bug this change exists to fix.
+        if let cwd = target.workingDirectory, !cwd.isEmpty {
+            let matches = terminals.filter { $0.worktreePath == cwd }
+            if matches.count == 1 { return matches[0].handle }
+        }
+
+        return nil
     }
 
     private func jumpToCmuxTerminal(_ target: JumpTarget) -> Bool {

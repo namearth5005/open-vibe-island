@@ -370,6 +370,8 @@ public struct ClaudeHookPayload: Equatable, Codable, Sendable {
     /// at hook runtime. Not sent over the wire by the hook script — populated
     /// in `withRuntimeContext` and serialized through the bridge.
     public var warpPaneUUID: String?
+    /// Orca pane identity, verbatim from `ORCA_PANE_KEY` (`tabId:leafId`).
+    public var orcaPaneKey: String?
     /// Set to `true` by the Python hook client to indicate a remote (SSH) session.
     public var remote: Bool?
 
@@ -411,6 +413,7 @@ public struct ClaudeHookPayload: Equatable, Codable, Sendable {
         case terminalTTY = "terminal_tty"
         case terminalTitle = "terminal_title"
         case warpPaneUUID = "warp_pane_uuid"
+        case orcaPaneKey = "orca_pane_key"
         case remote
     }
 
@@ -445,6 +448,7 @@ public struct ClaudeHookPayload: Equatable, Codable, Sendable {
         terminalTTY: String? = nil,
         terminalTitle: String? = nil,
         warpPaneUUID: String? = nil,
+        orcaPaneKey: String? = nil,
         remote: Bool? = nil
     ) {
         self.cwd = cwd
@@ -477,6 +481,7 @@ public struct ClaudeHookPayload: Equatable, Codable, Sendable {
         self.terminalTTY = terminalTTY
         self.terminalTitle = terminalTitle
         self.warpPaneUUID = warpPaneUUID
+        self.orcaPaneKey = orcaPaneKey
         self.remote = remote
     }
 }
@@ -699,7 +704,8 @@ public extension ClaudeHookPayload {
             workingDirectory: cwd,
             terminalSessionID: terminalSessionID,
             terminalTTY: terminalTTY,
-            warpPaneUUID: warpPaneUUID
+            warpPaneUUID: warpPaneUUID,
+            orcaPaneKey: orcaPaneKey
         )
     }
 
@@ -986,6 +992,15 @@ public extension ClaudeHookPayload {
         // Resolve Warp pane UUID from the live SQLite state.
         if payload.terminalApp == "Warp", payload.warpPaneUUID == nil {
             payload.warpPaneUUID = warpPaneResolver(payload.cwd)
+        }
+
+        // Orca hosts Claude Code in a pane as a TTY-less subprocess, so there is
+        // no TTY or session id to match on — ORCA_PANE_KEY is the only handle
+        // that distinguishes one Orca pane from another. Detection already reads
+        // this variable; capturing the value is what lets a jump reach the right
+        // pane instead of merely activating the app.
+        if payload.terminalApp == "Orca.app", payload.orcaPaneKey == nil {
+            payload.orcaPaneKey = environment["ORCA_PANE_KEY"]
         }
 
         // For cmux, use CMUX_SURFACE_ID as the terminal session identifier.
