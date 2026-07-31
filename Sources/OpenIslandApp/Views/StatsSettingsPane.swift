@@ -9,7 +9,11 @@ import OpenIslandCore
 /// which spike and then churn.
 struct StatsSettingsPane: View {
     @Bindable var model: AppModel
-    @Environment(LanguageManager.self) private var lang
+
+    /// Reached through the model, matching every other settings pane.
+    /// `LanguageManager` is not injected into the SwiftUI environment anywhere in
+    /// this app, so `@Environment(LanguageManager.self)` traps at render time.
+    private var lang: LanguageManager { model.lang }
 
     @State private var range: StatsRange = .today
     /// Captured once per render pass so every figure on screen refers to the
