@@ -292,6 +292,14 @@ struct TerminalJumpService {
             }
         }
 
+        // Transcript-discovered sessions carry no terminal identity, but an Orca
+        // pane working in the same directory is authoritative evidence of where
+        // the session lives. Checked before the descriptor lookup, which cannot
+        // resolve "Unknown" and would otherwise throw.
+        if target.terminalApp.lowercased() == "unknown", resolveUnknownOrcaPane(target) {
+            return "Focused the matching Orca pane."
+        }
+
         let normalizedPreferredName = normalizeTerminalAppName(target.terminalApp)
         let descriptor = resolveTerminalApp(preferredName: target.terminalApp)
         let hasWorkingDirectory = target.workingDirectory.map { FileManager.default.fileExists(atPath: $0) } ?? false
@@ -524,23 +532,51 @@ struct TerminalJumpService {
         let result: Result?
     }
 
+    /// Candidate paths for Orca's CLI, most specific first.
+    ///
+    /// Deliberately NOT `Contents/MacOS/orca` — for WezTerm and Kaku the
+    /// `MacOS` binary is the CLI, but Orca is Electron, so that path is the app
+    /// itself. Invoking it tries to start a second instance, which the
+    /// single-instance lock rejects while **exiting 0 with empty stdout** — a
+    /// silent failure that looks like success to any exit-code check. The real
+    /// CLI is a shell shim under `Contents/Resources/bin`.
+    static let orcaCLICandidates: [String] = [
+        "/Applications/Orca.app/Contents/Resources/bin/orca",
+        NSHomeDirectory() + "/Applications/Orca.app/Contents/Resources/bin/orca",
+        "/usr/local/bin/orca",
+        "/opt/homebrew/bin/orca",
+    ]
+
     private func orcaCLIPath() -> String? {
-        // Bundle path first, matching the wezterm-family resolution order: it is
-        // the one location that cannot be shadowed by a stale shim on PATH.
-        //
-        // Note the Linux caveat from Orca's own docs does not apply here — this
-        // is macOS-only, so bare `orca` cannot collide with the GNOME screen
-        // reader of the same name.
-        let candidates = [
-            "/Applications/Orca.app/Contents/MacOS/orca",
-            NSHomeDirectory() + "/Applications/Orca.app/Contents/MacOS/orca",
-            "/usr/local/bin/orca",
-            "/opt/homebrew/bin/orca",
-        ]
-        return candidates.first { FileManager.default.isExecutableFile(atPath: $0) }
+        Self.orcaCLICandidates.first { FileManager.default.isExecutableFile(atPath: $0) }
+    }
+
+    /// `orca terminal list` is an RPC into the Electron runtime and measured
+    /// 130-300ms. A jump costs one list plus one switch, all synchronous on the
+    /// main actor, so the island visibly hangs. A short TTL collapses the list
+    /// call for back-to-back jumps while staying far below the time it takes a
+    /// user to open a new pane, so a stale handle is not a realistic risk.
+    private static let orcaListTTL: TimeInterval = 3
+    private nonisolated(unsafe) static var orcaListCache: (terminals: [OrcaTerminal], at: Date)?
+
+    /// Populate the pane cache ahead of a jump. Safe to call speculatively: it
+    /// no-ops when Orca is not running and never throws.
+    func warmOrcaTerminalCache() {
+        guard appRunningChecker("com.stablyai.orca"), let cliPath = orcaCLIPath() else { return }
+        _ = orcaListTerminals(cliPath: cliPath)
     }
 
     private func orcaListTerminals(cliPath: String) -> [OrcaTerminal]? {
+        if let cached = Self.orcaListCache,
+           Date().timeIntervalSince(cached.at) < Self.orcaListTTL {
+            return cached.terminals
+        }
+        let fetched = orcaFetchTerminals(cliPath: cliPath)
+        if let fetched { Self.orcaListCache = (fetched, Date()) }
+        return fetched
+    }
+
+    private func orcaFetchTerminals(cliPath: String) -> [OrcaTerminal]? {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: cliPath)
         task.arguments = ["terminal", "list", "--json"]
@@ -551,14 +587,16 @@ struct TerminalJumpService {
 
         do {
             try task.run()
-            task.waitUntilExit()
         } catch {
             return nil
         }
-
-        guard task.terminationStatus == 0 else { return nil }
-
         let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        task.waitUntilExit()
+
+        // Exit status alone is not enough: the wrong binary exits 0 with empty
+        // stdout, so an empty payload has to be treated as failure too.
+        guard task.terminationStatus == 0, !data.isEmpty else { return nil }
+
         return try? JSONDecoder().decode(OrcaTerminalList.self, from: data).result?.terminals
     }
 
@@ -597,6 +635,34 @@ struct TerminalJumpService {
         guard orcaSwitch(cliPath: cliPath, handle: handle) else { return false }
         // Switch selects the tab inside Orca; the app itself still has to come
         // forward, exactly as the wezterm-family path does after activate-pane.
+        try? openAction(["-b", "com.stablyai.orca"])
+        return true
+    }
+
+    /// Resolve an Orca pane for a session whose terminal was never identified.
+    ///
+    /// Transcript discovery tags sessions `"Unknown"` because it reads files, not
+    /// process environment, so an Orca session found at launch carries no pane
+    /// key and `jumpToSession` refuses it outright. Asking the live Orca runtime
+    /// whether a pane is working in that directory recovers the jump without
+    /// guessing from path shapes.
+    ///
+    /// Only an unambiguous match counts: with several panes on one worktree there
+    /// is no way to know which one this session is, and landing on the wrong pane
+    /// is worse than declining.
+    func resolveUnknownOrcaPane(_ target: JumpTarget) -> Bool {
+        guard let cwd = target.workingDirectory, !cwd.isEmpty,
+              appRunningChecker("com.stablyai.orca"),
+              let cliPath = orcaCLIPath(),
+              let terminals = orcaListTerminals(cliPath: cliPath)
+        else {
+            return false
+        }
+
+        let matches = terminals.filter { $0.worktreePath == cwd }
+        guard matches.count == 1 else { return false }
+
+        guard orcaSwitch(cliPath: cliPath, handle: matches[0].handle) else { return false }
         try? openAction(["-b", "com.stablyai.orca"])
         return true
     }

@@ -1389,8 +1389,37 @@ final class AppModel {
 
     // MARK: - Overlay forwarding
 
-    func toggleOverlay() { overlay.toggleOverlay() }
-    func notchOpen(reason: NotchOpenReason, surface: IslandSurface = .sessionList()) { overlay.notchOpen(reason: reason, surface: surface) }
+    func toggleOverlay() {
+        warmOrcaPaneCacheIfNeeded()
+        overlay.toggleOverlay()
+    }
+
+    func notchOpen(reason: NotchOpenReason, surface: IslandSurface = .sessionList()) {
+        warmOrcaPaneCacheIfNeeded()
+        overlay.notchOpen(reason: reason, surface: surface)
+    }
+
+    /// Prefetch Orca's pane list when the island opens.
+    ///
+    /// A jump costs two CLI round-trips into Orca's Electron runtime, and the
+    /// first one dominates — measured ~300ms for the list against ~150ms for the
+    /// switch. Opening the island is the reliable signal that a jump is about to
+    /// happen, so the list is fetched off the main actor while the user is still
+    /// reading the panel. By the time they click, it is cached.
+    ///
+    /// Skipped entirely unless an Orca session is actually present, so users
+    /// without Orca never pay for this.
+    private func warmOrcaPaneCacheIfNeeded() {
+        let hasOrcaSession = state.sessions.contains { session in
+            guard let app = session.jumpTarget?.terminalApp.lowercased() else { return false }
+            return app == "orca.app" || app == "unknown"
+        }
+        guard hasOrcaSession else { return }
+
+        Task.detached(priority: .utility) {
+            TerminalJumpService().warmOrcaTerminalCache()
+        }
+    }
     func notchClose() { overlay.notchClose() }
     func notchPop() { overlay.notchPop() }
     func performBootAnimation() { overlay.performBootAnimation() }
@@ -1489,9 +1518,12 @@ final class AppModel {
     }
 
     func jumpToSession(_ session: AgentSession) {
-        guard let jumpTarget = session.jumpTarget,
-              jumpTarget.terminalApp.lowercased() != "unknown" else {
-            lastActionMessage = "Cannot jump: terminal app is unknown."
+        // A session tagged "Unknown" is no longer refused outright: transcript
+        // discovery cannot see a process environment, so an Orca session found at
+        // launch lands here despite being perfectly jumpable. The jump service
+        // decides — terminal-specific recovery belongs there, not in the model.
+        guard let jumpTarget = session.jumpTarget else {
+            lastActionMessage = "Cannot jump: no jump target is available."
             return
         }
         jump(to: jumpTarget)

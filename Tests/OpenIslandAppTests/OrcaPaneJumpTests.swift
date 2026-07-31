@@ -93,6 +93,26 @@ struct OrcaPaneJumpTests {
         )
     }
 
+    // MARK: - CLI discovery
+
+    /// Orca is Electron, so `Contents/MacOS/orca` is the **app**, not a CLI.
+    /// Invoking it tries to start a second instance, which the single-instance
+    /// lock rejects while exiting 0 with empty stdout — a silent failure that
+    /// passes any exit-code check. The CLI is a shim under `Resources/bin`.
+    @Test
+    func cliCandidatesNeverPointAtTheAppExecutable() {
+        for candidate in TerminalJumpService.orcaCLICandidates {
+            #expect(!candidate.contains("Contents/MacOS"))
+        }
+    }
+
+    @Test
+    func cliCandidatesPreferTheBundledShimOverPathShims() {
+        let candidates = TerminalJumpService.orcaCLICandidates
+        #expect(candidates.first?.hasSuffix("Contents/Resources/bin/orca") == true)
+        #expect(candidates.contains("/usr/local/bin/orca"))
+    }
+
     // MARK: - Worktree fallback
 
     /// Sessions recorded before the pane key was captured have no key, so the
