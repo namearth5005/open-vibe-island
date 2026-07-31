@@ -1188,6 +1188,18 @@ public extension ClaudeHookPayload {
             return "Claude.app"
         }
 
+        // Orca (com.stablyai.orca) is an agent orchestrator that runs Claude
+        // Code in its own panes as a TTY-less subprocess — same invisibility to
+        // process discovery as the Claude desktop app above. It stamps
+        // ORCA_PANE_KEY into the agent env (its own hooks require it), so that is
+        // the authoritative signal; the bundle id corroborates. Checked before
+        // TERM_PROGRAM because Orca can leak the launching shell's TERM_PROGRAM
+        // into the subprocess env.
+        if environment["ORCA_PANE_KEY"] != nil
+            || environment["__CFBundleIdentifier"]?.lowercased() == "com.stablyai.orca" {
+            return "Orca.app"
+        }
+
         // TERM_PROGRAM is the only authoritative terminal signal. Each
         // terminal sets it explicitly when it execs the user's shell, so
         // unlike per-app env vars (GHOSTTY_RESOURCES_DIR,
