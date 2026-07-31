@@ -6,6 +6,26 @@ import OpenIslandCore
 @MainActor
 @Suite(.serialized)
 struct AppModelSessionListTests {
+
+    /// Apply an appearance preference to **both** display profiles.
+    ///
+    /// `activeAppearanceProfile` is derived from live overlay placement, which
+    /// resolves asynchronously: a freshly constructed `AppModel` reports
+    /// `.topBar`, and the first placement refresh flips it to `.notch` on a
+    /// notch Mac. A preference written through the plain accessor therefore
+    /// lands in whichever profile happened to be active at that instant, and can
+    /// be read back from the other one — so these tests passed on CI hardware
+    /// and failed deterministically on a MacBook with a notch.
+    ///
+    /// Writing both profiles makes the test independent of the host's display,
+    /// which is what it always meant to assert.
+    private func setAppearance(
+        on model: AppModel,
+        _ update: (inout IslandAppearancePreferences) -> Void
+    ) {
+        model.updateAppearancePreferences(for: .notch, update)
+        model.updateAppearancePreferences(for: .topBar, update)
+    }
     init() {
         [
             "appearance.island.v8.stateIndicator",
@@ -314,8 +334,8 @@ struct AppModelSessionListTests {
     func islandSessionSectionsGroupStaleCompletedIntoIdle() {
         let now = Date()
         let model = AppModel()
-        model.islandSessionGroup = .state
-        model.completedStaleThreshold = .fiveMinutes
+        setAppearance(on: model) { $0.sessionGroup = .state }
+        setAppearance(on: model) { $0.completedStaleThreshold = .fiveMinutes }
 
         var approval = listSession(id: "approval", phase: .waitingForApproval, updatedAt: now)
         approval.permissionRequest = PermissionRequest(
@@ -340,8 +360,8 @@ struct AppModelSessionListTests {
     func islandSessionSectionsKeepCompletedInDoneWhenStaleThresholdIsNever() {
         let now = Date()
         let model = AppModel()
-        model.islandSessionGroup = .state
-        model.completedStaleThreshold = .never
+        setAppearance(on: model) { $0.sessionGroup = .state }
+        setAppearance(on: model) { $0.completedStaleThreshold = .never }
 
         var oldDone = listSession(id: "old-done", phase: .completed, updatedAt: now.addingTimeInterval(-86_400))
         oldDone.isProcessAlive = true
@@ -355,7 +375,7 @@ struct AppModelSessionListTests {
     func islandSessionListCanSortByLastUpdate() {
         let now = Date()
         let model = AppModel()
-        model.islandSessionSort = .lastUpdate
+        setAppearance(on: model) { $0.sessionSort = .lastUpdate }
 
         var olderRunning = listSession(id: "older-running", phase: .running, updatedAt: now.addingTimeInterval(-120))
         var newerCompleted = listSession(id: "newer-completed", phase: .completed, updatedAt: now.addingTimeInterval(-10))

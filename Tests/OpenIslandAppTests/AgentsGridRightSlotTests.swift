@@ -6,12 +6,32 @@ import OpenIslandCore
 
 @MainActor
 struct AgentsGridRightSlotTests {
+
+    /// Apply an appearance preference to **both** display profiles.
+    ///
+    /// `activeAppearanceProfile` is derived from live overlay placement, which
+    /// resolves asynchronously: a freshly constructed `AppModel` reports
+    /// `.topBar`, and the first placement refresh flips it to `.notch` on a
+    /// notch Mac. A preference written through the plain accessor therefore
+    /// lands in whichever profile happened to be active at that instant, and can
+    /// be read back from the other one — so these tests passed on CI hardware
+    /// and failed deterministically on a MacBook with a notch.
+    ///
+    /// Writing both profiles makes the test independent of the host's display,
+    /// which is what it always meant to assert.
+    private func setAppearance(
+        on model: AppModel,
+        _ update: (inout IslandAppearancePreferences) -> Void
+    ) {
+        model.updateAppearancePreferences(for: .notch, update)
+        model.updateAppearancePreferences(for: .topBar, update)
+    }
     /// At bulk first observation (e.g. app launch) ties are broken by
     /// session.firstSeenAt so historical order is preserved.
     @Test
     func bulkFirstObservationOrdersByHistoricalFirstSeenAt() {
         let model = AppModel()
-        model.islandRightSlot = .agents
+        setAppearance(on: model) { $0.rightSlot = .agents }
 
         let now = Date(timeIntervalSince1970: 100_000)
         let sessionA = makeSession(id: "A", firstSeenAt: now,                       updatedAt: now.addingTimeInterval(60))
@@ -46,7 +66,7 @@ struct AgentsGridRightSlotTests {
     @Test
     func newlyObservedSessionAlwaysLandsAtTheEndRegardlessOfHistoricalTime() {
         let model = AppModel()
-        model.islandRightSlot = .agents
+        setAppearance(on: model) { $0.rightSlot = .agents }
 
         let now = Date(timeIntervalSince1970: 200_000)
         let sessionA = makeSession(id: "A", firstSeenAt: now,                       updatedAt: now)
@@ -79,7 +99,7 @@ struct AgentsGridRightSlotTests {
     @Test
     func returningSessionKeepsItsOriginalSlot() {
         let model = AppModel()
-        model.islandRightSlot = .agents
+        setAppearance(on: model) { $0.rightSlot = .agents }
 
         let now = Date(timeIntervalSince1970: 300_000)
         let sessionA = makeSession(id: "A", firstSeenAt: now,                       updatedAt: now)
@@ -110,7 +130,7 @@ struct AgentsGridRightSlotTests {
     @Test
     func moreThanNineSessionsFoldIntoOverflow() {
         let model = AppModel()
-        model.islandRightSlot = .agents
+        setAppearance(on: model) { $0.rightSlot = .agents }
         let now = Date(timeIntervalSince1970: 200_000)
 
         var sessions: [AgentSession] = []
@@ -141,7 +161,7 @@ struct AgentsGridRightSlotTests {
     @Test
     func cellStateReflectsSessionPhase() {
         let model = AppModel()
-        model.islandRightSlot = .agents
+        setAppearance(on: model) { $0.rightSlot = .agents }
         let now = Date(timeIntervalSince1970: 300_000)
 
         let running  = makeSession(id: "r", firstSeenAt: now,                         updatedAt: now, phase: .running)
