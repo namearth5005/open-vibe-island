@@ -26,3 +26,6 @@ output/
 *.tmp
 .worktrees/
 .air/
+
+# brainstorming visual companion sessions
+.superpowers/
