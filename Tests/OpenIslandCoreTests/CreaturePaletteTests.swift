@@ -7,9 +7,13 @@ struct CreaturePaletteTests {
     /// drift from `V6Palette.ink` survived unnoticed.
     private let pill = CreaturePalette.pillFill
 
-    /// Known-answer test pinning `pillFill` to `V6Palette.ink`
-    /// (`V6ClosedPillShape.swift`). Core cannot import the app target, so this
-    /// is the only thing standing between the two copies and silent drift.
+    /// Known-answer test freezing the value every contrast figure below was
+    /// computed against, so the gate cannot be moved by editing the pill.
+    ///
+    /// It cannot detect drift from `V6Palette.ink` itself — Core has no
+    /// visibility into the app target, and this literal would happily agree
+    /// with a stale copy. `CreaturePillFillTests` in the app target is what
+    /// compares the two.
     @Test
     func pillFillMatchesTheShippedInk() {
         #expect(CreaturePalette.pillFill == CreatureColor(red: 0x0d, green: 0x0d, blue: 0x0f))
