@@ -35,8 +35,8 @@ public struct CreatureColor: Equatable, Sendable {
 ///
 /// The reference style assumes a dark subject on a light ground; the pill
 /// inverts that, so creatures are light masses read by silhouette and dark line
-/// is used only *inside* the shape. Measured: the reference product's own cat
-/// scores 6.39:1 on its light ground and 1.97:1 on this pill.
+/// is used only *inside* the shape. The measurements behind that inversion are
+/// in `docs/superpowers/specs/2026-08-01-island-reward-mechanics-design.md`.
 ///
 /// Values are spread across ~55 luminance points so species survive greyscale
 /// and stay distinguishable for colour-blind users. Every entry clears 3:1
@@ -44,11 +44,11 @@ public struct CreatureColor: Equatable, Sendable {
 public enum CreaturePalette {
     public static func color(for species: CreatureSpecies) -> CreatureColor {
         switch species {
-        case .claude:   CreatureColor(red: 0xf8, green: 0xd7, blue: 0xb7) // L 72.0%  14.25:1
-        case .codex:    CreatureColor(red: 0xb2, green: 0xcb, blue: 0xe8) // L 58.0%  11.67:1
-        case .cursor:   CreatureColor(red: 0x7d, green: 0xc3, blue: 0xa2) // L 46.0%   9.44:1
-        case .gemini:   CreatureColor(red: 0xaa, green: 0x99, blue: 0xbd) // L 35.0%   7.41:1
-        case .kimi:     CreatureColor(red: 0xba, green: 0x74, blue: 0x92) // L 25.0%   5.56:1
+        case .claude:   CreatureColor(red: 0xf8, green: 0xd7, blue: 0xb7) // L 72.0%  14.23:1
+        case .codex:    CreatureColor(red: 0xb2, green: 0xcb, blue: 0xe8) // L 58.0%  11.65:1
+        case .cursor:   CreatureColor(red: 0x7d, green: 0xc3, blue: 0xa2) // L 46.0%   9.43:1
+        case .gemini:   CreatureColor(red: 0xaa, green: 0x99, blue: 0xbd) // L 35.0%   7.40:1
+        case .kimi:     CreatureColor(red: 0xba, green: 0x74, blue: 0x92) // L 25.0%   5.55:1
         case .openCode: CreatureColor(red: 0x79, green: 0x71, blue: 0x53) // L 16.5%   3.98:1
         }
     }
@@ -59,7 +59,11 @@ public enum CreaturePalette {
 
     /// Mirrors `V6Palette.ink` (`V6ClosedPillShape.swift`), duplicated here so
     /// Core can assert against the surface creatures are drawn on without
-    /// depending on the app target. Keep the two in step: if the pill fill ever
-    /// changes, `CreaturePaletteTests` is what catches the drift.
+    /// depending on the app target.
+    ///
+    /// Nothing in Core can catch these two diverging — a Core test only sees
+    /// this copy, so pinning it to a literal stays green while the original
+    /// moves. `CreaturePillFillTests` in the app target is the real guard: it
+    /// is the only place both constants are in scope together.
     public static let pillFill = CreatureColor(red: 0x0d, green: 0x0d, blue: 0x0f)
 }
