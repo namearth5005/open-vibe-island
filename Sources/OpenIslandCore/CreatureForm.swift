@@ -9,18 +9,36 @@ public struct CreatureForm: Equatable, Sendable {
     public let bodyHeight: Double
     /// Vertical position where the arms attach, as a fraction of body height.
     public let shoulder: Double
-    /// How far the arms rise. 0 is hanging, 1 is fully overhead. This is the
-    /// only channel that carries pose at pill size, so its range is deliberately
-    /// wide.
-    public let armLift: Double
+    /// How far the leading (trailing-edge-of-lane) arm rises. 0 hangs, 1 is
+    /// fully out.
+    ///
+    /// "Fully out" is deliberately not "overhead": the lane leaves at most
+    /// 4.2pt above the body, and the pill's top edge is the physical top edge
+    /// of the display, so a raised arm has nowhere to go but sideways.
+    public let armLiftLeading: Double
+    /// How far the trailing arm rises, on the same scale.
+    ///
+    /// The two arms are separate because pose cannot be carried by magnitude
+    /// here. One arm out reads as *asking*; two read as *presenting*. That
+    /// asymmetry survives at 28x32pt where a difference of degree does not —
+    /// the Phase 0 gate failed on a single scalar for exactly this reason.
+    public let armLiftTrailing: Double
     /// Whole-body rotation in radians. Non-zero only when knocked over.
     public let tilt: Double
 
-    public init(bodyWidth: Double, bodyHeight: Double, shoulder: Double, armLift: Double, tilt: Double) {
+    public init(
+        bodyWidth: Double,
+        bodyHeight: Double,
+        shoulder: Double,
+        armLiftLeading: Double,
+        armLiftTrailing: Double,
+        tilt: Double
+    ) {
         self.bodyWidth = bodyWidth
         self.bodyHeight = bodyHeight
         self.shoulder = shoulder
-        self.armLift = armLift
+        self.armLiftLeading = armLiftLeading
+        self.armLiftTrailing = armLiftTrailing
         self.tilt = tilt
     }
 
@@ -37,18 +55,26 @@ public struct CreatureForm: Equatable, Sendable {
         // Pose is expressed through the arms and tilt only. Body proportions
         // stay fixed so a session does not appear to change creature when it
         // blocks or finishes.
-        let armLift: Double
+        //
+        // The three pill-legible states are separated by *how many* arms are
+        // out, not how far. An earlier single-scalar version graded 0 / 0.78 /
+        // 1.0 and the gate found `waiting` and `holding` indistinguishable at
+        // true size — 22% of a range that itself has only ~5pt to move in.
+        let leading: Double
+        let trailing: Double
         let tilt: Double
         switch pose {
-        case .working: armLift = 0.0;  tilt = 0
-        case .waiting: armLift = 0.78; tilt = 0
-        case .holding: armLift = 1.0;  tilt = 0
-        case .fallen:  armLift = 0.1;  tilt = 70.0 * .pi / 180.0
+        case .working: leading = 0.0; trailing = 0.0; tilt = 0
+        case .waiting: leading = 1.0; trailing = 0.0; tilt = 0
+        case .holding: leading = 1.0; trailing = 1.0; tilt = 0
+        case .fallen:  leading = 0.1; trailing = 0.1; tilt = 70.0 * .pi / 180.0
         }
 
         return CreatureForm(
             bodyWidth: bodyWidth, bodyHeight: bodyHeight,
-            shoulder: shoulder, armLift: armLift, tilt: tilt
+            shoulder: shoulder,
+            armLiftLeading: leading, armLiftTrailing: trailing,
+            tilt: tilt
         )
     }
 }

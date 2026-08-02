@@ -54,15 +54,55 @@ struct CreatureFormTests {
         }
     }
 
-    /// Arm lift is the entire pose vocabulary at pill size, so the four values
-    /// are pinned rather than merely required to differ: softening `waiting`
-    /// toward `working` would silently cost the notification its legibility.
+    /// Arm lift is the entire pose vocabulary at pill size, so the values are
+    /// pinned rather than merely required to differ: softening `waiting` toward
+    /// `working` would silently cost the notification its legibility.
     @Test
-    func eachPosePinsItsArmLift() {
-        #expect(CreatureForm.make(seed: 7, pose: .working).armLift == 0.0)
-        #expect(CreatureForm.make(seed: 7, pose: .waiting).armLift == 0.78)
-        #expect(CreatureForm.make(seed: 7, pose: .holding).armLift == 1.0)
-        #expect(CreatureForm.make(seed: 7, pose: .fallen).armLift == 0.1)
+    func eachPosePinsItsArmLifts() {
+        let working = CreatureForm.make(seed: 7, pose: .working)
+        #expect(working.armLiftLeading == 0.0 && working.armLiftTrailing == 0.0)
+
+        let waiting = CreatureForm.make(seed: 7, pose: .waiting)
+        #expect(waiting.armLiftLeading == 1.0 && waiting.armLiftTrailing == 0.0)
+
+        let holding = CreatureForm.make(seed: 7, pose: .holding)
+        #expect(holding.armLiftLeading == 1.0 && holding.armLiftTrailing == 1.0)
+
+        let fallen = CreatureForm.make(seed: 7, pose: .fallen)
+        #expect(fallen.armLiftLeading == 0.1 && fallen.armLiftTrailing == 0.1)
+    }
+
+    /// The load-bearing invariant. The lane offers at most 4.2pt of headroom
+    /// above the body and the pill cannot draw above itself, so a raised arm
+    /// cannot clear the body — magnitude alone gave `waiting` and `holding`
+    /// near-identical silhouettes and failed the Phase 0 gate.
+    ///
+    /// Asymmetry is what separates them: exactly one raised arm means "asking",
+    /// two means "collect me". Symmetry is therefore an invariant of every other
+    /// pose, not an incidental property of these constants.
+    @Test
+    func onlyWaitingIsAsymmetric() {
+        for seed in UInt64(0)..<40 {
+            for pose in CreaturePose.allCases {
+                let form = CreatureForm.make(seed: seed, pose: pose)
+                let asymmetric = form.armLiftLeading != form.armLiftTrailing
+                #expect(
+                    asymmetric == (pose == .waiting),
+                    "\(pose.rawValue) asymmetry \(asymmetric) at seed \(seed)"
+                )
+            }
+        }
+    }
+
+    /// `waiting` and `holding` must never collapse into the same silhouette
+    /// again. They share a raised leading arm, so the trailing arm is the only
+    /// thing carrying the distinction and it has to stay fully apart.
+    @Test
+    func waitingAndHoldingDifferByAWholeArm() {
+        let waiting = CreatureForm.make(seed: 7, pose: .waiting)
+        let holding = CreatureForm.make(seed: 7, pose: .holding)
+        #expect(waiting.armLiftLeading == holding.armLiftLeading)
+        #expect(holding.armLiftTrailing - waiting.armLiftTrailing == 1.0)
     }
 
     @Test

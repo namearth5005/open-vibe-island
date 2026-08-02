@@ -14,6 +14,7 @@
 //   grey-<species>.png         every species, colour removed (luminance ladder)
 //   panel-<pose>.png           four poses at panel optical size, on the panel green
 //   roll-NN.png                20 procedural individuals, seeds 0...19
+//   worst-<pose>.png           the worst roll in the three states that must separate
 //
 // Run via `scripts/creature-gate.sh <outdir>`.
 
@@ -108,20 +109,34 @@ func creaturePath(form: CreatureForm, in rect: CGRect, includeArms: Bool = true)
     // `shoulder` is a fraction of body height measured from the top; CoreGraphics
     // y grows upward, so this counts down from the body's top edge.
     let shoulderY = body.minY + body.height * CGFloat(1.0 - form.shoulder)
-    let reach = h * 0.34
-    let lift = CGFloat(form.armLift)
-    for side in [-1.0, 1.0] as [CGFloat] {
+    let stroke = max(1.0, w * 0.17)
+    let halfStroke = stroke / 2
+
+    // A raised arm travels *outward*, not upward. The lane leaves 4.5-6.7pt at
+    // the sides and at most 4.2pt above the body — and that headroom is the
+    // physical top edge of the display, where nothing can be drawn at all. The
+    // first version of this harness shrank the silhouette as lift rose, which
+    // is backwards: the pose that should shout ended up narrowest.
+    //
+    // Round caps extend half a stroke past the tip, so the limits are inset by
+    // that much and a fully raised arm lands exactly on the lane edge.
+    let outX = rect.width / 2 - halfStroke
+    let outY = min(body.maxY + h * 0.06, rect.maxY - halfStroke)
+
+    for (side, lift) in [(CGFloat(-1), CGFloat(form.armLiftTrailing)),
+                         (CGFloat(1), CGFloat(form.armLiftLeading))] {
         let x0 = rect.midX + side * w * 0.44
-        let x1 = x0 + side * reach * 0.42 * (1.0 - lift * 0.55)
-        // armLift 0 hangs, 1 is fully overhead. Because y grows upward, lift has
-        // to *add* to y — writing it the other way draws `holding` with its arms
-        // pointing at the floor.
-        let y1 = shoulderY + reach * lift - reach * 0.3 * (1 - lift)
+        // Hanging: tucked along the flank, just proud of the body edge.
+        let hangX = x0 + side * w * 0.10
+        let hangY = shoulderY - h * 0.22
+        let x1 = hangX + (rect.midX + side * outX - hangX) * lift
+        let y1 = hangY + (outY - hangY) * lift
+
         let arm = CGMutablePath()
         arm.move(to: CGPoint(x: x0, y: shoulderY))
         arm.addLine(to: CGPoint(x: x1, y: y1))
         let stroked = arm.copy(
-            strokingWithWidth: max(1.0, w * 0.17),
+            strokingWithWidth: stroke,
             lineCap: .round, lineJoin: .round, miterLimit: 4
         )
         path.addPath(stroked, transform: transform)
@@ -166,6 +181,25 @@ func writePNG(_ image: CGImage, to url: URL) {
 }
 
 // MARK: - Measurement
+
+/// The seed whose `waiting` silhouette is the least lopsided.
+///
+/// Condition 1 is judged on the worst roll, and asymmetry is what carries
+/// `waiting`, so this is the roll the gate is actually decided on. A wide body
+/// leaves the least room to put an arm into, so the worst case lives at the top
+/// of the width range rather than in the middle of it.
+func worstWaitingRollSeed(in frame: CGRect, count: Int) -> UInt64 {
+    var worst = CGFloat.greatestFiniteMagnitude
+    var seed: UInt64 = 0
+    for candidate in 0..<count {
+        let form = CreatureForm.make(seed: UInt64(candidate), pose: .waiting)
+        let body = creaturePath(form: form, in: frame, includeArms: false).boundingBoxOfPath
+        let full = creaturePath(form: form, in: frame).boundingBoxOfPath
+        let asymmetry = abs((full.maxX - body.maxX) - (body.minX - full.minX))
+        if asymmetry < worst { worst = asymmetry; seed = UInt64(candidate) }
+    }
+    return seed
+}
 
 /// How far the silhouette pokes outside the lane it has to live in.
 func laneOverflow(_ box: CGRect, in frame: CGRect) -> CGFloat {
@@ -255,6 +289,20 @@ enum CreatureGate {
             write(image, String(format: "roll-%02d.png", seed))
         }
 
+        // 5. The worst roll in the three states that must separate. Condition 1
+        //    is judged here, not on the reference body, so the gate renders it
+        //    rather than leaving a reviewer to hunt for it.
+        let worstSeed = worstWaitingRollSeed(in: CGRect(origin: .zero, size: pillLane), count: rollCount)
+        for pose in CreaturePose.allCases where pose.demandsPillLegibility {
+            let image = render(
+                size: pillLane,
+                ground: CreaturePalette.pillFill,
+                body: CreaturePalette.color(for: rollSpecies),
+                form: CreatureForm.make(seed: worstSeed, pose: pose)
+            )
+            write(image, "worst-\(pose.rawValue).png")
+        }
+
         return written
     }
 
@@ -298,21 +346,26 @@ enum CreatureGate {
         let frame = CGRect(origin: .zero, size: pillLane)
         print("")
         print("Arm break beyond the body outline, 28 x 32 pt lane (reference seed)")
-        print(pad("pose", 10) + pad("armLift", 10) + pad("sideways", 14)
-            + pad("above", 14) + "clipped by lane")
+        print(pad("pose", 10) + pad("arms", 12) + pad("widest side", 14)
+            + pad("narrow side", 14) + pad("above", 12) + "clipped by lane")
 
         for pose in CreaturePose.allCases {
             let form = CreatureForm.make(seed: referenceSeed, pose: pose)
             let bodyBox = creaturePath(form: form, in: frame, includeArms: false).boundingBoxOfPath
             let fullBox = creaturePath(form: form, in: frame).boundingBoxOfPath
-            let sideways = max(fullBox.maxX - bodyBox.maxX, bodyBox.minX - fullBox.minX)
+            // Reported per side, because asymmetry is now the pose signal: a
+            // single averaged figure would hide the very thing that separates
+            // `waiting` from `holding`.
+            let leadOut = fullBox.maxX - bodyBox.maxX
+            let trailOut = bodyBox.minX - fullBox.minX
             let above = fullBox.maxY - bodyBox.maxY
             let clipped = laneOverflow(fullBox, in: frame)
             print(
                 pad(pose.rawValue, 10)
-                    + pad(String(format: "%.2f", form.armLift), 10)
-                    + pad(String(format: "%+.2f pt", sideways), 14)
-                    + pad(String(format: "%+.2f pt", above), 14)
+                    + pad(String(format: "%.1f/%.1f", form.armLiftLeading, form.armLiftTrailing), 12)
+                    + pad(String(format: "%+.2f pt", max(leadOut, trailOut)), 14)
+                    + pad(String(format: "%+.2f pt", min(leadOut, trailOut)), 14)
+                    + pad(String(format: "%+.2f pt", above), 12)
                     + (clipped > 0.01 ? String(format: "%.2f pt", clipped) : "—")
             )
         }
@@ -335,5 +388,31 @@ enum CreatureGate {
             ? String(format: "worst lane overflow across %d seeds x 4 poses: %.2f pt (%@)",
                      rollCount, worst, label)
             : "no roll overflows the lane")
+
+        // Condition 1 is judged on the worst roll, so the separations that carry
+        // it are measured across every seed rather than on the reference body.
+        // A wide body has the least room to put an arm into, so the worst case
+        // here is the widest roll, not the average one.
+        var worstAsymmetry = CGFloat.greatestFiniteMagnitude
+        var asymmetrySeed = 0
+        var worstHoldingBreak = CGFloat.greatestFiniteMagnitude
+        var holdingSeed = 0
+        for seed in 0..<rollCount {
+            let waiting = CreatureForm.make(seed: UInt64(seed), pose: .waiting)
+            let wBody = creaturePath(form: waiting, in: frame, includeArms: false).boundingBoxOfPath
+            let wFull = creaturePath(form: waiting, in: frame).boundingBoxOfPath
+            // How lopsided `waiting` is — the cue that separates it from both
+            // neighbours. Zero would mean it had gone symmetric.
+            let asymmetry = abs((wFull.maxX - wBody.maxX) - (wBody.minX - wFull.minX))
+            if asymmetry < worstAsymmetry { worstAsymmetry = asymmetry; asymmetrySeed = seed }
+
+            let holding = CreatureForm.make(seed: UInt64(seed), pose: .holding)
+            let hBody = creaturePath(form: holding, in: frame, includeArms: false).boundingBoxOfPath
+            let hFull = creaturePath(form: holding, in: frame).boundingBoxOfPath
+            let quietSide = min(hFull.maxX - hBody.maxX, hBody.minX - hFull.minX)
+            if quietSide < worstHoldingBreak { worstHoldingBreak = quietSide; holdingSeed = seed }
+        }
+        print(String(format: "worst roll — waiting asymmetry %.2f pt (seed %d), holding weaker arm %.2f pt (seed %d)",
+                     worstAsymmetry, asymmetrySeed, worstHoldingBreak, holdingSeed))
     }
 }

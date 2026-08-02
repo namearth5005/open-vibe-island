@@ -160,27 +160,40 @@ Requirements for every pose:
 
 1. **The break must be visible in the outline, not only in the interior.** A gesture that
    stays inside the body's bounding envelope does not read.
-2. **The break extends downward or sideways.** The pill cannot draw above itself (§1).
+2. **The break extends sideways, never up.** The pill cannot draw above itself (§1), and the
+   lane leaves only 1.3–4.2pt above the body in any case. The sides carry 4.5–6.7pt each.
+   **Sideways is the only axis with room.**
 3. **A raised-limb gesture needs a ≥2–3px gap** (1–1.5pt) between the limb and the body at
    pill scale. Below that the gap closes under antialiasing and the limb merges into the mass.
 4. **The three attention states must be mutually distinguishable at true size**, judged on
    the worst procedural roll, not the best.
+5. **State is signalled by how many limbs are out, not how far.** See below — this is the
+   rule that the gate was failed and then re-passed on.
 
-### Known failure to solve
+### The asymmetry rule
 
-The current placeholder geometry **does not meet requirement 1 or 3**, and this is measured,
-not suspected:
+The three pill-legible states separate by **count and symmetry**, not by degree:
 
-- Raised arms never clear the body's top edge — vertical break is **0.00pt** in all upright
-  poses.
-- Sideways extent runs *backwards*: the calm pose is the widest silhouette at +3.86pt, while
-  the reward-bearing pose is the narrowest at +1.98pt.
-- Consequently *waiting* and *holding* — "I need you" versus "come collect this" — are not
-  reliably distinguishable at true size.
+| State | Arms | Silhouette character |
+|---|---|---|
+| `working` | none out | compact, symmetric |
+| `waiting` | **one** out | **lopsided** — this is the notification |
+| `holding` | **both** out | wide, symmetric |
 
-**Solving this is a design deliverable, not a rendering detail.** Whoever draws these owns
-the question of which gesture reads as *asking* at 28 × 32pt. It must be solved in the
-silhouette block stage, before any painting.
+This is not a stylistic preference, it is what the measurements forced. An earlier version
+graded a single arm-lift scalar 0 → 0.78 → 1.0 and the gate found *waiting* and *holding*
+indistinguishable at true size: 22% of a range that itself has only about 5pt to travel in,
+with **0.00pt** of vertical break available. Asymmetry survives at 28 × 32pt where a
+difference of degree does not, and it maps cleanly onto meaning — one limb raised reads as
+*asking*, two as *presenting*.
+
+Measured after the fix, on the reference body: `working` breaks the outline by +2.20pt on
+both sides, `waiting` by +5.18pt and +2.20pt, `holding` by +5.18pt on both. On the **worst
+roll** — the widest body, which has the least room to put an arm into — *waiting* still holds
+2.43pt of asymmetry and *holding*'s weaker arm still breaks by 4.74pt.
+
+Whoever draws these inherits the rule, not the geometry: the placeholder proves the signal
+exists at this size, and the drawing has to preserve it.
 
 ---
 

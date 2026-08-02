@@ -190,11 +190,41 @@ Corrections to this spec that the gate forced:
   condition 6 passes on its letter, but they read as one creature at slightly different proportions.
   `bodyWidth` 0.52–0.68 and `bodyHeight` 0.74–0.92 are too narrow a range to perceive at this size.
 
-**Status: awaiting decision.** The failure is in `CreatureForm`'s constants, not in the design's premise —
-`reach` must exceed the body half-height for `armLift` to mean anything, and the width relationship needs
-inverting so raised poses are wider rather than narrower. Options are (a) fix the geometry and re-gate,
-(b) accept three pill states by merging *asking* and *collectable*, or (c) stop the pill half and ship
-panel-only per the fallback above. Nothing downstream proceeds until this is settled.
+## Phase 0 re-gate — 2026-08-02, condition 1 now passes
+
+Option (a) was taken and the geometry fixed. One correction to the diagnosis above: **`reach` could not
+simply be increased.** The proposed fix needs up to 14.7 pt of reach, and the lane offers at most 4.2 pt of
+headroom above the body — which is itself the physical top edge of the display, where nothing can be drawn.
+Vertical was never available. The sides carry 4.5–6.7 pt each, and that is the only axis with room.
+
+So magnitude was replaced with **count and symmetry**. `CreatureForm` now carries `armLiftLeading` and
+`armLiftTrailing` instead of a single `armLift`:
+
+| Pose | Arms | Reads as |
+|---|---|---|
+| `working` | 0.0 / 0.0 | compact, symmetric |
+| `waiting` | **1.0 / 0.0** | **lopsided** — one arm out |
+| `holding` | 1.0 / 1.0 | wide, symmetric |
+| `fallen` | 0.1 / 0.1 | tucked, tilted 70° |
+
+Arms now travel *outward* to the lane edge as lift rises rather than inward, correcting the backwards
+width relationship. Measured on the reference body: `working` breaks the outline +2.20 pt both sides,
+`waiting` +5.18 / +2.20, `holding` +5.18 both. Protrusion above the body is +2.94 pt for the raised poses,
+up from +0.00. Lane overflow is unchanged at 0.46 pt worst.
+
+**Judged on the worst roll**, as the condition requires — the widest body, in the darkest species, at 1×
+and 2× rasterisation. *waiting* holds 2.43 pt of asymmetry and *holding*'s weaker arm still breaks by
+4.74 pt. All three states separate. The gate now renders `worst-<pose>.png` so this is inspectable rather
+than asserted.
+
+**Condition 1: PASS.** Conditions 2 and 4 still pass unchanged. Conditions 3, 5 and 6 remain art-gated and
+re-run on the first real asset batch.
+
+The rule that carries this — *state is signalled by how many limbs are out, not how far* — is recorded in
+`docs/STYLE-SPEC.md` §6, because the illustrator inherits the rule rather than the geometry.
+
+Still open, and unaffected by the fix: the palette does not survive the panel ground, and procedural
+variety is low. Both are tracked in `docs/STYLE-SPEC.md` §11.
 
 ## Non-goals
 
