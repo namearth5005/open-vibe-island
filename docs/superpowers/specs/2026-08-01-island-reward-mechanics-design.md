@@ -149,11 +149,52 @@ Conditions 1, 2 and 4 gate the **system** and run now. Conditions 3, 5 and 6 gat
 again on real sprites. Running the gate twice is the intent, not a workaround — the current pass answers
 "does the mechanism work", the later one answers "does the drawing work".
 
-Known from the prototype: *working* and *knocked-over* do **not** separate at pill size. This is accepted —
-an interrupted session deliberately is not asking for attention — so the pill has **three** legible states,
-not six. The tipped pose is still *drawn* (beat 6 below); it is simply not required to be distinguishable
-from calm. If condition 1 or 2 fails, this design does not ship in the pill and the panel-only variant is
-the fallback.
+An earlier HTML prototype suggested *working* and *knocked-over* would not separate at pill size, and this
+spec previously accepted that. **The gate disproved it** — see the outcome below. The tipped pose is the
+most legible of the four.
+
+If condition 1 or 2 fails, this design does not ship in the pill and the panel-only variant is the
+fallback.
+
+## Phase 0 gate outcome — 2026-08-02
+
+Run via `scripts/creature-gate.sh` against the real `CreatureForm` / `CreaturePalette`, 54 PNGs, judged at
+true 28 × 32 pt on `#0d0d0f` at 1× and 2× rasterisation — not at the 4× render.
+
+**Numeric half: PASS.** Worst species contrast 3.98:1 (openCode), well clear of 3:1. The greyscale
+luminance ladder resolves into six clean, mutually distinguishable steps. Condition 2 and condition 4
+both hold. Lane fit holds too: worst overflow 0.46 pt across 20 seeds × 4 poses, so the 70° tilt fits.
+
+**Condition 1: FAIL.** *waiting* and *holding* do not separate at true pill size.
+
+Root cause, measured rather than judged: **the arms are geometrically incapable of leaving the body.**
+`reach` is `0.34 × bodyHeight` while the body top sits `0.5 × bodyHeight` above centre, so at full lift
+the arm tip reaches at best `midY + 0.40h` — still inside the mass. Protrusion above the body measured
+**+0.00 pt for all three upright poses**. What separates the poses visually is therefore not a raised arm
+but an interior dark counter where the pill shows through the arm/flank gap, and that counter is nearly
+identical between *waiting* and *holding*.
+
+Compounding it, sideways extent runs **backwards**: calm *working* is the widest silhouette at +3.86 pt,
+reward-bearing *holding* the narrowest at +1.98 pt. The pose that should shout has the tightest outline.
+
+Corrections to this spec that the gate forced:
+
+- *fallen* is the **most** legible pose, not the least. The 70° tilt is unmistakable at true size. The
+  prior assumption above was wrong and has been struck.
+- **The palette does not survive the panel ground.** Five of six species measure under 3:1 against
+  `#b4de6f` (claude 1.13:1, codex 1.08:1, cursor 1.34:1, gemini 1.70:1, kimi 2.27:1); only openCode
+  clears at 3.17:1. `lineWork` `#211e12` measures 10.82:1 there versus 1.16:1 on the pill. The palette is
+  a **single-ground** palette built for a dark pill. "Separately authored optical sizes" must extend to
+  **value**: panel creatures need dark bodies, or a dark plate behind them.
+- Procedural variety is low. The 20 rolls contain no duds and none reads as a different species, so
+  condition 6 passes on its letter, but they read as one creature at slightly different proportions.
+  `bodyWidth` 0.52–0.68 and `bodyHeight` 0.74–0.92 are too narrow a range to perceive at this size.
+
+**Status: awaiting decision.** The failure is in `CreatureForm`'s constants, not in the design's premise —
+`reach` must exceed the body half-height for `armLift` to mean anything, and the width relationship needs
+inverting so raised poses are wider rather than narrower. Options are (a) fix the geometry and re-gate,
+(b) accept three pill states by merging *asking* and *collectable*, or (c) stop the pill half and ship
+panel-only per the fallback above. Nothing downstream proceeds until this is settled.
 
 ## Non-goals
 
