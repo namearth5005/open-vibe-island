@@ -28,11 +28,18 @@ This index is the repository map for humans and coding agents. Read these files 
 
 - [docs/superpowers/plans/2026-04-18-opencode-stability.md](./superpowers/plans/2026-04-18-opencode-stability.md) for the OpenCode stability implementation plan
 - [docs/superpowers/plans/2026-07-30-geode-phase-0-1.md](./superpowers/plans/2026-07-30-geode-phase-0-1.md) for the Geode session-shard Phase 0–1 implementation plan
+- [docs/superpowers/plans/2026-08-02-island-creature-pill.md](./superpowers/plans/2026-08-02-island-creature-pill.md) for the island creature pill implementation plan
 
 ## Superpowers Specs
 
 - [docs/superpowers/specs/2026-07-30-geode-session-crystals-design.md](./superpowers/specs/2026-07-30-geode-session-crystals-design.md) for the Geode session-shard design, including the Phase 0 legibility gate outcome and rejected shape candidates
 - [docs/superpowers/specs/2026-07-31-session-log-and-stats-design.md](./superpowers/specs/2026-07-31-session-log-and-stats-design.md) for the session log and Stats view design
+- [docs/superpowers/specs/2026-08-01-island-reward-mechanics-design.md](./superpowers/specs/2026-08-01-island-reward-mechanics-design.md) for the island reward mechanics design, including the creature Phase 0 legibility gate and measured pill geometry
+
+## Design And Art
+
+- [docs/STYLE-SPEC.md](./STYLE-SPEC.md) for the visual style specification and illustrator brief — measured palette, two-tier style system, pill silhouette grammar, and the art acceptance gate
+- [docs/art-production-evaluation.md](./art-production-evaluation.md) for the art production decision document — ranked sourcing routes, the 28pt legibility problem, and licensing posture
 
 ## Runtime And Product Notes
 
