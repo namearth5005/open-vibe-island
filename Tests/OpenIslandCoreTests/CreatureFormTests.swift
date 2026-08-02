@@ -40,9 +40,9 @@ struct CreatureFormTests {
     }
 
     /// The pose changes the arms and the tilt, never the body — otherwise a
-    /// session appears to change creature when it blocks. All three body
-    /// channels are checked across all four poses, since any one of them
-    /// leaking pose would break the illusion.
+    /// session appears to change creature when it blocks. Every body channel is
+    /// checked across all four poses, since any one of them leaking pose would
+    /// break the illusion.
     @Test
     func poseDoesNotChangeBodyProportions() {
         let reference = CreatureForm.make(seed: 7, pose: .working)
@@ -51,7 +51,23 @@ struct CreatureFormTests {
             #expect(form.bodyWidth == reference.bodyWidth, "\(pose.rawValue) changed width")
             #expect(form.bodyHeight == reference.bodyHeight, "\(pose.rawValue) changed height")
             #expect(form.shoulder == reference.shoulder, "\(pose.rawValue) changed shoulder")
+            #expect(form.roundness == reference.roundness, "\(pose.rawValue) changed roundness")
         }
+    }
+
+    /// Individuality has to come from a channel the lane can afford. Width is
+    /// the binding constraint — widening it eats the side room the raised-arm
+    /// gesture needs — so silhouette *shape* carries the variation instead, and
+    /// it costs no space at all.
+    @Test
+    func roundnessSpansItsFullRange() {
+        let values = (UInt64(0)..<200).map { CreatureForm.make(seed: $0, pose: .working).roundness }
+        for value in values {
+            #expect(value >= 0.0 && value <= 1.0, "roundness \(value) is out of range")
+        }
+        // A range that only ever samples its middle would add no visible variety.
+        #expect((values.min() ?? 1) < 0.1, "roundness never reaches boxy")
+        #expect((values.max() ?? 0) > 0.9, "roundness never reaches round")
     }
 
     /// Arm lift is the entire pose vocabulary at pill size, so the values are

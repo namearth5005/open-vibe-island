@@ -99,7 +99,16 @@ func creaturePath(form: CreatureForm, in rect: CGRect, includeArms: Bool = true)
         .rotated(by: CGFloat(form.tilt))
         .translatedBy(x: -rect.midX, y: -rect.midY)
 
-    path.addRoundedRect(in: body, cornerWidth: w * 0.42, cornerHeight: h * 0.34, transform: transform)
+    // 0 is a soft rounded rectangle, 1 is a full capsule. Corner radius is the
+    // cheapest visible difference between two creatures at this size — it costs
+    // no lane width, which nothing else here can say.
+    let corner = CGFloat(form.roundness)
+    path.addRoundedRect(
+        in: body,
+        cornerWidth: w * (0.26 + corner * 0.24),
+        cornerHeight: h * (0.20 + corner * 0.30),
+        transform: transform
+    )
     guard includeArms else { return path }
 
     // `shoulder` is a fraction of body height measured from the top; CoreGraphics

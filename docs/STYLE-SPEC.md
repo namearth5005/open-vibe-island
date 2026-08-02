@@ -218,6 +218,16 @@ roll** — the widest body, which has the least room to put an arm into — *wai
 Whoever draws these inherits the rule, not the geometry: the placeholder proves the signal
 exists at this size, and the drawing has to preserve it.
 
+### Where individuality comes from
+
+Per-session variation must not be bought out of the lane's width — that is the budget the
+gesture above spends, and the two compete directly. Variation is carried by **silhouette
+shape** instead: bodies range from boxy to fully capsule at constant width. Shape costs no
+horizontal room, so it is free in the only currency this lane is short of.
+
+For art, the same rule applies: if species need to differ, differ them by *outline*, not by
+footprint. A wider creature is a less legible one.
+
 ---
 
 ## 7. The four poses
@@ -306,10 +316,12 @@ Silhouette blocks precede all of the above and are approved separately.
 2. ~~**The `waiting` / `holding` gesture pair.**~~ **Resolved** — see §6. Separated by arm
    count rather than arm lift, and re-gated on the worst roll.
 
-3. **Procedural variation range.** Body proportions vary too little to perceive (width
-   0.52–0.68, height 0.74–0.92 of the frame). Decide whether per-session individuality is a
-   goal worth widening the range for, or whether species identity alone is sufficient. Note
-   the lane is width-constrained, so widening has a hard ceiling.
+3. ~~**Procedural variation range.**~~ **Resolved** — but not by widening the proportions.
+   Width is the lane's binding constraint and the raised-arm gesture needs the side room, so
+   widening it would have bought individuality by spending legibility. Variation moved to a
+   `roundness` channel instead: silhouette shape from boxy to fully capsule, which costs no
+   lane width. Re-gated — pose separations are unchanged at 2.43pt and 4.74pt, and no roll
+   reads as a dud or as a different species.
 
 4. **Target aesthetic.** Whether the pill creature should read as a small painterly figure or
    as a bold flat glyph with strong silhouette character. At 28 × 32pt the second is more

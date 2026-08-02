@@ -9,6 +9,13 @@ public struct CreatureForm: Equatable, Sendable {
     public let bodyHeight: Double
     /// Vertical position where the arms attach, as a fraction of body height.
     public let shoulder: Double
+    /// Silhouette shape, 0 boxy through 1 fully rounded.
+    ///
+    /// Individuality has to come from a channel the lane can afford. Width is
+    /// the binding constraint and the raised-arm gesture needs the side room,
+    /// so proportions stay in a narrow band and *shape* carries the variation
+    /// instead — which costs no space at all.
+    public let roundness: Double
     /// How far the leading (trailing-edge-of-lane) arm rises. 0 hangs, 1 is
     /// fully out.
     ///
@@ -30,6 +37,7 @@ public struct CreatureForm: Equatable, Sendable {
         bodyWidth: Double,
         bodyHeight: Double,
         shoulder: Double,
+        roundness: Double,
         armLiftLeading: Double,
         armLiftTrailing: Double,
         tilt: Double
@@ -37,6 +45,7 @@ public struct CreatureForm: Equatable, Sendable {
         self.bodyWidth = bodyWidth
         self.bodyHeight = bodyHeight
         self.shoulder = shoulder
+        self.roundness = roundness
         self.armLiftLeading = armLiftLeading
         self.armLiftTrailing = armLiftTrailing
         self.tilt = tilt
@@ -51,6 +60,7 @@ public struct CreatureForm: Equatable, Sendable {
         let bodyWidth = 0.52 + rng.nextUnitDouble() * 0.16   // 0.52...0.68
         let bodyHeight = 0.74 + rng.nextUnitDouble() * 0.18  // 0.74...0.92
         let shoulder = 0.44 + rng.nextUnitDouble() * 0.12
+        let roundness = rng.nextUnitDouble()
 
         // Pose is expressed through the arms and tilt only. Body proportions
         // stay fixed so a session does not appear to change creature when it
@@ -72,7 +82,7 @@ public struct CreatureForm: Equatable, Sendable {
 
         return CreatureForm(
             bodyWidth: bodyWidth, bodyHeight: bodyHeight,
-            shoulder: shoulder,
+            shoulder: shoulder, roundness: roundness,
             armLiftLeading: leading, armLiftTrailing: trailing,
             tilt: tilt
         )

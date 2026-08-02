@@ -243,8 +243,19 @@ Derived rather than hand-picked, so the 3:1 property holds by construction. Chec
 as in colour — the previous panel renders vanished under greyscale, and these do not. Panel renders in
 the gate now use these values.
 
-Still open: procedural variety is low, and the aesthetic target for the pill creature is undecided. Both
-are tracked in `docs/STYLE-SPEC.md` §11.
+### Procedural variety, also resolved
+
+Not by widening the proportions. Width is the lane's binding constraint and the raised-arm gesture needs
+the side room, so widening would have bought individuality by spending legibility — the two compete for
+the same budget. `CreatureForm` gained a `roundness` channel instead: silhouette shape from boxy to full
+capsule at constant width, which costs no horizontal room.
+
+Re-gated afterwards. Pose separations are unchanged (2.43 pt asymmetry, 4.74 pt weaker arm), worst lane
+overflow 0.57 pt, and the 20 rolls now show visibly distinct outlines with no dud and no species
+confusion.
+
+Still open: the aesthetic target for the pill creature — small painterly figure versus bold flat glyph —
+and whether `waiting` should alternate which arm it raises. Both tracked in `docs/STYLE-SPEC.md` §11.
 
 ## Non-goals
 
