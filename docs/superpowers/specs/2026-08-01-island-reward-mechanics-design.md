@@ -223,8 +223,28 @@ re-run on the first real asset batch.
 The rule that carries this — *state is signalled by how many limbs are out, not how far* — is recorded in
 `docs/STYLE-SPEC.md` §6, because the illustrator inherits the rule rather than the geometry.
 
-Still open, and unaffected by the fix: the palette does not survive the panel ground, and procedural
-variety is low. Both are tracked in `docs/STYLE-SPEC.md` §11.
+### The panel ground, also resolved
+
+The single-ground finding above stands — the pill ladder genuinely cannot be reused on `#b4de6f`. What
+changed is that the ladder is now **restated** for the panel rather than abandoned. `CreaturePalette`
+gained `panelGround` and `panelColor(for:)`, which scales each species in linear light into an L 3–14%
+band: same order, same hues, dark enough to read on a light ground.
+
+| Species | Pill on panel | Panel value | On panel |
+|---|---|---|---|
+| Claude | 1.13:1 | `#766656` | 3.58:1 |
+| Codex | 1.08:1 | `#535f6e` | 4.22:1 |
+| Cursor | 1.34:1 | `#385b4b` | 4.92:1 |
+| Gemini | 1.70:1 | `#4e4658` | 5.82:1 |
+| Kimi | 2.27:1 | `#563342` | 6.99:1 |
+| OpenCode | 3.17:1 | `#343022` | 8.56:1 |
+
+Derived rather than hand-picked, so the 3:1 property holds by construction. Checked desaturated as well
+as in colour — the previous panel renders vanished under greyscale, and these do not. Panel renders in
+the gate now use these values.
+
+Still open: procedural variety is low, and the aesthetic target for the pill creature is undecided. Both
+are tracked in `docs/STYLE-SPEC.md` §11.
 
 ## Non-goals
 

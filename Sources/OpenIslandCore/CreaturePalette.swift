@@ -28,6 +28,26 @@ public struct CreatureColor: Equatable, Sendable {
         let lb = b.relativeLuminance
         return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
     }
+
+    /// The same colour at a different brightness.
+    ///
+    /// Scales all three channels in *linear* light by one factor, so
+    /// chromaticity is untouched and only value moves. Doing this in sRGB space
+    /// instead would drag the hue toward whichever channel was largest.
+    public func scaledToLuminance(_ target: Double) -> CreatureColor {
+        let current = relativeLuminance
+        guard current > 0, target > 0 else { return CreatureColor(red: 0, green: 0, blue: 0) }
+        let factor = target / current
+
+        func rescale(_ raw: UInt8) -> UInt8 {
+            let value = Double(raw) / 255.0
+            let linear = value <= 0.04045 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
+            let scaled = min(1.0, max(0.0, linear * factor))
+            let encoded = scaled <= 0.0031308 ? 12.92 * scaled : 1.055 * pow(scaled, 1.0 / 2.4) - 0.055
+            return UInt8(max(0, min(255, (encoded * 255).rounded())))
+        }
+        return CreatureColor(red: rescale(red), green: rescale(green), blue: rescale(blue))
+    }
 }
 
 /// Species colours, chosen as a deliberate luminance ladder rather than a hue
@@ -66,4 +86,42 @@ public enum CreaturePalette {
     /// moves. `CreaturePillFillTests` in the app target is the real guard: it
     /// is the only place both constants are in scope together.
     public static let pillFill = CreatureColor(red: 0x0d, green: 0x0d, blue: 0x0f)
+
+    /// The opened panel's foreground wash — the ground panel creatures stand on.
+    ///
+    /// At L 63.1% this is very nearly the inverse of the pill, which is the
+    /// whole reason `panelColor(for:)` exists.
+    public static let panelGround = CreatureColor(red: 0xb4, green: 0xde, blue: 0x6f)
+
+    /// Species value for the panel surface.
+    ///
+    /// The pill ladder cannot be reused here. Clearing 3:1 against a ground at
+    /// L 63.1% requires L <= 17.7%, and five of the six pill values sit above
+    /// that — measured, they land between 1.08:1 and 2.27:1 on the panel, which
+    /// is invisible. There is no single ground that serves the pill ladder and
+    /// the panel both; the only one that would is itself near-black.
+    ///
+    /// So the ladder is restated rather than reused: the same order, the same
+    /// hues, compressed into a dark band the panel can actually show. Rank is
+    /// preserved so a species stays recognisable across the two surfaces, and
+    /// scaling happens in linear light so only value moves.
+    ///
+    /// Identity works differently on each surface as a result — value carries it
+    /// on the pill, where there are no pixels for anything else; silhouette and
+    /// hue carry it on the panel, where there are. See `docs/STYLE-SPEC.md` §3.3.
+    public static func panelColor(for species: CreatureSpecies) -> CreatureColor {
+        let luminances = CreatureSpecies.allCases.map { color(for: $0).relativeLuminance }
+        guard let darkest = luminances.min(), let lightest = luminances.max(), lightest > darkest else {
+            return color(for: species).scaledToLuminance(panelLuminanceFloor)
+        }
+        let position = (color(for: species).relativeLuminance - darkest) / (lightest - darkest)
+        let target = panelLuminanceFloor + position * (panelLuminanceCeiling - panelLuminanceFloor)
+        return color(for: species).scaledToLuminance(target)
+    }
+
+    /// Bounds of the panel band. The ceiling is held below the 17.7% that 3:1
+    /// against `panelGround` allows, so 8-bit rounding cannot push the lightest
+    /// species under the bar.
+    static let panelLuminanceFloor = 0.03
+    static let panelLuminanceCeiling = 0.14
 }

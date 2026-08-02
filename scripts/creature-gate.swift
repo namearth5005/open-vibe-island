@@ -38,10 +38,6 @@ let pillLane = CGSize(width: 28, height: 32)
 /// this is the 64px-tall panel slot.
 let panelLane = CGSize(width: 56, height: 64)
 
-/// Measured foreground green of the opened panel. Not in Core — Core only owns
-/// the surfaces it must assert against.
-let panelGround = CreatureColor(red: 0xb4, green: 0xde, blue: 0x6f)
-
 /// One seed shared by every species render, so the value ladder is the only
 /// variable between them. Placeholder geometry varies per session seed, not per
 /// species, so giving each species its own seed would fake a silhouette
@@ -267,12 +263,14 @@ enum CreatureGate {
             write(image, "grey-\(species.rawValue).png")
         }
 
-        // 3. Panel optical size on the panel green.
+        // 3. Panel optical size on the panel green, in panel values. The pill
+        //    values are not reused here — on this ground they measure 1.08:1 to
+        //    2.27:1 and simply are not there.
         for pose in CreaturePose.allCases {
             let image = render(
                 size: panelLane,
-                ground: panelGround,
-                body: CreaturePalette.color(for: panelSpecies),
+                ground: CreaturePalette.panelGround,
+                body: CreaturePalette.panelColor(for: panelSpecies),
                 form: CreatureForm.make(seed: referenceSeed, pose: pose)
             )
             write(image, "panel-\(pose.rawValue).png")
@@ -330,14 +328,27 @@ enum CreatureGate {
                      worst, worst >= 3.0 ? "PASS" : "FAIL"))
 
         // The panel ground inverts the figure/ground relationship the pill
-        // palette is built for. Printed because the panel PNGs cannot be read
-        // honestly without it.
+        // palette is built for, so the panel has its own values. Both columns
+        // are printed because the second only makes sense next to the first.
+        let ground = CreaturePalette.panelGround
         print("")
-        print("Same colours against the panel ground \(hex(panelGround)) (informational)")
+        print("Panel ground \(hex(ground)) — pill values cannot be reused here")
+        print(pad("species", 12) + pad("pill value", 20) + pad("panel value", 20) + "verdict")
+        var worstPanel = Double.greatestFiniteMagnitude
         for species in CreatureSpecies.allCases {
-            let ratio = CreatureColor.contrastRatio(CreaturePalette.color(for: species), panelGround)
-            print(pad(species.rawValue, 12) + String(format: "%.2f:1", ratio))
+            let reused = CreatureColor.contrastRatio(CreaturePalette.color(for: species), ground)
+            let panel = CreaturePalette.panelColor(for: species)
+            let ratio = CreatureColor.contrastRatio(panel, ground)
+            worstPanel = min(worstPanel, ratio)
+            print(
+                pad(species.rawValue, 12)
+                    + pad(String(format: "%@ %.2f:1", hex(CreaturePalette.color(for: species)), reused), 20)
+                    + pad(String(format: "%@ %.2f:1", hex(panel), ratio), 20)
+                    + (reused >= 3.0 ? "was already fine" : "was invisible")
+            )
         }
+        print(String(format: "worst %.2f:1 — needs >= 3.00:1 — %@",
+                     worstPanel, worstPanel >= 3.0 ? "PASS" : "FAIL"))
     }
 
     static func reportGeometry() {
