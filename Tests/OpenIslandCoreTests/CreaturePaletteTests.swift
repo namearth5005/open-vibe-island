@@ -2,8 +2,18 @@ import Testing
 @testable import OpenIslandCore
 
 struct CreaturePaletteTests {
-    /// The real closed-pill fill, `V6Palette.ink`.
-    private let pill = CreatureColor(red: 0x0c, green: 0x0d, blue: 0x0f)
+    /// Deliberately the shipped constant rather than a local copy. An earlier
+    /// draft declared its own literal here, which is exactly how a one-channel
+    /// drift from `V6Palette.ink` survived unnoticed.
+    private let pill = CreaturePalette.pillFill
+
+    /// Known-answer test pinning `pillFill` to `V6Palette.ink`
+    /// (`V6ClosedPillShape.swift`). Core cannot import the app target, so this
+    /// is the only thing standing between the two copies and silent drift.
+    @Test
+    func pillFillMatchesTheShippedInk() {
+        #expect(CreaturePalette.pillFill == CreatureColor(red: 0x0d, green: 0x0d, blue: 0x0f))
+    }
 
     @Test
     func knownAnswerLuminance() {

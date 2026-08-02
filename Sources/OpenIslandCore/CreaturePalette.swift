@@ -57,6 +57,9 @@ public enum CreaturePalette {
     /// against the pill it is invisible there.
     public static let lineWork = CreatureColor(red: 0x21, green: 0x1e, blue: 0x12)
 
-    /// `V6Palette.ink`, duplicated here so Core can assert against it.
-    public static let pillFill = CreatureColor(red: 0x0c, green: 0x0d, blue: 0x0f)
+    /// Mirrors `V6Palette.ink` (`V6ClosedPillShape.swift`), duplicated here so
+    /// Core can assert against the surface creatures are drawn on without
+    /// depending on the app target. Keep the two in step: if the pill fill ever
+    /// changes, `CreaturePaletteTests` is what catches the drift.
+    public static let pillFill = CreatureColor(red: 0x0d, green: 0x0d, blue: 0x0f)
 }
