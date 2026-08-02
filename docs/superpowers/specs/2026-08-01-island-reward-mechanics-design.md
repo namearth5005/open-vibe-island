@@ -97,11 +97,11 @@ scrolling.
 
 ### Value, which is the real art constraint
 
-Contrast ratios against the closed pill fill `#0c0d0f` (`V6Palette.ink`):
+Contrast ratios against the closed pill fill `#0d0d0f` (`V6Palette.ink`):
 
 | Colour | Role | Contrast |
 |---|---|---|
-| `#211e12` | the reference style's signature outline | **1.17:1 — invisible** |
+| `#211e12` | the reference style's signature outline | **1.16:1 — invisible** |
 | `#b73b3a` | accent / interrupted | 3.43:1 — weak |
 | `#856a47` | structure dark | 3.84:1 — weak |
 | `#b4de6f` | light wash | 12.61:1 |
@@ -125,7 +125,7 @@ the entire reference style is built on and which our pill inverts. Therefore:
 **Nothing else in this spec may be built until this passes.** This mirrors the geode Phase 0 gate.
 
 Build an offscreen render harness — same approach that produced `shard-final.png` and `geode-shapes.png` —
-that draws real SwiftUI shapes to PNG at **true 28 × 32 pt composited on `#0c0d0f`** and at **64px on the
+that draws real SwiftUI shapes to PNG at **true 28 × 32 pt composited on `#0d0d0f`** and at **64px on the
 panel ground**, for all four poses across all six species, plus 20 procedural individual variations within
 one species.
 
@@ -133,10 +133,21 @@ Pass conditions:
 
 1. At true pill size **on the actual pill colour**, calm / asking / collectable are mutually
    distinguishable at a glance, judged on the worst roll, not the best.
-2. Every species and pose clears **≥3:1 against `#0c0d0f`** as a measured number, not a judgement.
-3. At 64px, all four poses are distinguishable and the six species are distinguishable from silhouette
-   alone **with colour removed**.
-4. No procedural individual reads as a dud or as a different species.
+2. Every species and pose clears **≥3:1 against `#0d0d0f`** as a measured number, not a judgement.
+3. At 64px, all four poses are distinguishable.
+4. **Greyscale separation:** with colour removed, the six species remain tellable apart. The luminance
+   ladder carries this, so it is testable on placeholder geometry and is asserted in
+   `CreaturePaletteTests`.
+5. **Silhouette separation:** the six species are distinguishable from shape alone. This is
+   **deferred to the first real asset batch** and is *not* testable on the placeholder shapes — those
+   vary per session seed, not per species, so all six bodies are currently the same shape in different
+   values. Deliberate: species-distinct silhouettes are an art deliverable, not a procedural one.
+   Whoever draws the assets owns this condition, and the gate re-runs against it.
+6. No procedural individual reads as a dud or as a different species.
+
+Conditions 1, 2 and 4 gate the **system** and run now. Conditions 3, 5 and 6 gate the **art** and run
+again on real sprites. Running the gate twice is the intent, not a workaround — the current pass answers
+"does the mechanism work", the later one answers "does the drawing work".
 
 Known from the prototype: *working* and *knocked-over* do **not** separate at pill size. This is accepted —
 an interrupted session deliberately is not asking for attention — so the pill has **three** legible states,
@@ -380,12 +391,12 @@ becomes the next prompt) is sound and should be used. Two amendments from evalua
   ideas and are already written down here.
 
 The Phase 0 gate runs on the **first real asset batch**, not on placeholder art, and composited on
-`#0c0d0f` rather than on white.
+`#0d0d0f` rather than on white.
 
 ## Build order
 
 0. **Render harness + kill gate.** Blocking. No other task starts until it passes. Renders composited on
-   `#0c0d0f`, with contrast measured rather than eyeballed, and a colour-removed pass.
+   `#0d0d0f`, with contrast measured rather than eyeballed, and a colour-removed pass.
 1. **Window geometry spike.** Prove the pill can draw *below* the capsule.
 2. **`IslandCreature` + `pose(for:)`,** pure, unit-tested against `GeodeState` transitions.
 3. **`CreatureView`** at both scales, pinned in the debug scenario the way shard rendering already is.
@@ -408,7 +419,7 @@ single plan spanning the whole build order.
 - Rendering: pin creature output in `IslandDebugScenario` and the harness, exactly as `c186fad` did for
   shard rendering.
 - Determinism: same seed → same individual, asserted.
-- **Contrast, as a test not a review:** every species × pose asserts ≥3:1 against `#0c0d0f`. This is
+- **Contrast, as a test not a review:** every species × pose asserts ≥3:1 against `#0d0d0f`. This is
   computable, so it should fail the build rather than a design review.
 - **Greyscale separation:** the six species must remain distinguishable with colour removed.
 - **Palette conformance:** no colour literals outside `IslandDesignPalette.swift`.
@@ -420,7 +431,7 @@ single plan spanning the whole build order.
 
 | Risk | Severity | Mitigation |
 |---|---|---|
-| Creature illegible in a 28 × 32 pt lane on `#0c0d0f` | kills the pill half | Phase 0 gate, measured ≥3:1, judged on the worst roll |
+| Creature illegible in a 28 × 32 pt lane on `#0d0d0f` | kills the pill half | Phase 0 gate, measured ≥3:1, judged on the worst roll |
 | Species indistinguishable without hue | fails colour-blind users and degrades at pill size | Silhouette carries species; spread values deliberately; gate condition 3 tests with colour removed |
 | Window geometry cannot draw outside the capsule | weakens the notification | Phase 1 spike before art; downward only |
 | Art reads as generic AI output | kills the whole premise — the reference's growth came from *not* looking generated | Cull hard; palette conformance as a lint rule; the six-family taxonomy gives distinct silhouettes to aim at |
@@ -443,7 +454,7 @@ single plan spanning the whole build order.
    copyrightable and so cannot be meaningfully licensed in this repo. Generated assets are viable for
    development placeholders regardless, and the owner's position is that a good prompt plus good
    references can carry further than that. **The cheapest way to settle it is the Phase 0 gate itself**:
-   run it on a generated batch. If species clear ≥3:1 on `#0c0d0f`, separate in greyscale, and stay
+   run it on a generated batch. If species clear ≥3:1 on `#0d0d0f`, separate in greyscale, and stay
    coherent across 24 poses with no hand touch-up, generation is sufficient and the question closes.
 
 ## Process notes

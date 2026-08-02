@@ -22,7 +22,9 @@ struct CreatureFormTests {
         }
     }
 
-    /// Pins the actual sampling ranges, not merely "inside the frame" — a body
+    /// Pins the outer envelope of the sampling ranges. Because `nextUnitDouble()`
+    /// is uniform in `0..<1` the upper bounds are never attained, so this catches a
+    /// range that widens past the lane edge but not one that silently narrows, not merely "inside the frame" — a body
     /// 0.99 of the lane wide would satisfy the loose bound and still collide
     /// with the lane edge, which is the failure the ranges exist to prevent.
     @Test

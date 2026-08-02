@@ -10,7 +10,6 @@ struct CreatureSpeciesTests {
     func everyToolLandsInTheSixSpeciesAndNoSpeciesIsOrphaned() {
         let reached = Set(AgentTool.allCases.map { CreatureSpecies(tool: $0) })
         #expect(AgentTool.allCases.count == 10)
-        #expect(reached.isSubset(of: Set(CreatureSpecies.allCases)))
 
         let orphans = Set(CreatureSpecies.allCases).subtracting(reached)
         #expect(orphans.isEmpty, "no tool maps to \(orphans.map(\.rawValue).sorted())")

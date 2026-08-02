@@ -289,7 +289,7 @@ import Testing
 
 struct CreaturePaletteTests {
     /// The real closed-pill fill, `V6Palette.ink`.
-    private let pill = CreatureColor(red: 0x0c, green: 0x0d, blue: 0x0f)
+    private let pill = CreatureColor(red: 0x0d, green: 0x0d, blue: 0x0f)
 
     @Test
     func knownAnswerLuminance() {
@@ -406,7 +406,7 @@ public enum CreaturePalette {
     public static let lineWork = CreatureColor(red: 0x21, green: 0x1e, blue: 0x12)
 
     /// `V6Palette.ink`, duplicated here so Core can assert against it.
-    public static let pillFill = CreatureColor(red: 0x0c, green: 0x0d, blue: 0x0f)
+    public static let pillFill = CreatureColor(red: 0x0d, green: 0x0d, blue: 0x0f)
 }
 ```
 

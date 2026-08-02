@@ -53,7 +53,7 @@ public enum CreaturePalette {
         }
     }
 
-    /// Interior line work. Never used to carry the silhouette edge — at 1.17:1
+    /// Interior line work. Never used to carry the silhouette edge — at 1.16:1
     /// against the pill it is invisible there.
     public static let lineWork = CreatureColor(red: 0x21, green: 0x1e, blue: 0x12)
 

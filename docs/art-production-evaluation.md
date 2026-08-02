@@ -83,7 +83,7 @@ Two things no test result changes, because they're physics and law rather than t
 ## Appendix — locally verified numbers
 
 Computed here rather than taken from the research, using WCAG relative luminance against the closed
-pill fill `#0c0d0f` (`V6Palette.ink`):
+pill fill `#0d0d0f` (`V6Palette.ink`):
 
 | Colour | Role | Contrast on pill |
 |---|---|---|
