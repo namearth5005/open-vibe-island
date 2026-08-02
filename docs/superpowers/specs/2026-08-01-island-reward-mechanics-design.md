@@ -254,6 +254,31 @@ Re-gated afterwards. Pose separations are unchanged (2.43 pt asymmetry, 4.74 pt 
 overflow 0.57 pt, and the 20 rolls now show visibly distinct outlines with no dud and no species
 confusion.
 
+### The window overhang is not needed
+
+Phase 1 was to prove the pill can draw **below** the capsule, on the reasoning that raised arms must escape
+downward because they cannot go up. The sideways fix removes that need: measured across 20 seeds × 4 poses,
+**nothing is drawn above the lane at all**, and the worst spill of any kind is 0.57 pt on the *left* edge
+from the `fallen` tilt. The creature is fully contained by the pill it already has.
+
+Growing the closed window into the menu-bar strip would therefore be building for a gesture that no longer
+exists, at the cost of a transparent overhang that has to be proven not to eat menu-bar clicks. **Not
+built.** If a later art batch wants a gesture that leaves the capsule, this becomes live again — the
+constraint is recorded in `docs/STYLE-SPEC.md` §6, and `CreatureSilhouetteTests` asserts the containment
+that makes it unnecessary today.
+
+### One definition of the shape
+
+The silhouette moved out of the harness into `CreatureSilhouette` in Core, and the harness now calls it.
+The plan had the view "mirror" the harness with a comment asking both to be edited together, which is the
+same arrangement that let the pill fill drift from `V6Palette.ink` for several commits. A gate that
+measures a copy of the shipped geometry does not gate anything. Verified behaviour-preserving: the 57
+renders are byte-identical across the move.
+
+The measurable half of the gate is now `CreatureSilhouetteTests` — nothing above the lane, `waiting`
+lopsided and the other poses not, `holding` breaking both sides, `working` quietest. Mutation-checked:
+collapsing `waiting` into `holding` and sending the arms upward each fail it loudly.
+
 Still open: the aesthetic target for the pill creature — small painterly figure versus bold flat glyph —
 and whether `waiting` should alternate which arm it raises. Both tracked in `docs/STYLE-SPEC.md` §11.
 

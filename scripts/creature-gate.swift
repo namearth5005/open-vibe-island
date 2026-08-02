@@ -30,13 +30,8 @@ import UniformTypeIdentifiers
 /// authored at 4x resolution.
 let renderScale: CGFloat = 4
 
-/// The measured creature budget: 44pt right-slot reserve minus 16pt padding,
-/// against the 32pt closed pill on a built-in display.
-let pillLane = CGSize(width: 28, height: 32)
-
-/// Panel optical size. The spec authors pill and panel creatures separately;
-/// this is the 64px-tall panel slot.
-let panelLane = CGSize(width: 56, height: 64)
+let pillLane = CreatureSilhouette.pillLane
+let panelLane = CreatureSilhouette.panelLane
 
 /// One seed shared by every species render, so the value ladder is the only
 /// variable between them. Placeholder geometry varies per session seed, not per
@@ -83,70 +78,11 @@ func hex(_ c: CreatureColor) -> String {
 
 // MARK: - Geometry
 
-/// Builds the creature silhouette for `form` inside `rect`, in points.
-///
-/// Placeholder geometry: a rounded capsule body plus two stroked arms. There is
-/// no interior line work — `CreaturePalette.lineWork` sits at 1.16:1 against the
-/// pill, so anything drawn with it there is invisible and would only flatter the
-/// render. The gate judges silhouette alone, which is what the pill actually has.
+/// The gate draws the *shipped* silhouette, not a copy of it. `CreatureSilhouette`
+/// is the single definition; if it changes, these renders change with it, which
+/// is the only way a gate can stay honest.
 func creaturePath(form: CreatureForm, in rect: CGRect, includeArms: Bool = true) -> CGPath {
-    let path = CGMutablePath()
-    let w = rect.width * CGFloat(form.bodyWidth)
-    let h = rect.height * CGFloat(form.bodyHeight)
-    let body = CGRect(x: rect.midX - w / 2, y: rect.midY - h / 2, width: w, height: h)
-
-    let transform = CGAffineTransform(translationX: rect.midX, y: rect.midY)
-        .rotated(by: CGFloat(form.tilt))
-        .translatedBy(x: -rect.midX, y: -rect.midY)
-
-    // 0 is a soft rounded rectangle, 1 is a full capsule. Corner radius is the
-    // cheapest visible difference between two creatures at this size — it costs
-    // no lane width, which nothing else here can say.
-    let corner = CGFloat(form.roundness)
-    path.addRoundedRect(
-        in: body,
-        cornerWidth: w * (0.26 + corner * 0.24),
-        cornerHeight: h * (0.20 + corner * 0.30),
-        transform: transform
-    )
-    guard includeArms else { return path }
-
-    // `shoulder` is a fraction of body height measured from the top; CoreGraphics
-    // y grows upward, so this counts down from the body's top edge.
-    let shoulderY = body.minY + body.height * CGFloat(1.0 - form.shoulder)
-    let stroke = max(1.0, w * 0.17)
-    let halfStroke = stroke / 2
-
-    // A raised arm travels *outward*, not upward. The lane leaves 4.5-6.7pt at
-    // the sides and at most 4.2pt above the body — and that headroom is the
-    // physical top edge of the display, where nothing can be drawn at all. The
-    // first version of this harness shrank the silhouette as lift rose, which
-    // is backwards: the pose that should shout ended up narrowest.
-    //
-    // Round caps extend half a stroke past the tip, so the limits are inset by
-    // that much and a fully raised arm lands exactly on the lane edge.
-    let outX = rect.width / 2 - halfStroke
-    let outY = min(body.maxY + h * 0.06, rect.maxY - halfStroke)
-
-    for (side, lift) in [(CGFloat(-1), CGFloat(form.armLiftTrailing)),
-                         (CGFloat(1), CGFloat(form.armLiftLeading))] {
-        let x0 = rect.midX + side * w * 0.44
-        // Hanging: tucked along the flank, just proud of the body edge.
-        let hangX = x0 + side * w * 0.10
-        let hangY = shoulderY - h * 0.22
-        let x1 = hangX + (rect.midX + side * outX - hangX) * lift
-        let y1 = hangY + (outY - hangY) * lift
-
-        let arm = CGMutablePath()
-        arm.move(to: CGPoint(x: x0, y: shoulderY))
-        arm.addLine(to: CGPoint(x: x1, y: y1))
-        let stroked = arm.copy(
-            strokingWithWidth: stroke,
-            lineCap: .round, lineJoin: .round, miterLimit: 4
-        )
-        path.addPath(stroked, transform: transform)
-    }
-    return path
+    CreatureSilhouette.path(for: form, in: rect, includeArms: includeArms)
 }
 
 // MARK: - Raster
@@ -206,12 +142,21 @@ func worstWaitingRollSeed(in frame: CGRect, count: Int) -> UInt64 {
     return seed
 }
 
-/// How far the silhouette pokes outside the lane it has to live in.
-func laneOverflow(_ box: CGRect, in frame: CGRect) -> CGFloat {
-    max(
-        max(frame.minX - box.minX, box.maxX - frame.maxX),
-        max(frame.minY - box.minY, box.maxY - frame.maxY)
-    )
+/// How far the silhouette pokes outside the lane it has to live in, and where.
+///
+/// The edge matters, not just the amount: the lane's top edge is the physical
+/// top edge of the display, so an overflow there is drawn off-screen and is
+/// gone, while the same amount at the bottom merely spills into the menu-bar
+/// strip and could be recovered by growing the window.
+func laneOverflow(_ box: CGRect, in frame: CGRect) -> (amount: CGFloat, edge: String) {
+    let edges = [
+        (frame.minY - box.minY, "bottom"),
+        (box.maxY - frame.maxY, "top"),
+        (frame.minX - box.minX, "left"),
+        (box.maxX - frame.maxX, "right"),
+    ]
+    let worst = edges.max { $0.0 < $1.0 }!
+    return (worst.0, worst.1)
 }
 
 func pad(_ text: String, _ width: Int) -> String {
@@ -379,7 +324,7 @@ enum CreatureGate {
             let leadOut = fullBox.maxX - bodyBox.maxX
             let trailOut = bodyBox.minX - fullBox.minX
             let above = fullBox.maxY - bodyBox.maxY
-            let clipped = laneOverflow(fullBox, in: frame)
+            let clipped = laneOverflow(fullBox, in: frame).amount
             print(
                 pad(pose.rawValue, 10)
                     + pad(String(format: "%.1f/%.1f", form.armLiftLeading, form.armLiftTrailing), 12)
@@ -398,9 +343,9 @@ enum CreatureGate {
                 let clip = laneOverflow(
                     creaturePath(form: form, in: frame).boundingBoxOfPath, in: frame
                 )
-                if clip > worst {
-                    worst = clip
-                    label = "seed \(seed) / \(pose.rawValue)"
+                if clip.amount > worst {
+                    worst = clip.amount
+                    label = "seed \(seed) / \(pose.rawValue), \(clip.edge) edge"
                 }
             }
         }
