@@ -213,6 +213,26 @@ struct IslandIdentityStripTests {
         #expect(spoken.contains(CreaturePose.waiting.spokenState))
     }
 
+    /// A button that switches you to another app has to say so before it is
+    /// pressed. This strip is the only way a keyboard or screen-reader user
+    /// reaches a creature at all, so it is the only place that warning can go —
+    /// and the cells that merely select must not carry it, or it stops meaning
+    /// anything.
+    @Test
+    func aCellThatJumpsWarnsThatItWillBeforeItIsPressed() {
+        let sessions = [session("running"), session("approval", phase: .waitingForApproval)]
+        let cells = strip(sessions).cells
+
+        #expect(cells[0].activationHint != cells[1].activationHint)
+        #expect(cells.allSatisfy { !$0.activationHint.isEmpty })
+        for cell in cells {
+            let outcome = IslandSelection.click(current: nil, tapped: cell.id, pose: cell.pose)
+            // The hint and the rule read one pose, so the announcement cannot
+            // promise a jump the click will not make.
+            #expect(outcome.jumps == cell.needsAttention)
+        }
+    }
+
     @Test
     func theSpokenStateDistinguishesEveryPoseTheSceneCanDraw() {
         let spoken = CreaturePose.allCases.map(\.spokenState)

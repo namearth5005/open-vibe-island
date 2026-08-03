@@ -143,7 +143,7 @@ The loop must NOT pick one. Skip this task and continue.
 Also found: `AppModel.select(sessionID:)` (`:1393`) has zero callers — pre-existing dead code,
 left alone per the surgical-scope rail.
 
-## [in-progress] 5 — Click-to-jump
+## [done] 5 — Click-to-jump
 
 The payoff that makes this a tool rather than decoration: the gesture *is* the notification
 and the click *is* the jump-back the app already implements.
@@ -195,6 +195,9 @@ already exist.
 - Correct for a day with zero sessions
 **Build with:** `swiftui-design`  **Review with:** `swiftui-pro` + `hig-foundations`
 **Depends on:** 7
+**Known from task 5:** `lastActionMessage` is never rendered — its only readers are
+`OpenIslandApp.swift:22` and `HarnessRuntimeMonitor`. Any failure the island needs a user to
+actually *see* has to surface in the detail band, not that property.
 
 ## [todo] 9 — Customisation surface
 

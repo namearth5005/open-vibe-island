@@ -1394,15 +1394,35 @@ final class AppModel {
         selectedSessionID = sessionID
     }
 
-    /// Clicking a creature on the island.
+    /// Clicking a creature on the island, from the scene or from its cell in the
+    /// identity strip.
     ///
     /// Writes the app's own `selectedSessionID` rather than a second island
     /// selection, so the island and the session list can never disagree about
     /// which session is selected. Note that `synchronizeSelection()` owns this
     /// value the rest of the time and will move it again on the next agent
     /// event — a session that needs you always wins the selection.
-    func toggleIslandSelection(sessionID: String) {
-        selectedSessionID = IslandSelection.toggled(current: selectedSessionID, tapped: sessionID)
+    ///
+    /// A creature with its hand up jumps as well as selecting — see
+    /// `IslandSelection.click`, which owns that rule. The jump itself goes
+    /// through `jumpToSession(_:)` rather than the terminal service directly,
+    /// so a click on the island dismisses the overlay, cancels a jump already
+    /// in flight and reports its failures exactly as the session list's own
+    /// jump button does.
+    func activateIslandCreature(sessionID: String, pose: CreaturePose) {
+        let outcome = IslandSelection.click(current: selectedSessionID, tapped: sessionID, pose: pose)
+        selectedSessionID = outcome.selection
+
+        guard outcome.jumps else { return }
+        guard let session = state.session(id: sessionID) else {
+            // The island is drawn from a snapshot, so a creature can outlive
+            // the session it stands for by a frame. Saying so beats jumping to
+            // whatever is nearest.
+            lastActionMessage = "Cannot jump: that session is no longer on the island."
+            return
+        }
+
+        jumpToSession(session)
     }
 
     // MARK: - Overlay forwarding

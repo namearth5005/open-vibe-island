@@ -104,10 +104,12 @@ struct IslandSceneLayout: Equatable, Sendable {
 struct IslandSceneView: View {
     let layout: IslandSceneLayout
     let selectedSessionID: String?
-    /// Clicking a plot. The band never decides what selection *means* — it
-    /// hands the ID up and renders whatever comes back, so the scene and the
-    /// strip drive one selection rather than two.
-    let onSelect: (String) -> Void
+    /// Clicking a plot. The band never decides what a click *means* — it hands
+    /// up the ID and the pose it drew and renders whatever comes back, so the
+    /// scene and the strip drive one rule rather than two. The pose travels
+    /// with the click so that what happens is what the picture promised, even
+    /// if the session changed state in the same frame.
+    let onActivate: (String, CreaturePose) -> Void
 
     /// Flat bundle, bare filename — see `CreatureSprite.image(named:)`.
     static let backgroundName = "scene-band"
@@ -134,7 +136,7 @@ struct IslandSceneView: View {
                     station: station,
                     isSelected: station.id == selectedSessionID
                 )
-                .onTapGesture { onSelect(station.id) }
+                .onTapGesture { onActivate(station.id, station.pose) }
                 .position(
                     x: station.center,
                     y: layout.height * Self.groundFraction - IslandStationView.height / 2

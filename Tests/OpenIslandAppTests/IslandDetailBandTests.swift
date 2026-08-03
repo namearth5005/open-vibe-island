@@ -32,15 +32,121 @@ struct IslandSelectionTests {
         let once = IslandSelection.toggled(current: nil, tapped: "a")
         #expect(IslandSelection.toggled(current: once, tapped: "a") == nil)
     }
+
+    // MARK: - The raised hand is the one pose that answers a click with a jump
+
+    /// The gesture is the notification, so the click is the answer: a creature
+    /// with its hand up is asking to be gone to, and clicking it goes there.
+    @Test
+    func clickingARaisedHandSelectsItAndJumps() {
+        #expect(
+            IslandSelection.click(current: nil, tapped: "a", pose: .waiting)
+                == IslandClickOutcome(selection: "a", jumps: true)
+        )
+    }
+
+    /// Everything that is not asking for you keeps the plain toggle. A click
+    /// that teleported you away from a session quietly working would be the
+    /// surprise this feature is trying to avoid.
+    @Test
+    func clickingACalmCreatureSelectsItWithoutJumping() {
+        for pose in [CreaturePose.working, .holding, .fallen] {
+            #expect(
+                IslandSelection.click(current: nil, tapped: "a", pose: pose)
+                    == IslandClickOutcome(selection: "a", jumps: false)
+            )
+        }
+    }
+
+    @Test
+    func clickingACalmCreatureAgainStillClearsTheSelection() {
+        #expect(
+            IslandSelection.click(current: "a", tapped: "a", pose: .working)
+                == IslandClickOutcome(selection: nil, jumps: false)
+        )
+    }
+
+    /// A raised hand does not toggle. Deselecting the very session you are
+    /// being sent to is incoherent, and it would make the second click on one
+    /// pose mean something different from the first.
+    @Test
+    func clickingARaisedHandAgainJumpsAgainRatherThanDeselecting() {
+        #expect(
+            IslandSelection.click(current: "a", tapped: "a", pose: .waiting)
+                == IslandClickOutcome(selection: "a", jumps: true)
+        )
+    }
+
+    @Test
+    func clickingADifferentRaisedHandMovesTheSelectionToIt() {
+        #expect(
+            IslandSelection.click(current: "a", tapped: "b", pose: .waiting)
+                == IslandClickOutcome(selection: "b", jumps: true)
+        )
+    }
+
+    /// The rule the whole interaction rests on: one pose, one answer. A pose
+    /// whose click meant different things at different moments would make the
+    /// island a thing you have to test rather than read.
+    @Test
+    func aPoseAlwaysAnswersAClickTheSameWay() {
+        #expect(CreaturePose.allCases.filter(\.isAskingForYou) == [.waiting])
+
+        for pose in CreaturePose.allCases {
+            let fresh = IslandSelection.click(current: nil, tapped: "a", pose: pose)
+            let repeated = IslandSelection.click(current: "a", tapped: "a", pose: pose)
+            let elsewhere = IslandSelection.click(current: "b", tapped: "a", pose: pose)
+
+            #expect(fresh.jumps == pose.isAskingForYou)
+            #expect(repeated.jumps == fresh.jumps)
+            #expect(elsewhere.jumps == fresh.jumps)
+        }
+    }
+}
+
+/// Every jump the island makes goes through `terminalJumpAction`, which is the
+/// seam `AppModel` already ships for exactly this. Nothing here knows what a
+/// real jump does — `TerminalJumpServiceTests` owns that — only that the island
+/// asks for one, with which target, and when it must not.
+private final class JumpRecorder: @unchecked Sendable {
+    private let lock = NSLock()
+    private var targets: [JumpTarget] = []
+
+    func record(_ target: JumpTarget) {
+        lock.lock()
+        defer { lock.unlock() }
+        targets.append(target)
+    }
+
+    var recorded: [JumpTarget] {
+        lock.lock()
+        defer { lock.unlock() }
+        return targets
+    }
+
+    /// The jump runs off the main actor after an overlay-dismissal hop, so a
+    /// bare assertion would race it.
+    func waitForOneJump() async -> JumpTarget? {
+        for _ in 0..<40 {
+            if let first = recorded.first { return first }
+            try? await Task.sleep(for: .milliseconds(50))
+        }
+        return recorded.first
+    }
 }
 
 /// The island writes selection into the app's own `selectedSessionID` rather
 /// than keeping a private copy, so the island and the session list can never
-/// disagree about which session is selected.
+/// disagree about which session is selected — and a creature that is asking for
+/// you jumps as well, because that is the whole argument for a raised hand.
 @MainActor
 @Suite(.serialized)
 struct IslandSelectionAppModelTests {
-    private func session(_ id: String, updatedAt: Date) -> AgentSession {
+    private func session(
+        _ id: String,
+        updatedAt: Date,
+        jumpTarget: JumpTarget? = nil
+    ) -> AgentSession {
         AgentSession(
             id: id,
             title: id,
@@ -48,7 +154,18 @@ struct IslandSelectionAppModelTests {
             phase: .running,
             summary: "",
             updatedAt: updatedAt,
-            firstSeenAt: updatedAt
+            firstSeenAt: updatedAt,
+            jumpTarget: jumpTarget
+        )
+    }
+
+    private func jumpTarget(_ workspace: String = "open-island") -> JumpTarget {
+        JumpTarget(
+            terminalApp: "Ghostty",
+            workspaceName: workspace,
+            paneTitle: "claude ~/p/\(workspace)",
+            workingDirectory: "/tmp/\(workspace)",
+            terminalSessionID: "ghostty-1"
         )
     }
 
@@ -58,7 +175,7 @@ struct IslandSelectionAppModelTests {
         let model = AppModel()
         model.state = SessionState(sessions: [session("a", updatedAt: now), session("b", updatedAt: now)])
 
-        model.toggleIslandSelection(sessionID: "b")
+        model.activateIslandCreature(sessionID: "b", pose: .working)
         #expect(model.selectedSessionID == "b")
         #expect(model.focusedSession?.id == "b")
     }
@@ -69,9 +186,98 @@ struct IslandSelectionAppModelTests {
         let model = AppModel()
         model.state = SessionState(sessions: [session("a", updatedAt: now)])
 
-        model.toggleIslandSelection(sessionID: "a")
-        model.toggleIslandSelection(sessionID: "a")
+        model.activateIslandCreature(sessionID: "a", pose: .working)
+        model.activateIslandCreature(sessionID: "a", pose: .working)
         #expect(model.selectedSessionID == nil)
+    }
+
+    /// The payoff: the creature that is asking for you is also the button that
+    /// takes you to it, and it goes to the target the session already carries
+    /// rather than to any island-specific idea of where it lives.
+    @Test
+    func clickingARaisedHandJumpsToThatSessionsTerminal() async {
+        let now = Date(timeIntervalSince1970: 2_000)
+        let recorder = JumpRecorder()
+        let model = AppModel { target in
+            recorder.record(target)
+            return "Focused the matching Ghostty terminal."
+        }
+        model.state = SessionState(sessions: [
+            session("a", updatedAt: now, jumpTarget: jumpTarget("other")),
+            session("b", updatedAt: now, jumpTarget: jumpTarget("open-island")),
+        ])
+
+        model.activateIslandCreature(sessionID: "b", pose: .waiting)
+
+        #expect(model.selectedSessionID == "b")
+        #expect(await recorder.waitForOneJump()?.workspaceName == "open-island")
+        #expect(recorder.recorded.count == 1)
+    }
+
+    /// A session that is merely working is not asking for anything, so its
+    /// click may not take the screen away from you — even though it has a
+    /// perfectly good jump target sitting right there.
+    @Test
+    func clickingACalmCreatureNeverJumpsEvenWhenItCould() async throws {
+        let now = Date(timeIntervalSince1970: 2_000)
+        let recorder = JumpRecorder()
+        let model = AppModel { target in
+            recorder.record(target)
+            return "Focused the matching Ghostty terminal."
+        }
+        model.state = SessionState(sessions: [session("a", updatedAt: now, jumpTarget: jumpTarget())])
+
+        let before = model.lastActionMessage
+        model.activateIslandCreature(sessionID: "a", pose: .working)
+
+        #expect(model.selectedSessionID == "a")
+        try await Task.sleep(for: .milliseconds(150))
+        #expect(recorder.recorded.isEmpty)
+        // Nothing was attempted, so there is nothing to report either.
+        #expect(model.lastActionMessage == before)
+    }
+
+    /// A session discovered before its host was known has no target to jump to.
+    /// It still selects — the detail row below can then say what it is blocked
+    /// on — and it reports why rather than failing somewhere in the terminal.
+    ///
+    /// The message is `jumpToSession`'s own, which is the point: the island
+    /// goes through the app's jump entry point rather than reaching past it.
+    @Test
+    func clickingARaisedHandWithNoJumpTargetSelectsItAndSaysWhy() async throws {
+        let now = Date(timeIntervalSince1970: 2_000)
+        let recorder = JumpRecorder()
+        let model = AppModel { target in
+            recorder.record(target)
+            return "Focused the matching Ghostty terminal."
+        }
+        model.state = SessionState(sessions: [session("a", updatedAt: now)])
+
+        model.activateIslandCreature(sessionID: "a", pose: .waiting)
+
+        #expect(model.selectedSessionID == "a")
+        try await Task.sleep(for: .milliseconds(150))
+        #expect(recorder.recorded.isEmpty)
+        #expect(model.lastActionMessage == "Cannot jump: no jump target is available.")
+    }
+
+    /// The island is drawn from a snapshot, so a creature can outlive the
+    /// session it stands for by a frame. Clicking it must say so rather than
+    /// jump somewhere arbitrary.
+    @Test
+    func clickingACreatureTheAppNoLongerHasDoesNotJump() async throws {
+        let recorder = JumpRecorder()
+        let model = AppModel { target in
+            recorder.record(target)
+            return "Focused the matching Ghostty terminal."
+        }
+        model.state = SessionState(sessions: [])
+
+        model.activateIslandCreature(sessionID: "gone", pose: .waiting)
+
+        try await Task.sleep(for: .milliseconds(150))
+        #expect(recorder.recorded.isEmpty)
+        #expect(model.lastActionMessage == "Cannot jump: that session is no longer on the island.")
     }
 }
 

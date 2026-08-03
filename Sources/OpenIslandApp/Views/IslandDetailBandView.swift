@@ -1,17 +1,50 @@
 import OpenIslandCore
 import SwiftUI
 
+/// What one click on a creature does.
+struct IslandClickOutcome: Equatable, Sendable {
+    /// Where the island's selection lands. `nil` clears it.
+    let selection: String?
+    /// Whether the click also takes you to the session's terminal.
+    let jumps: Bool
+}
+
 /// Clicking a creature, as a rule rather than as a gesture handler.
 ///
-/// The whole of "click to select, click again to deselect" is this one
-/// function, so the behaviour can be asserted without rendering anything — a
-/// view body cannot be asked what it would do on the second click.
+/// The whole of "click to select, click again to deselect, and go there if it
+/// is asking for you" is these two functions, so the behaviour can be asserted
+/// without rendering anything — a view body cannot be asked what it would do on
+/// the second click.
 enum IslandSelection {
     /// The selection after clicking `tapped`. Clicking what is already selected
     /// clears it; clicking anything else moves to it, because picking your way
     /// along the band should cost one click per creature, not two.
     static func toggled(current: String?, tapped: String) -> String? {
         current == tapped ? nil : tapped
+    }
+
+    /// Clicking the creature at `tapped`, which is drawn in `pose`.
+    ///
+    /// A raised hand is the island's notification, so clicking it is how you
+    /// answer it: the click selects that session *and* jumps to its terminal.
+    /// Every other pose keeps the plain toggle — a creature quietly working is
+    /// not asking for anything, and a click that took the screen away from you
+    /// anyway would make the band unsafe to browse.
+    ///
+    /// The raised hand deliberately does not toggle off. Deselecting the very
+    /// session you are being sent to says nothing useful, and it would make the
+    /// second click on one pose mean something different from the first — which
+    /// is the one thing this rule may never do. It costs nothing either:
+    /// `synchronizeSelection()` hands the selection back to a session that
+    /// needs you on the next event regardless.
+    ///
+    /// `pose` is the pose the caller actually drew, not one re-read at click
+    /// time, so the click always honours the picture that was clicked.
+    static func click(current: String?, tapped: String, pose: CreaturePose) -> IslandClickOutcome {
+        guard pose.isAskingForYou else {
+            return IslandClickOutcome(selection: toggled(current: current, tapped: tapped), jumps: false)
+        }
+        return IslandClickOutcome(selection: tapped, jumps: true)
     }
 }
 

@@ -26,6 +26,15 @@ public enum CreaturePose: String, CaseIterable, Sendable {
     /// 28x32pt pill lane. `fallen` is exempt: an interrupted session is
     /// deliberately not competing for attention, so it may read as calm.
     public var demandsPillLegibility: Bool { self != .fallen }
+
+    /// The one pose that is asking the human for something.
+    ///
+    /// Named once rather than spelled `== .waiting` wherever it is needed,
+    /// because the island reads it twice for the same creature — the strip
+    /// colours the cell with it and the click rule decides with it — and two
+    /// spellings of one fact is how a raised hand ends up looking urgent and
+    /// behaving calm.
+    public var isAskingForYou: Bool { self == .waiting }
 }
 
 public extension GeodeState {

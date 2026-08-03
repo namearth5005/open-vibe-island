@@ -29,7 +29,17 @@ struct IslandIdentityCell: Equatable, Identifiable, Sendable {
     /// The sanctioned exception to "the strip never holds a mood": this cell is
     /// the accessible mirror of the raised hand, so it has to be able to say
     /// *this one* out loud and on screen.
-    var needsAttention: Bool { pose == .waiting }
+    var needsAttention: Bool { pose.isAskingForYou }
+
+    /// What activating this cell will do.
+    ///
+    /// The scene is hidden from VoiceOver, so this button is the only way a
+    /// screen-reader or keyboard user reaches a creature — which makes it the
+    /// only place they can be warned that this particular one answers with a
+    /// jump into another app rather than by moving a highlight.
+    var activationHint: String {
+        needsAttention ? "Jumps to this session's terminal" : "Selects this session"
+    }
 
     /// A blank line would read as a rendering fault rather than as an unknown,
     /// which is exactly the failure the scene's `workshop` structure avoids.
@@ -189,10 +199,14 @@ struct IslandIdentityStripLayout: Equatable, Sendable {
 /// VoiceOver on purpose, so every cell here speaks the state the picture shows.
 /// That is why selection is reachable here and not only by clicking a creature
 /// — each cell is a real `Button`, so Tab reaches it and Space activates it.
+///
+/// Activating a cell does exactly what clicking its creature does, jump and
+/// all, because a keyboard path that could only ever select would leave the
+/// island's one useful action reachable by mouse alone.
 struct IslandIdentityStripView: View {
     let layout: IslandIdentityStripLayout
     let selectedSessionID: String?
-    let onSelect: (String) -> Void
+    let onActivate: (String, CreaturePose) -> Void
 
     var body: some View {
         HStack(spacing: IslandIdentityStripLayout.cellSpacing) {
@@ -204,7 +218,7 @@ struct IslandIdentityStripView: View {
             } else {
                 ForEach(layout.cells) { cell in
                     Button {
-                        onSelect(cell.id)
+                        onActivate(cell.id, cell.pose)
                     } label: {
                         IslandIdentityCellView(
                             cell: cell,
@@ -215,6 +229,7 @@ struct IslandIdentityStripView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(cell.accessibilityDescription)
+                    .accessibilityHint(cell.activationHint)
                     // Selection is a state a screen reader announces, not a
                     // colour it can see. Without this the ring would be the
                     // only thing that said which session is selected.
