@@ -94,7 +94,7 @@ it is carried separately on `JumpTarget.tmuxTarget`, so a tmux session currently
 outer host. Showing it as `.multiplexer` would be a call-site change, deliberately out of
 scope here — note it, do not silently add it.
 
-## [todo] 3 — Identity strip
+## [in-progress] 3 — Identity strip
 
 The text band under the scene. The picture carries state; this carries identity — that
 split is the design's core clarity rule and must not blur.
