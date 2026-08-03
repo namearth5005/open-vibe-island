@@ -243,3 +243,66 @@
 "settings.stats.byAgent" = "By agent";
 "settings.stats.empty" = "No finished sessions yet. Run an agent and this fills in.";
 "island.shippedToday" = "%lld shipped today";
+
+/* Island Panel - Island Band */
+"island.strip.empty" = "No sessions on the island";
+"island.unknownWorkspace" = "Unknown workspace";
+"island.unknownHost" = "Unknown host";
+"island.unknownHost.spoken" = "an unknown host";
+"island.strip.hint.jumps" = "Jumps to this session's terminal";
+"island.strip.hint.selects" = "Selects this session";
+"island.strip.spoken" = "%@, %@ at %@, %@, %@ elapsed";
+"island.overflow.spoken.one" = "1 more session not shown";
+"island.overflow.spoken.many" = "%lld more sessions not shown";
+"island.pose.working" = "running";
+"island.pose.waiting" = "waiting for you";
+"island.pose.holding" = "finished";
+"island.pose.fallen" = "interrupted";
+"island.duration.underAMinute" = "less than a minute";
+"island.duration.minute" = "%lld minute";
+"island.duration.minutes" = "%lld minutes";
+"island.duration.hour" = "%lld hour";
+"island.duration.hours" = "%lld hours";
+"island.duration.day" = "%lld day";
+"island.duration.days" = "%lld days";
+"island.detail.empty" = "Select a session to see what it is doing";
+"island.detail.stalls.never" = "never blocked";
+"island.detail.stalls.once" = "blocked once";
+"island.detail.stalls.many" = "blocked %lld times";
+"island.detail.spoken.running" = "%@ running";
+"island.detail.spoken.waiting" = "%@ waiting on you";
+
+/* Receipt */
+"receipt.item.cleanFinish" = "Clean finish";
+"receipt.item.interrupted" = "Interrupted";
+"receipt.item.total" = "TOTAL";
+"receipt.item.sessionsRun" = "Sessions run";
+"receipt.item.answeredInTime" = "Answered in time";
+"receipt.item.keptWaiting" = "Kept waiting";
+"receipt.item.bestRun" = "Best run";
+"receipt.footer.busy" = "NO REFUNDS. NO STREAKS.";
+"receipt.footer.empty" = "NOTHING TO DECLARE";
+"receipt.note.unwatched" = "%lld unwatched";
+"receipt.note.asked" = "of %lld asked";
+"receipt.spoken.none" = "none";
+"receipt.spoken.session" = "1 session";
+"receipt.spoken.sessions" = "%lld sessions";
+"receipt.spoken.noneAsked" = "none asked";
+"receipt.spoken.answer" = "%lld answer";
+"receipt.spoken.answers" = "%lld answers";
+"receipt.spoken.even" = "even";
+"receipt.spoken.up" = "up %lld";
+"receipt.spoken.down" = "down %lld";
+"settings.stats.receipt" = "Today, printed";
+
+/* Settings - Personalization - Island */
+"settings.appearance.islandPart.title" = "Island";
+"settings.appearance.islandScene.title" = "07 · Island";
+"settings.appearance.islandScene.note" = "Draw the island above the session list in the opened panel.";
+"settings.appearance.islandScene.off" = "Off";
+"settings.appearance.islandScene.on" = "On";
+"settings.appearance.sceneHeight.title" = "08 · Island height";
+"settings.appearance.sceneHeight.note" = "How much of the island the panel shows. The panel grows; the session list keeps its room.";
+"settings.appearance.sceneHeight.compact" = "Compact";
+"settings.appearance.sceneHeight.standard" = "Standard";
+"settings.appearance.sceneHeight.tall" = "Tall";

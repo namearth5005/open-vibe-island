@@ -74,30 +74,24 @@ struct IslandSessionDetail: Equatable, Identifiable, Sendable {
     let runtime: IslandDurationGrain
     let stallCount: Int
 
+    /// Everything on the row, in words.
+    ///
+    /// The three metrics are glyph-and-number pairs on screen, so this sentence
+    /// is the only place a screen-reader user learns which number is which.
+    /// Resolved at construction for the same reason the strip's is.
+    let accessibilityDescription: String
+
     var waitingBadge: String { waiting?.badge ?? IslandDetailBand.absentBadge }
     var runtimeBadge: String { runtime.badge }
     var stallBadge: String { "\(stallCount)" }
 
     /// `3` beside a raised-hand glyph is a legend entry, not a sentence.
-    static func spokenStalls(_ count: Int) -> String {
+    static func spokenStalls(_ count: Int, _ lang: LanguageManager) -> String {
         switch count {
-        case 0: "never blocked"
-        case 1: "blocked once"
-        default: "blocked \(count) times"
+        case 0: lang.t("island.detail.stalls.never")
+        case 1: lang.t("island.detail.stalls.once")
+        default: lang.t("island.detail.stalls.many", count)
         }
-    }
-
-    /// Everything on the row, in words.
-    ///
-    /// The three metrics are glyph-and-number pairs on screen, so this sentence
-    /// is the only place a screen-reader user learns which number is which.
-    var accessibilityDescription: String {
-        var parts = [workspace, headline, "\(runtime.spoken) running"]
-        if let waiting {
-            parts.append("\(waiting.spoken) waiting on you")
-        }
-        parts.append(Self.spokenStalls(stallCount))
-        return parts.joined(separator: ", ")
     }
 }
 
@@ -133,10 +127,14 @@ struct IslandDetailBand: Equatable, Sendable {
     /// See `IslandDetailBandFitTests`.
     static let metricColumnWidth: CGFloat = 34
 
-    static let emptyMessage = "Select a session to see what it is doing"
+    static let emptyMessageKey = "island.detail.empty"
+
+    /// Resolved at construction, like every other string on the band.
+    let emptyMessage: String
 
     /// A metric with nothing to report. An em dash rather than `0`, because a
-    /// zero here would claim a measurement that was never taken.
+    /// zero here would claim a measurement that was never taken. Not localized:
+    /// it is a printer's mark, not a word.
     static let absentBadge = "—"
 
     /// Sessions are taken in the order given and truncated at the scene's plot
@@ -150,9 +148,11 @@ struct IslandDetailBand: Equatable, Sendable {
         geode: GeodeState,
         selectedSessionID: String?,
         width: CGFloat,
-        now: Date
+        now: Date,
+        lang: LanguageManager = .shared
     ) {
         self.width = width
+        emptyMessage = lang.t(Self.emptyMessageKey)
 
         guard let selectedSessionID,
               let session = sessions
@@ -169,24 +169,39 @@ struct IslandDetailBand: Equatable, Sendable {
         let shard = geode.shard(id: session.id)
         let stallCount = shard?.stallCount ?? 0
 
-        let workspace = session.spotlightWorkspaceName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let headline = session.spotlightPrimaryText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let rawWorkspace = session.spotlightWorkspaceName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let workspace = rawWorkspace.isEmpty ? lang.t("island.unknownWorkspace") : rawWorkspace
+        let rawHeadline = session.spotlightPrimaryText.trimmingCharacters(in: .whitespacesAndNewlines)
+        // A blank row would read as a rendering fault rather than as a session
+        // with nothing to report — the same failure the strip's "Unknown host"
+        // avoids. The pose is already the island's word for what a session is
+        // doing, so it stands in rather than a new one.
+        let headline = rawHeadline.isEmpty ? pose.spokenState(lang) : rawHeadline
+        let waiting = stallCount > 0
+            ? IslandDurationGrain(seconds: shard?.waitedSeconds(at: now) ?? 0)
+            : nil
+        let runtime = IslandDurationGrain(seconds: session.islandElapsed(at: now))
+
+        var spoken = [
+            workspace,
+            headline,
+            lang.t("island.detail.spoken.running", runtime.spoken(lang)),
+        ]
+        if let waiting {
+            spoken.append(lang.t("island.detail.spoken.waiting", waiting.spoken(lang)))
+        }
+        spoken.append(IslandSessionDetail.spokenStalls(stallCount, lang))
 
         detail = IslandSessionDetail(
             id: session.id,
-            workspace: workspace.isEmpty ? "Unknown workspace" : workspace,
+            workspace: workspace,
             pose: pose,
             pendingQuestion: session.islandPendingQuestion,
-            // A blank row would read as a rendering fault rather than as a
-            // session with nothing to report — the same failure the strip's
-            // "Unknown host" avoids. The pose is already the island's word for
-            // what a session is doing, so it stands in rather than a new one.
-            headline: headline.isEmpty ? pose.spokenState : headline,
-            waiting: stallCount > 0
-                ? IslandDurationGrain(seconds: shard?.waitedSeconds(at: now) ?? 0)
-                : nil,
-            runtime: IslandDurationGrain(seconds: session.islandElapsed(at: now)),
-            stallCount: stallCount
+            headline: headline,
+            waiting: waiting,
+            runtime: runtime,
+            stallCount: stallCount,
+            accessibilityDescription: spoken.joined(separator: ", ")
         )
     }
 
@@ -219,7 +234,7 @@ struct IslandDetailBandView: View {
             if let detail = band.detail {
                 content(for: detail)
             } else {
-                Text(IslandDetailBand.emptyMessage)
+                Text(band.emptyMessage)
                     .font(.system(size: IslandDetailBand.headlineFontSize))
                     .foregroundStyle(V6Palette.paper.opacity(0.38))
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -230,7 +245,7 @@ struct IslandDetailBandView: View {
         .padding(.horizontal, IslandDetailBand.horizontalInset)
         .frame(width: band.width, height: band.height)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(band.detail?.accessibilityDescription ?? IslandDetailBand.emptyMessage)
+        .accessibilityLabel(band.detail?.accessibilityDescription ?? band.emptyMessage)
     }
 
     private func content(for detail: IslandSessionDetail) -> some View {

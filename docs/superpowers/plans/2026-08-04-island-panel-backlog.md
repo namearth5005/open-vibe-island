@@ -204,7 +204,7 @@ already exist.
 `OpenIslandApp.swift:22` and `HarnessRuntimeMonitor`. Any failure the island needs a user to
 actually *see* has to surface in the detail band, not that property.
 
-## [in-progress] 9 — Customisation surface
+## [done] 9 — Customisation surface
 
 **Acceptance criteria:**
 - Island on/off in `AppearanceSettingsPane`, off by default
@@ -220,6 +220,23 @@ actually *see* has to surface in the detail band, not that property.
   than shipping untranslated UI.
 **Build with:** `swiftui-design`  **Review with:** `swiftui-pro` + `hig-foundations`
 **Depends on:** 8
+**Known from task 9, for 10–12:**
+- The island is now composed into the panel. `AppModel.islandBandLayout(width:now:)` is the
+  single entry point — it returns `nil` when the island is off and owns which sessions stand
+  where. `IslandPanelView` renders whatever it returns and decides nothing, so island
+  behaviour is testable without a view.
+- **Profile trap for any test that enables the island.** `loadDebugSnapshot` calls
+  `overlay.applyOverlayState`, which can re-resolve placement and therefore flip
+  `activeAppearanceProfile`. A preference written *before* the snapshot lands in one profile
+  and is read back from the other, and the island silently stays off. Write the preference
+  **after** `loadDebugSnapshot`, or write both profiles via
+  `updateAppearancePreferences(for:)`. This is by design, not the `e79a005` bug.
+- Localization is done for the strip, the detail band and the receipt, and
+  `LanguageManager(language:)` gives a pinned manager that neither reads nor writes the
+  stored preference — use it for any test asserting on text. Task 10's voice lines can
+  therefore be additive rather than needing their own pass.
+- `LocalizationTests.everyLocaleDefinesTheSameKeys` now enforces key parity across en /
+  zh-Hans / zh-Hant. Any new key must be added to all three or the gate fails.
 
 ## [todo] 10 — Voice lines
 

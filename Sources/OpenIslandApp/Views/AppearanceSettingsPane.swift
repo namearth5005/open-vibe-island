@@ -32,6 +32,7 @@ struct AppearanceSettingsPane: View {
                 displayProfilePart
                 notchPersonalizationPart
                 sessionListPersonalizationPart
+                islandPersonalizationPart
             }
             .padding(24)
             .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -140,6 +141,66 @@ struct AppearanceSettingsPane: View {
             sessionGroupSection
             sessionSortSection
             staleThresholdSection
+        }
+    }
+
+    // MARK: - Island part
+
+    /// Its own part rather than a row inside the session-list part, because the
+    /// island is a different surface: everything above governs the closed pill
+    /// and the list, and this governs a band that only exists when it is on.
+    private var islandPersonalizationPart: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            partHeader(title: lang.t("settings.appearance.islandPart.title"))
+            islandSceneSection
+            // Height is meaningless while the island is off, so it is not shown
+            // then — a disabled row you cannot act on is a row that has to be
+            // explained.
+            if editingPreferences.scene.isVisible {
+                sceneHeightSection
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var islandSceneSection: some View {
+        sectionHeader(
+            title: lang.t("settings.appearance.islandScene.title"),
+            note: lang.t("settings.appearance.islandScene.note")
+        )
+
+        HStack(spacing: 12) {
+            ForEach(IslandSceneVisibility.allCases) { option in
+                optionCard(
+                    selected: editingPreferences.scene == option,
+                    title: title(for: option)
+                ) {
+                    model.updateAppearancePreferences(for: editingProfile) { $0.scene = option }
+                } icon: {
+                    IslandScenePreview(isOn: option.isVisible)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var sceneHeightSection: some View {
+        sectionHeader(
+            title: lang.t("settings.appearance.sceneHeight.title"),
+            note: lang.t("settings.appearance.sceneHeight.note")
+        )
+
+        HStack(spacing: 12) {
+            ForEach(IslandSceneHeight.allCases) { option in
+                optionCard(
+                    selected: editingPreferences.sceneHeight == option,
+                    title: title(for: option)
+                ) {
+                    model.updateAppearancePreferences(for: editingProfile) { $0.sceneHeight = option }
+                } icon: {
+                    SceneHeightPreview(option: option)
+                }
+            }
         }
     }
 
@@ -611,6 +672,21 @@ struct AppearanceSettingsPane: View {
         switch option {
         case .attention:  lang.t("settings.appearance.sessionSort.attention")
         case .lastUpdate: lang.t("settings.appearance.sessionSort.lastUpdate")
+        }
+    }
+
+    private func title(for option: IslandSceneVisibility) -> String {
+        switch option {
+        case .off: lang.t("settings.appearance.islandScene.off")
+        case .on:  lang.t("settings.appearance.islandScene.on")
+        }
+    }
+
+    private func title(for option: IslandSceneHeight) -> String {
+        switch option {
+        case .compact:  lang.t("settings.appearance.sceneHeight.compact")
+        case .standard: lang.t("settings.appearance.sceneHeight.standard")
+        case .tall:     lang.t("settings.appearance.sceneHeight.tall")
         }
     }
 
@@ -1534,6 +1610,72 @@ private struct SessionGroupPreview: View {
                 .frame(width: 7, height: 7)
             previewLine(width: 54, color: V6Palette.paper.opacity(0.25))
         }
+    }
+}
+
+/// On is the real artwork with a creature on it; off is the list alone.
+///
+/// The two cards have to differ in *kind*, not in brightness — the choice being
+/// offered is "is there a picture above my sessions", so the off card shows the
+/// panel without one rather than a dimmed version of the same thing.
+private struct IslandScenePreview: View {
+    let isOn: Bool
+
+    var body: some View {
+        VStack(spacing: 3) {
+            if isOn {
+                ZStack {
+                    if let scene = CreatureSprite.image(named: IslandSceneView.backgroundName) {
+                        Image(nsImage: scene)
+                            .resizable()
+                            .interpolation(.high)
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        Rectangle().fill(V6Palette.ink)
+                    }
+                }
+                .frame(width: 76, height: 21)
+                .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+            }
+
+            ForEach(0..<(isOn ? 2 : 3), id: \.self) { index in
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(V6Palette.paper.opacity(0.26))
+                    .frame(width: index == 1 ? 58 : 76, height: 5)
+            }
+        }
+        .frame(width: 76)
+    }
+}
+
+/// Three stacks of the same panel, differing only in how much of it is picture.
+///
+/// The session rows are drawn identically in all three because that is the
+/// claim the preference makes: a taller island grows the panel, it does not
+/// take the list's room.
+private struct SceneHeightPreview: View {
+    let option: IslandSceneHeight
+
+    private var sceneHeight: CGFloat {
+        // The real 3.6:1 band at this card's width, scaled by the same
+        // multiplier the panel uses, so the three cards are in true proportion
+        // to each other rather than eyeballed.
+        76 / IslandSceneLayout.bandAspect * option.scale
+    }
+
+    var body: some View {
+        VStack(spacing: 3) {
+            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                .fill(V6Palette.paper.opacity(0.5))
+                .frame(width: 76, height: sceneHeight)
+
+            ForEach(0..<2, id: \.self) { index in
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(V6Palette.paper.opacity(0.24))
+                    .frame(width: index == 1 ? 58 : 76, height: 5)
+            }
+        }
+        .frame(width: 76, alignment: .top)
     }
 }
 

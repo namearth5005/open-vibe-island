@@ -58,6 +58,7 @@
 "settings.appearance.rightSlot.note" = "收起狀態下島右側顯示的內容。";
 "settings.appearance.rightSlot.count" = "會話數";
 "settings.appearance.rightSlot.agents" = "代理";
+"settings.appearance.rightSlot.geode" = "晶簇";
 "settings.appearance.rightSlot.none" = "不顯示";
 "settings.appearance.centerLabel.title" = "02 · 中央標籤";
 "settings.appearance.centerLabel.note" = "僅外接螢幕顯示 — MacBook 的物理凹槽會遮擋中央區域。";
@@ -206,6 +207,7 @@
 "approval.allowOnce" = "允許一次";
 "approval.alwaysAllow" = "始終允許（%@）";
 
+
 /* Island Panel - Subagents & Tasks */
 "subagents.title" = "子代理 (%lld)";
 "subagents.completed" = "完成";
@@ -224,3 +226,83 @@
 
 /* Window Titles */
 "window.settings" = "Open Island 設定";
+
+// Stats
+"settings.tab.stats" = "統計";
+"settings.stats.range.today" = "今天";
+"settings.stats.range.sevenDays" = "近 7 天";
+"settings.stats.range.allTime" = "全部";
+"settings.stats.metric.finished" = "完成的會話";
+"settings.stats.metric.runtime" = "代理執行時長";
+"settings.stats.metric.gateLatency" = "回應時間中位數";
+"settings.stats.metric.interrupted" = "被中斷";
+"settings.stats.comparison.title" = "與先前對比";
+"settings.stats.comparison.thisWeek" = "近 7 天";
+"settings.stats.comparison.best" = "最佳單日";
+"settings.stats.comparison.bestToday" = "今天追平了你的最佳單日。";
+"settings.stats.byAgent" = "依代理";
+"settings.stats.empty" = "還沒有完成的會話。執行一個代理後這裡就會有資料。";
+"island.shippedToday" = "今天完成 %lld";
+
+/* Island Panel - Island Band */
+"island.strip.empty" = "島上沒有會話";
+"island.unknownWorkspace" = "未知工作區";
+"island.unknownHost" = "未知主機";
+"island.unknownHost.spoken" = "一台未知主機";
+"island.strip.hint.jumps" = "跳至該會話的終端機";
+"island.strip.hint.selects" = "選取該會話";
+"island.strip.spoken" = "%1$@，%3$@ 上的 %2$@，%4$@，歷時 %5$@";
+"island.overflow.spoken.one" = "還有 1 個會話未顯示";
+"island.overflow.spoken.many" = "還有 %lld 個會話未顯示";
+"island.pose.working" = "執行中";
+"island.pose.waiting" = "正在等你";
+"island.pose.holding" = "已完成";
+"island.pose.fallen" = "已中斷";
+"island.duration.underAMinute" = "不到一分鐘";
+"island.duration.minute" = "%lld 分鐘";
+"island.duration.minutes" = "%lld 分鐘";
+"island.duration.hour" = "%lld 小時";
+"island.duration.hours" = "%lld 小時";
+"island.duration.day" = "%lld 天";
+"island.duration.days" = "%lld 天";
+"island.detail.empty" = "選擇一個會話，查看它正在做什麼";
+"island.detail.stalls.never" = "從未卡住";
+"island.detail.stalls.once" = "卡住過 1 次";
+"island.detail.stalls.many" = "卡住過 %lld 次";
+"island.detail.spoken.running" = "已執行 %@";
+"island.detail.spoken.waiting" = "已等你 %@";
+
+/* Receipt */
+"receipt.item.cleanFinish" = "順利完成";
+"receipt.item.interrupted" = "被中斷";
+"receipt.item.total" = "合計";
+"receipt.item.sessionsRun" = "執行的會話";
+"receipt.item.answeredInTime" = "及時回應";
+"receipt.item.keptWaiting" = "讓它乾等";
+"receipt.item.bestRun" = "最佳單次";
+"receipt.footer.busy" = "概不退換。不記連勝。";
+"receipt.footer.empty" = "無物申報";
+"receipt.note.unwatched" = "其中 %lld 個無人看顧";
+"receipt.note.asked" = "共問了 %lld 次";
+"receipt.spoken.none" = "無";
+"receipt.spoken.session" = "1 個會話";
+"receipt.spoken.sessions" = "%lld 個會話";
+"receipt.spoken.noneAsked" = "沒有提問";
+"receipt.spoken.answer" = "%lld 次回答";
+"receipt.spoken.answers" = "%lld 次回答";
+"receipt.spoken.even" = "持平";
+"receipt.spoken.up" = "淨增 %lld";
+"receipt.spoken.down" = "淨減 %lld";
+"settings.stats.receipt" = "今日收據";
+
+/* Settings - Personalization - Island */
+"settings.appearance.islandPart.title" = "島";
+"settings.appearance.islandScene.title" = "07 · 島";
+"settings.appearance.islandScene.note" = "在展開的面板中，於會話列表上方顯示島。";
+"settings.appearance.islandScene.off" = "關閉";
+"settings.appearance.islandScene.on" = "開啟";
+"settings.appearance.sceneHeight.title" = "08 · 島高度";
+"settings.appearance.sceneHeight.note" = "控制面板中島的顯示高度。面板會隨之變高，會話列表的空間維持不變。";
+"settings.appearance.sceneHeight.compact" = "緊湊";
+"settings.appearance.sceneHeight.standard" = "標準";
+"settings.appearance.sceneHeight.tall" = "加高";

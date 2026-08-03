@@ -27,6 +27,12 @@ struct IslandSceneLayout: Equatable, Sendable {
     let stations: [IslandStation]
     /// Sessions past the plot ceiling. Zero when every session is drawn.
     let overflow: Int
+    /// The user's `IslandSceneHeight`, as a multiplier on the natural band.
+    ///
+    /// Height only — the artwork is drawn `.fill` and anchored to the bottom, so
+    /// a shorter band crops sky off the top rather than squashing the horizon,
+    /// and the ground line the creatures stand on stays put.
+    let heightScale: CGFloat
 
     /// `scene-band.png` is 1080x300px, so the band is 540x150pt at 2x. Height is
     /// derived rather than configurable because a mismatch would stretch the
@@ -46,14 +52,21 @@ struct IslandSceneLayout: Equatable, Sendable {
     /// with neither end clipping off the edge.
     static let edgeInset: CGFloat = 46
 
-    var height: CGFloat { width / Self.bandAspect }
+    var height: CGFloat { Self.height(width: width, scale: heightScale) }
+
+    /// Shared with `OverlayPanelController` through `IslandBandLayout` so the
+    /// window's height budget and the band actually drawn are one number.
+    static func height(width: CGFloat, scale: CGFloat) -> CGFloat {
+        width / bandAspect * scale
+    }
 
     /// Sessions are taken in the order given and never re-sorted. Sorting by
     /// state would make creatures swap plots the moment an agent changed what it
     /// was doing, and a scene whose inhabitants move is a scene you have to
     /// re-read; the caller owns ordering.
-    init(sessions: [AgentSession], geode: GeodeState, width: CGFloat) {
+    init(sessions: [AgentSession], geode: GeodeState, width: CGFloat, heightScale: CGFloat = 1) {
         self.width = width
+        self.heightScale = heightScale
 
         let drawn = sessions.prefix(Self.stationCapacity)
         let centers = Self.centers(count: drawn.count, width: width)
@@ -129,6 +142,10 @@ struct IslandSceneView: View {
                     .resizable()
                     .interpolation(.high)
                     .aspectRatio(contentMode: .fill)
+                    // Bottom-anchored so `compact` crops sky off the top rather
+                    // than cutting the meadow out from under the creatures.
+                    // `standard` is the artwork's own aspect and crops nothing.
+                    .frame(width: layout.width, height: layout.height, alignment: .bottom)
             }
 
             ForEach(layout.stations) { station in

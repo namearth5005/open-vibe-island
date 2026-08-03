@@ -317,6 +317,11 @@ struct IslandDetailBandTests {
         return state
     }
 
+    /// Pinned rather than `.shared`: these tests assert on the words the
+    /// row speaks, and `.shared` follows whatever language the machine
+    /// running them happens to be set to.
+    private let lang = LanguageManager(language: .en)
+
     private func band(
         _ sessions: [AgentSession],
         selecting id: String?,
@@ -328,7 +333,8 @@ struct IslandDetailBandTests {
             geode: geode ?? self.geode(for: sessions),
             selectedSessionID: id,
             width: width,
-            now: t0
+            now: t0,
+            lang: lang
         )
     }
 
@@ -339,7 +345,7 @@ struct IslandDetailBandTests {
         let empty = band([session("a")], selecting: nil)
         #expect(empty.detail == nil)
         #expect(empty.isEmpty)
-        #expect(!IslandDetailBand.emptyMessage.isEmpty)
+        #expect(!empty.emptyMessage.isEmpty)
     }
 
     /// The band follows the selection, not the running order — otherwise
@@ -425,7 +431,7 @@ struct IslandDetailBandTests {
     @Test
     func theHeadlineFallsBackToTheSpokenPoseRatherThanGoingBlank() {
         let detail = band([session("a", summary: "   ")], selecting: "a").detail
-        #expect(detail?.headline == CreaturePose.working.spokenState)
+        #expect(detail?.headline == CreaturePose.working.spokenState(lang))
     }
 
     // MARK: - The three numbers
@@ -518,9 +524,9 @@ struct IslandDetailBandTests {
 
     @Test
     func stallCountIsSpokenAsAnAmountNotAGlyph() {
-        #expect(IslandSessionDetail.spokenStalls(0) == "never blocked")
-        #expect(IslandSessionDetail.spokenStalls(1) == "blocked once")
-        #expect(IslandSessionDetail.spokenStalls(4) == "blocked 4 times")
+        #expect(IslandSessionDetail.spokenStalls(0, lang) == "never blocked")
+        #expect(IslandSessionDetail.spokenStalls(1, lang) == "blocked once")
+        #expect(IslandSessionDetail.spokenStalls(4, lang) == "blocked 4 times")
     }
 
     // MARK: - One pose, one source
@@ -562,15 +568,15 @@ struct IslandDetailBandTests {
         #expect(spoken.contains("Run `rm -rf build`"))
         #expect(spoken.contains("4 minutes"))
         #expect(spoken.contains("26 minutes"))
-        #expect(spoken.contains(IslandSessionDetail.spokenStalls(1)))
+        #expect(spoken.contains(IslandSessionDetail.spokenStalls(1, lang)))
     }
 
     @Test
     func aSessionThatNeverStalledSaysSoOutLoud() {
         let spoken = band([session("a")], selecting: "a").detail?.accessibilityDescription ?? ""
-        #expect(spoken.contains(IslandSessionDetail.spokenStalls(0)))
+        #expect(spoken.contains(IslandSessionDetail.spokenStalls(0, lang)))
         // A wait of zero must be absent, not rendered as "less than a minute".
-        #expect(!spoken.contains(IslandDurationGrain(seconds: 0).spoken))
+        #expect(!spoken.contains(IslandDurationGrain(seconds: 0).spoken(lang)))
     }
 
     // MARK: - Geometry

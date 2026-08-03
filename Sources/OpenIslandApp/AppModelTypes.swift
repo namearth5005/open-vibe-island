@@ -73,6 +73,59 @@ struct IslandAppearancePreferences: Equatable, Sendable {
     var sessionGroup: IslandSessionGroup = .none
     var sessionSort: IslandSessionSort = .attention
     var completedStaleThreshold: IslandCompletedStaleThreshold = .fiveMinutes
+    var scene: IslandSceneVisibility = .off
+    var sceneHeight: IslandSceneHeight = .standard
+}
+
+/// Whether the opened panel draws the island above its session list.
+///
+/// Off by default, and deliberately independent of `rightSlot`: that preference
+/// governs the *closed pill's* right slot, and someone who picked a creature
+/// there did not thereby ask for a landscape in their panel. Gating one on the
+/// other would also mean this preference shipping `off` silently withdrew a
+/// pill creature an existing user had already opted into.
+enum IslandSceneVisibility: String, CaseIterable, Identifiable, Sendable {
+    case off
+    case on
+
+    var id: String { rawValue }
+
+    var isVisible: Bool { self == .on }
+}
+
+/// How much island you get.
+///
+/// A multiplier on the scene's natural 3.6:1 band rather than a set of point
+/// values, so the three options stay correct at both panel widths — 540pt on a
+/// notch Mac and 520 on an external display — instead of encoding one and being
+/// wrong on the other.
+///
+/// This changes the *panel's* height, not the scene's share of a fixed one. The
+/// panel's height is computed from its session list (`OverlayPanelController.`
+/// `openedContentHeight`) and then hard-clipped, so a band that took its height
+/// out of the existing budget would make a taller island silently show fewer
+/// sessions. Growing the window instead keeps the list whole and makes the
+/// preference mean what it says.
+enum IslandSceneHeight: String, CaseIterable, Identifiable, Sendable {
+    case compact
+    case standard
+    case tall
+
+    var id: String { rawValue }
+
+    /// Multiplier on `IslandSceneLayout.bandAspect`'s natural height.
+    ///
+    /// `standard` is 1 so the shipped artwork is drawn at the aspect it was cut
+    /// at. The other two crop or reveal sky — the background is drawn `.fill`
+    /// and bottom-anchored, so the ground line the creatures stand on never
+    /// moves and the horizon is never stretched.
+    var scale: CGFloat {
+        switch self {
+        case .compact: 0.74
+        case .standard: 1
+        case .tall: 1.26
+        }
+    }
 }
 
 enum IslandUsageDisplay: String, CaseIterable, Identifiable, Sendable {

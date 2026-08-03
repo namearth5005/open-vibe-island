@@ -48,8 +48,13 @@ struct ReceiptTests {
         )
     }
 
+    /// Pinned rather than `.shared`: these tests assert on what is printed,
+    /// and `.shared` follows whatever language the machine running them
+    /// happens to be set to.
+    private let lang = LanguageManager(language: .en)
+
     private func receipt(_ records: [SessionLogRecord], width: CGFloat = 540) -> Receipt {
-        Receipt(records: records, now: now, width: width, calendar: calendar)
+        Receipt(records: records, now: now, width: width, calendar: calendar, lang: lang)
     }
 
     private func figure(_ item: ReceiptItem, _ records: [SessionLogRecord]) -> String? {
@@ -118,9 +123,10 @@ struct ReceiptTests {
 
     @Test
     func anEmptyDayGetsItsOwnFooterRatherThanABlankOne() {
-        #expect(receipt([]).footer == Receipt.emptyFooter)
-        #expect(receipt([record("a")]).footer == Receipt.busyFooter)
-        #expect(!Receipt.emptyFooter.isEmpty)
+        #expect(receipt([]).footer == lang.t(Receipt.emptyFooterKey))
+        #expect(receipt([record("a")]).footer == lang.t(Receipt.busyFooterKey))
+        #expect(!receipt([]).footer.isEmpty)
+        #expect(receipt([]).footer != receipt([record("a")]).footer)
     }
 
     // MARK: - The ledger, and what the TOTAL is the sum of

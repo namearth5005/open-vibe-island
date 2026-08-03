@@ -26,6 +26,7 @@ struct StatsSettingsPane: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 rangePicker
+                receiptBlock
                 summaryGrid
                 comparisonBlock
                 agentBreakdown
@@ -172,6 +173,46 @@ struct StatsSettingsPane: View {
             }
             .padding(14)
             .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 10))
+        }
+    }
+
+    // MARK: - Receipt
+
+    /// The day, printed, above the same day's medians.
+    ///
+    /// This pane is the only surface in the app whose whole job is
+    /// `SessionStats`, and `Receipt` is built from nothing else — same source,
+    /// same refresh, no new plumbing. It is a record rather than live state,
+    /// which is why it is here and not in the panel: the panel's vertical
+    /// budget belongs to the session list, and a document that changes a few
+    /// times a day has no claim on it.
+    ///
+    /// Shown only for `today`, because `Receipt` is hard-wired to
+    /// `StatsRange.today` — printing it beside a seven-day grid would put two
+    /// different days on one screen and let the paper contradict the numbers
+    /// directly beneath it.
+    @ViewBuilder
+    private var receiptBlock: some View {
+        if range == .today {
+            VStack(alignment: .leading, spacing: 10) {
+                Text(lang.t("settings.stats.receipt"))
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .tracking(1.2)
+                    .foregroundStyle(.secondary)
+
+                ReceiptView(
+                    receipt: Receipt(
+                        records: records,
+                        now: now,
+                        // The paper caps itself at 300pt; this is the band it
+                        // is centred in, matching the notch panel's width so
+                        // the slip is the same object in both places.
+                        width: 540,
+                        lang: lang
+                    )
+                )
+                .frame(maxWidth: .infinity, alignment: .center)
+            }
         }
     }
 

@@ -243,3 +243,66 @@
 "settings.stats.byAgent" = "按代理";
 "settings.stats.empty" = "还没有完成的会话。运行一个代理后这里就会有数据。";
 "island.shippedToday" = "今天完成 %lld";
+
+/* Island Panel - Island Band */
+"island.strip.empty" = "岛上没有会话";
+"island.unknownWorkspace" = "未知工作区";
+"island.unknownHost" = "未知主机";
+"island.unknownHost.spoken" = "一台未知主机";
+"island.strip.hint.jumps" = "跳转到该会话的终端";
+"island.strip.hint.selects" = "选中该会话";
+"island.strip.spoken" = "%1$@，%3$@ 上的 %2$@，%4$@，历时 %5$@";
+"island.overflow.spoken.one" = "还有 1 个会话未显示";
+"island.overflow.spoken.many" = "还有 %lld 个会话未显示";
+"island.pose.working" = "运行中";
+"island.pose.waiting" = "正在等你";
+"island.pose.holding" = "已完成";
+"island.pose.fallen" = "已中断";
+"island.duration.underAMinute" = "不到一分钟";
+"island.duration.minute" = "%lld 分钟";
+"island.duration.minutes" = "%lld 分钟";
+"island.duration.hour" = "%lld 小时";
+"island.duration.hours" = "%lld 小时";
+"island.duration.day" = "%lld 天";
+"island.duration.days" = "%lld 天";
+"island.detail.empty" = "选择一个会话，查看它正在做什么";
+"island.detail.stalls.never" = "从未卡住";
+"island.detail.stalls.once" = "卡住过 1 次";
+"island.detail.stalls.many" = "卡住过 %lld 次";
+"island.detail.spoken.running" = "已运行 %@";
+"island.detail.spoken.waiting" = "已等你 %@";
+
+/* Receipt */
+"receipt.item.cleanFinish" = "顺利完成";
+"receipt.item.interrupted" = "被中断";
+"receipt.item.total" = "合计";
+"receipt.item.sessionsRun" = "运行的会话";
+"receipt.item.answeredInTime" = "及时回应";
+"receipt.item.keptWaiting" = "让它干等";
+"receipt.item.bestRun" = "最佳单次";
+"receipt.footer.busy" = "概不退换。不记连胜。";
+"receipt.footer.empty" = "无物申报";
+"receipt.note.unwatched" = "其中 %lld 个无人值守";
+"receipt.note.asked" = "共问了 %lld 次";
+"receipt.spoken.none" = "无";
+"receipt.spoken.session" = "1 个会话";
+"receipt.spoken.sessions" = "%lld 个会话";
+"receipt.spoken.noneAsked" = "没有提问";
+"receipt.spoken.answer" = "%lld 次回答";
+"receipt.spoken.answers" = "%lld 次回答";
+"receipt.spoken.even" = "持平";
+"receipt.spoken.up" = "净增 %lld";
+"receipt.spoken.down" = "净减 %lld";
+"settings.stats.receipt" = "今日小票";
+
+/* Settings - Personalization - Island */
+"settings.appearance.islandPart.title" = "岛";
+"settings.appearance.islandScene.title" = "07 · 岛";
+"settings.appearance.islandScene.note" = "在展开的面板中，于会话列表上方显示岛。";
+"settings.appearance.islandScene.off" = "关闭";
+"settings.appearance.islandScene.on" = "开启";
+"settings.appearance.sceneHeight.title" = "08 · 岛高度";
+"settings.appearance.sceneHeight.note" = "控制面板中岛的显示高度。面板会随之变高，会话列表的空间保持不变。";
+"settings.appearance.sceneHeight.compact" = "紧凑";
+"settings.appearance.sceneHeight.standard" = "标准";
+"settings.appearance.sceneHeight.tall" = "加高";

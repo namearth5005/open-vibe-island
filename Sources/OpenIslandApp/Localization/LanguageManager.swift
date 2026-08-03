@@ -60,6 +60,18 @@ final class LanguageManager: @unchecked Sendable {
         self.bundle = Self.resolveBundle(for: lang)
     }
 
+    /// A manager pinned to one language, for tests and previews.
+    ///
+    /// Neither reads nor writes the stored preference — `didSet` does not fire
+    /// during initialization, so this cannot disturb the user's choice or leave
+    /// shared `UserDefaults` altered for whatever test runs next. Without it a
+    /// test asserting on localized text would assert on whatever language the
+    /// machine running it happens to be set to.
+    init(language: AppLanguage) {
+        self.language = language
+        self.bundle = Self.resolveBundle(for: language)
+    }
+
     // MARK: - Localized string access
 
     /// Look up a localized string by key.

@@ -38,12 +38,21 @@ enum IslandDurationGrain: Equatable, Sendable {
         }
     }
 
-    var spoken: String {
+    /// The badge said out loud. "12m" read aloud is "twelve em".
+    ///
+    /// Singular and plural are separate keys rather than one format string with
+    /// a count: the app ships English and two Chinese locales, and plural
+    /// agreement is a property of the language, not of the number.
+    func spoken(_ lang: LanguageManager) -> String {
         switch self {
-        case .underAMinute: "less than a minute"
-        case let .minutes(value): value == 1 ? "1 minute" : "\(value) minutes"
-        case let .hours(value): value == 1 ? "1 hour" : "\(value) hours"
-        case let .days(value): value == 1 ? "1 day" : "\(value) days"
+        case .underAMinute:
+            return lang.t("island.duration.underAMinute")
+        case let .minutes(value):
+            return lang.t(value == 1 ? "island.duration.minute" : "island.duration.minutes", value)
+        case let .hours(value):
+            return lang.t(value == 1 ? "island.duration.hour" : "island.duration.hours", value)
+        case let .days(value):
+            return lang.t(value == 1 ? "island.duration.day" : "island.duration.days", value)
         }
     }
 }

@@ -17,18 +17,12 @@ enum ReceiptItem: String, CaseIterable, Sendable {
 
     /// Mixed case for the items, upper for the total, exactly as a printer
     /// emits them — the shift in register is what makes the total look like the
-    /// bottom line rather than an eighth item.
-    var label: String {
-        switch self {
-        case .cleanFinish: "Clean finish"
-        case .interrupted: "Interrupted"
-        case .total: "TOTAL"
-        case .sessionsRun: "Sessions run"
-        case .answeredInTime: "Answered in time"
-        case .keptWaiting: "Kept waiting"
-        case .bestRun: "Best run"
-        }
-    }
+    /// bottom line rather than an eighth item. The case distinction is carried
+    /// in the translations, because it does not survive into Chinese and a
+    /// `.uppercased()` here would be a no-op there rather than an emphasis.
+    var labelKey: String { "receipt.item.\(rawValue)" }
+
+    func label(_ lang: LanguageManager) -> String { lang.t(labelKey) }
 }
 
 /// One printed line: what it was, what it came to, and whether that was a good
@@ -59,9 +53,10 @@ struct ReceiptLine: Equatable, Identifiable, Sendable {
     /// inferred rather than watched.
     let note: String?
     let polarity: Polarity
+    /// Resolved when the receipt is printed, like every other string on it.
+    let label: String
 
     var id: ReceiptItem { item }
-    var label: String { item.label }
 
     var accessibilityDescription: String {
         [label, spokenFigure, note].compactMap { $0 }.joined(separator: ", ")
@@ -103,14 +98,17 @@ struct Receipt: Equatable, Sendable {
     let memo: [ReceiptLine]
     let footer: String
 
+    /// The shop's name, and the one string on the paper that stays English in
+    /// every locale — it is a trading name, and the app's own name is already
+    /// left untranslated everywhere else in the catalogue.
     static let title = "OPEN ISLAND INC."
     /// Two of this design's non-goals, printed where a till roll prints its
     /// returns policy. It is a joke that is also true.
-    static let busyFooter = "NO REFUNDS. NO STREAKS."
+    static let busyFooterKey = "receipt.footer.busy"
     /// A day with nothing on it still gets a receipt, and this is the line that
     /// makes it read as one. A blank sheet is indistinguishable from a view
     /// that failed to load; a printed "nothing" is a statement.
-    static let emptyFooter = "NOTHING TO DECLARE"
+    static let emptyFooterKey = "receipt.footer.empty"
 
     // MARK: - Paper
 
@@ -171,30 +169,37 @@ struct Receipt: Equatable, Sendable {
 
     // MARK: - Printing
 
-    init(records: [SessionLogRecord], now: Date, width: CGFloat, calendar: Calendar = .current) {
+    init(
+        records: [SessionLogRecord],
+        now: Date,
+        width: CGFloat,
+        calendar: Calendar = .current,
+        lang: LanguageManager = .shared
+    ) {
         self.width = width
 
         let summary = SessionStats.summary(for: .today, records: records, now: now, calendar: calendar)
         dateLine = Self.dateLine(for: now, calendar: calendar)
-        footer = summary.finished == 0 ? Self.emptyFooter : Self.busyFooter
+        footer = lang.t(summary.finished == 0 ? Self.emptyFooterKey : Self.busyFooterKey)
 
         ledger = [
-            Self.ledgerLine(.cleanFinish, sessions: summary.cleanFinishes, sign: 1),
-            Self.ledgerLine(.interrupted, sessions: summary.interrupted, sign: -1),
+            Self.ledgerLine(.cleanFinish, sessions: summary.cleanFinishes, sign: 1, lang: lang),
+            Self.ledgerLine(.interrupted, sessions: summary.interrupted, sign: -1, lang: lang),
         ]
-        total = Self.totalLine(ledger.reduce(0) { $0 + $1.amount })
+        total = Self.totalLine(ledger.reduce(0) { $0 + $1.amount }, lang: lang)
 
         memo = [
-            Self.sessionsRunLine(summary),
-            Self.answeredInTimeLine(summary),
+            Self.sessionsRunLine(summary, lang: lang),
+            Self.answeredInTimeLine(summary, lang: lang),
             Self.durationLine(
                 .keptWaiting,
                 // Zero is "nobody was kept waiting", which is the absence of a
                 // measurement rather than a wait of no length.
                 seconds: summary.totalWaiting > 0 ? summary.totalWaiting : nil,
-                polarity: .debit
+                polarity: .debit,
+                lang: lang
             ),
-            Self.durationLine(.bestRun, seconds: summary.longestCleanRun, polarity: .credit),
+            Self.durationLine(.bestRun, seconds: summary.longestCleanRun, polarity: .credit, lang: lang),
         ]
     }
 
@@ -203,25 +208,34 @@ struct Receipt: Equatable, Sendable {
     /// Zero prints unsigned and uncoloured. `+0` in green would be the receipt
     /// congratulating a day that did not happen, and it is the one figure on an
     /// empty receipt most likely to read as a rendering fault.
-    private static func ledgerLine(_ item: ReceiptItem, sessions: Int, sign: Int) -> ReceiptLine {
+    private static func ledgerLine(
+        _ item: ReceiptItem,
+        sessions: Int,
+        sign: Int,
+        lang: LanguageManager
+    ) -> ReceiptLine {
         ReceiptLine(
             item: item,
             amount: sessions * sign,
             figure: sessions == 0 ? "0" : (sign > 0 ? "+\(sessions)" : "-\(sessions)"),
-            spokenFigure: spokenSessions(sessions),
+            spokenFigure: spokenSessions(sessions, lang),
             note: nil,
-            polarity: sessions == 0 ? .neutral : (sign > 0 ? .credit : .debit)
+            polarity: sessions == 0 ? .neutral : (sign > 0 ? .credit : .debit),
+            label: item.label(lang)
         )
     }
 
-    private static func totalLine(_ amount: Int) -> ReceiptLine {
+    private static func totalLine(_ amount: Int, lang: LanguageManager) -> ReceiptLine {
         ReceiptLine(
             item: .total,
             amount: amount,
             figure: amount == 0 ? "0" : (amount > 0 ? "+\(amount)" : "\(amount)"),
-            spokenFigure: amount == 0 ? "even" : (amount > 0 ? "up \(amount)" : "down \(-amount)"),
+            spokenFigure: amount == 0
+                ? lang.t("receipt.spoken.even")
+                : lang.t(amount > 0 ? "receipt.spoken.up" : "receipt.spoken.down", abs(amount)),
             note: nil,
-            polarity: amount == 0 ? .neutral : (amount > 0 ? .credit : .debit)
+            polarity: amount == 0 ? .neutral : (amount > 0 ? .credit : .debit),
+            label: ReceiptItem.total.label(lang)
         )
     }
 
@@ -232,14 +246,15 @@ struct Receipt: Equatable, Sendable {
     /// of what those lines claim. But it proves nothing about answer times, so
     /// the note is what stops "Sessions run 11" sitting over "of 1 asked" and
     /// looking like a bug. The gap is printed rather than swallowed.
-    private static func sessionsRunLine(_ summary: StatsSummary) -> ReceiptLine {
+    private static func sessionsRunLine(_ summary: StatsSummary, lang: LanguageManager) -> ReceiptLine {
         ReceiptLine(
             item: .sessionsRun,
             amount: 0,
             figure: "\(summary.finished)",
-            spokenFigure: spokenSessions(summary.finished),
-            note: summary.inferred > 0 ? "\(summary.inferred) unwatched" : nil,
-            polarity: .neutral
+            spokenFigure: spokenSessions(summary.finished, lang),
+            note: summary.inferred > 0 ? lang.t("receipt.note.unwatched", summary.inferred) : nil,
+            polarity: .neutral,
+            label: ReceiptItem.sessionsRun.label(lang)
         )
     }
 
@@ -249,15 +264,16 @@ struct Receipt: Equatable, Sendable {
     /// `RewardRarity` passes one vacuously — correctly, because a *tier* is a
     /// judgement about a whole session — but a *count of answers* that included
     /// a session nobody was asked anything by would simply be false.
-    private static func answeredInTimeLine(_ summary: StatsSummary) -> ReceiptLine {
+    private static func answeredInTimeLine(_ summary: StatsSummary, lang: LanguageManager) -> ReceiptLine {
         guard summary.gatedSessions > 0 else {
             return ReceiptLine(
                 item: .answeredInTime,
                 amount: 0,
                 figure: IslandDetailBand.absentBadge,
-                spokenFigure: "none asked",
+                spokenFigure: lang.t("receipt.spoken.noneAsked"),
                 note: nil,
-                polarity: .neutral
+                polarity: .neutral,
+                label: ReceiptItem.answeredInTime.label(lang)
             )
         }
 
@@ -266,13 +282,17 @@ struct Receipt: Equatable, Sendable {
             item: .answeredInTime,
             amount: 0,
             figure: "\(answered)",
-            spokenFigure: answered == 1 ? "1 answer" : "\(answered) answers",
-            note: "of \(summary.gatedSessions) asked",
+            spokenFigure: lang.t(
+                answered == 1 ? "receipt.spoken.answer" : "receipt.spoken.answers",
+                answered
+            ),
+            note: lang.t("receipt.note.asked", summary.gatedSessions),
             // Zero is a measured zero — the denominator proves the clock ran —
             // but it is not a debit. Slowness is already charged for on the line
             // above it, and charging twice for one failing would be the receipt
             // arguing with you.
-            polarity: answered > 0 ? .credit : .neutral
+            polarity: answered > 0 ? .credit : .neutral,
+            label: ReceiptItem.answeredInTime.label(lang)
         )
     }
 
@@ -284,16 +304,18 @@ struct Receipt: Equatable, Sendable {
     private static func durationLine(
         _ item: ReceiptItem,
         seconds: TimeInterval?,
-        polarity: ReceiptLine.Polarity
+        polarity: ReceiptLine.Polarity,
+        lang: LanguageManager
     ) -> ReceiptLine {
         guard let seconds else {
             return ReceiptLine(
                 item: item,
                 amount: 0,
                 figure: IslandDetailBand.absentBadge,
-                spokenFigure: "none",
+                spokenFigure: lang.t("receipt.spoken.none"),
                 note: nil,
-                polarity: .neutral
+                polarity: .neutral,
+                label: item.label(lang)
             )
         }
 
@@ -302,17 +324,18 @@ struct Receipt: Equatable, Sendable {
             item: item,
             amount: 0,
             figure: grain.badge,
-            spokenFigure: grain.spoken,
+            spokenFigure: grain.spoken(lang),
             note: nil,
-            polarity: polarity
+            polarity: polarity,
+            label: item.label(lang)
         )
     }
 
-    private static func spokenSessions(_ count: Int) -> String {
+    private static func spokenSessions(_ count: Int, _ lang: LanguageManager) -> String {
         switch count {
-        case 0: "none"
-        case 1: "1 session"
-        default: "\(count) sessions"
+        case 0: lang.t("receipt.spoken.none")
+        case 1: lang.t("receipt.spoken.session")
+        default: lang.t("receipt.spoken.sessions", count)
         }
     }
 

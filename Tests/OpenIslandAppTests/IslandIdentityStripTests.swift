@@ -7,6 +7,11 @@ import Testing
 struct IslandIdentityStripTests {
     private let t0 = Date(timeIntervalSince1970: 1_000_000)
 
+    /// Pinned rather than `.shared`: these tests assert on the words the
+    /// strip speaks, and `.shared` follows whatever language the machine
+    /// running them happens to be set to.
+    private let lang = LanguageManager(language: .en)
+
     private func session(
         _ id: String,
         tool: AgentTool = .claudeCode,
@@ -45,7 +50,8 @@ struct IslandIdentityStripTests {
             sessions: sessions,
             geode: geode(for: sessions),
             width: width,
-            now: t0
+            now: t0,
+            lang: lang
         )
     }
 
@@ -57,7 +63,7 @@ struct IslandIdentityStripTests {
         #expect(band.cells.isEmpty)
         #expect(band.overflow == 0)
         #expect(band.isEmpty)
-        #expect(!IslandIdentityStripLayout.emptyMessage.isEmpty)
+        #expect(!band.emptyMessage.isEmpty)
     }
 
     @Test
@@ -210,7 +216,7 @@ struct IslandIdentityStripTests {
         #expect(spoken.contains("Gemini CLI"))
         #expect(spoken.contains("Ghostty"))
         #expect(spoken.contains("12 minutes"))
-        #expect(spoken.contains(CreaturePose.waiting.spokenState))
+        #expect(spoken.contains(CreaturePose.waiting.spokenState(lang)))
     }
 
     /// A button that switches you to another app has to say so before it is
@@ -235,7 +241,7 @@ struct IslandIdentityStripTests {
 
     @Test
     func theSpokenStateDistinguishesEveryPoseTheSceneCanDraw() {
-        let spoken = CreaturePose.allCases.map(\.spokenState)
+        let spoken = CreaturePose.allCases.map { $0.spokenState(lang) }
         #expect(Set(spoken).count == CreaturePose.allCases.count)
         #expect(spoken.allSatisfy { !$0.isEmpty })
     }
@@ -259,7 +265,7 @@ struct IslandIdentityStripTests {
         for (seconds, badge, spoken) in cases {
             let grain = IslandDurationGrain(seconds: seconds)
             #expect(grain.badge == badge)
-            #expect(grain.spoken == spoken)
+            #expect(grain.spoken(lang) == spoken)
         }
     }
 
@@ -323,7 +329,8 @@ struct IslandIdentityStripTests {
                 sessions: (0..<12).map { session("s\($0)") },
                 geode: geode(for: (0..<12).map { session("s\($0)") }),
                 width: width,
-                now: t0
+                now: t0,
+                lang: lang
             )
             #expect(band.hostWidth > 0)
             #expect(band.hostWidth + IslandIdentityStripLayout.elapsedColumnWidth

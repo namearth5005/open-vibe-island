@@ -24,12 +24,14 @@ struct IslandIdentityCell: Equatable, Identifiable, Sendable {
     let runtime: IslandDurationGrain
     let pose: CreaturePose
 
-    var elapsed: String { runtime.badge }
-
-    /// The sanctioned exception to "the strip never holds a mood": this cell is
-    /// the accessible mirror of the raised hand, so it has to be able to say
-    /// *this one* out loud and on screen.
-    var needsAttention: Bool { pose.isAskingForYou }
+    /// A blank line would read as a rendering fault rather than as an unknown,
+    /// which is exactly the failure the scene's `workshop` structure avoids.
+    ///
+    /// Resolved when the layout is built rather than computed on demand: the
+    /// layout is the one place that holds a `LanguageManager`, and storing the
+    /// finished text keeps this a plain `Equatable` value instead of something
+    /// carrying a reference to a translation engine.
+    let hostLabel: String
 
     /// What activating this cell will do.
     ///
@@ -37,34 +39,39 @@ struct IslandIdentityCell: Equatable, Identifiable, Sendable {
     /// screen-reader or keyboard user reaches a creature — which makes it the
     /// only place they can be warned that this particular one answers with a
     /// jump into another app rather than by moving a highlight.
-    var activationHint: String {
-        needsAttention ? "Jumps to this session's terminal" : "Selects this session"
-    }
-
-    /// A blank line would read as a rendering fault rather than as an unknown,
-    /// which is exactly the failure the scene's `workshop` structure avoids.
-    var hostLabel: String { host ?? "Unknown host" }
+    let activationHint: String
 
     /// Everything the scene shows, in words.
     ///
     /// The scene is `accessibilityHidden`, so a screen-reader user gets the
     /// whole island from this sentence — which means it carries the state the
     /// picture carries visually, even though the visible cell does not.
-    var accessibilityDescription: String {
-        "\(workspace), \(agent) at \(host ?? "an unknown host"), \(pose.spokenState), \(runtime.spoken) elapsed"
-    }
+    let accessibilityDescription: String
+
+    var elapsed: String { runtime.badge }
+
+    /// The sanctioned exception to "the strip never holds a mood": this cell is
+    /// the accessible mirror of the raised hand, so it has to be able to say
+    /// *this one* out loud and on screen.
+    var needsAttention: Bool { pose.isAskingForYou }
 }
 
 extension CreaturePose {
     /// The spoken counterpart of the pose, matching `GeodeShardView`'s
     /// accessibility vocabulary so the pill and the panel describe a blocked
     /// session with the same words.
-    var spokenState: String {
+    func spokenState(_ lang: LanguageManager) -> String {
+        lang.t(spokenStateKey)
+    }
+
+    /// Separated from the lookup so tests can assert that four poses map to four
+    /// distinct keys without depending on what any locale translates them to.
+    var spokenStateKey: String {
         switch self {
-        case .working: "running"
-        case .waiting: "waiting for you"
-        case .holding: "finished"
-        case .fallen: "interrupted"
+        case .working: "island.pose.working"
+        case .waiting: "island.pose.waiting"
+        case .holding: "island.pose.holding"
+        case .fallen: "island.pose.fallen"
         }
     }
 }
@@ -122,31 +129,64 @@ struct IslandIdentityStripLayout: Equatable, Sendable {
 
     /// An island with nobody on it is a state, not a fault. The scene draws an
     /// empty meadow; this says the same thing in words.
-    static let emptyMessage = "No sessions on the island"
+    static let emptyMessageKey = "island.strip.empty"
+
+    /// Resolved at construction, like every other string on the band.
+    let emptyMessage: String
 
     /// Sessions are taken in the order given and never re-sorted — the caller
     /// owns ordering, exactly as the scene requires, or cell *n* would stop
     /// captioning station *n*.
-    init(sessions: [AgentSession], geode: GeodeState, width: CGFloat, now: Date) {
+    init(
+        sessions: [AgentSession],
+        geode: GeodeState,
+        width: CGFloat,
+        now: Date,
+        lang: LanguageManager = .shared
+    ) {
         self.width = width
+        emptyMessage = lang.t(Self.emptyMessageKey)
 
         cells = sessions.prefix(IslandSceneLayout.stationCapacity).map { session in
-            let host = session.jumpTarget?.terminalApp.trimmingCharacters(in: .whitespacesAndNewlines)
-            let workspace = session.spotlightWorkspaceName.trimmingCharacters(in: .whitespacesAndNewlines)
+            let rawHost = session.jumpTarget?.terminalApp.trimmingCharacters(in: .whitespacesAndNewlines)
+            let host = rawHost?.isEmpty == false ? rawHost : nil
+            let rawWorkspace = session.spotlightWorkspaceName.trimmingCharacters(in: .whitespacesAndNewlines)
+            let workspace = rawWorkspace.isEmpty ? lang.t("island.unknownWorkspace") : rawWorkspace
+            let pose = geode.pose(for: session.id)
+            let runtime = IslandDurationGrain(seconds: session.islandElapsed(at: now))
 
             return IslandIdentityCell(
                 id: session.id,
-                workspace: workspace.isEmpty ? "Unknown workspace" : workspace,
+                workspace: workspace,
                 agent: session.tool.displayName,
-                host: host?.isEmpty == false ? host : nil,
-                runtime: IslandDurationGrain(seconds: session.islandElapsed(at: now)),
-                pose: geode.pose(for: session.id)
+                host: host,
+                runtime: runtime,
+                pose: pose,
+                hostLabel: host ?? lang.t("island.unknownHost"),
+                activationHint: lang.t(
+                    pose.isAskingForYou ? "island.strip.hint.jumps" : "island.strip.hint.selects"
+                ),
+                // Assembled from a format string rather than by concatenation so
+                // a translator can reorder the clauses — Chinese puts the host
+                // before the agent, which string interpolation cannot express.
+                accessibilityDescription: lang.t(
+                    "island.strip.spoken",
+                    workspace,
+                    session.tool.displayName,
+                    host ?? lang.t("island.unknownHost.spoken"),
+                    pose.spokenState(lang),
+                    runtime.spoken(lang)
+                )
             )
         }
 
         // The ceiling is the scene's, not a second one: the strip captions what
         // was drawn, so both bands hide the same sessions.
         overflow = max(0, sessions.count - IslandSceneLayout.stationCapacity)
+
+        overflowDescription = overflow > 0
+            ? lang.t(overflow == 1 ? "island.overflow.spoken.one" : "island.overflow.spoken.many", overflow)
+            : nil
     }
 
     var isEmpty: Bool { cells.isEmpty }
@@ -167,12 +207,10 @@ struct IslandIdentityStripLayout: Equatable, Sendable {
 
     /// `+3` is a glyph, not a sentence, and this band is where a screen-reader
     /// user learns those sessions exist at all.
-    var overflowDescription: String? {
-        guard overflow > 0 else { return nil }
-        return overflow == 1
-            ? "1 more session not shown"
-            : "\(overflow) more sessions not shown"
-    }
+    ///
+    /// Two keys rather than one with a count, because plural agreement is not a
+    /// property a format string can carry across the languages this app ships.
+    let overflowDescription: String?
 
     /// Even division of whatever the overflow column left behind, capped.
     static func cellWidth(count: Int, width: CGFloat, overflow: Int) -> CGFloat {
@@ -211,7 +249,7 @@ struct IslandIdentityStripView: View {
     var body: some View {
         HStack(spacing: IslandIdentityStripLayout.cellSpacing) {
             if layout.isEmpty {
-                Text(IslandIdentityStripLayout.emptyMessage)
+                Text(layout.emptyMessage)
                     .font(.system(size: IslandIdentityStripLayout.agentFontSize, weight: .medium))
                     .foregroundStyle(V6Palette.paper.opacity(0.42))
                     .frame(maxWidth: .infinity)
