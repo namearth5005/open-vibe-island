@@ -186,7 +186,7 @@ Pure model. What a finished session yields and how good it is.
 **Build with:** `superpowers:test-driven-development`  **Review with:** `swift-testing-pro`
 **Depends on:** 6
 
-## [in-progress] 8 — The receipt
+## [done] 8 — The receipt
 
 `Open Island Inc.` Cheapest high-charm item in the spec: pure typography over numbers that
 already exist.
@@ -204,7 +204,7 @@ already exist.
 `OpenIslandApp.swift:22` and `HarnessRuntimeMonitor`. Any failure the island needs a user to
 actually *see* has to surface in the detail band, not that property.
 
-## [todo] 9 — Customisation surface
+## [in-progress] 9 — Customisation surface
 
 **Acceptance criteria:**
 - Island on/off in `AppearanceSettingsPane`, off by default
