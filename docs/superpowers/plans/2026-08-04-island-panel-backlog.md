@@ -238,7 +238,7 @@ actually *see* has to surface in the detail band, not that property.
 - `LocalizationTests.everyLocaleDefinesTheSameKeys` now enforces key parity across en /
   zh-Hans / zh-Hant. Any new key must be added to all three or the gate fails.
 
-## [todo] 10 — Voice lines
+## [in-progress] 10 — Voice lines
 
 **Acceptance criteria:**
 - ~12 lines per species, shown on clean completion
