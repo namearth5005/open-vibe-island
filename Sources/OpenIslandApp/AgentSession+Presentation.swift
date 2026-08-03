@@ -1,6 +1,53 @@
 import Foundation
 import OpenIslandCore
 
+/// Which unit a duration rounded down to, and the two ways the island says it.
+///
+/// The badge and the sentence are one decision rendered twice — once for a 26pt
+/// column, once for a voice — so they are derived from a single grain rather
+/// than from two formatters that can drift apart. "12m" read aloud is "twelve
+/// em", which is why the spoken form exists at all.
+enum IslandDurationGrain: Equatable, Sendable {
+    case underAMinute
+    case minutes(Int)
+    case hours(Int)
+    case days(Int)
+
+    init(seconds: TimeInterval) {
+        // A clock adjustment must not produce a negative age, and the floor of
+        // one is what keeps "59 minutes" from rendering as "0h".
+        let value = max(0, Int(seconds))
+        switch value {
+        case ..<60:
+            self = .underAMinute
+        case ..<3_600:
+            self = .minutes(max(1, value / 60))
+        case ..<86_400:
+            self = .hours(max(1, value / 3_600))
+        default:
+            self = .days(max(1, value / 86_400))
+        }
+    }
+
+    var badge: String {
+        switch self {
+        case .underAMinute: "<1m"
+        case let .minutes(value): "\(value)m"
+        case let .hours(value): "\(value)h"
+        case let .days(value): "\(value)d"
+        }
+    }
+
+    var spoken: String {
+        switch self {
+        case .underAMinute: "less than a minute"
+        case let .minutes(value): value == 1 ? "1 minute" : "\(value) minutes"
+        case let .hours(value): value == 1 ? "1 hour" : "\(value) hours"
+        case let .days(value): value == 1 ? "1 day" : "\(value) days"
+        }
+    }
+}
+
 enum SpotlightActivityTone {
     case live
     case idle
@@ -303,21 +350,21 @@ extension AgentSession {
     }
 
     var spotlightAgeBadge: String {
-        let age = max(0, Int(Date.now.timeIntervalSince(islandActivityDate)))
+        IslandDurationGrain(seconds: Date.now.timeIntervalSince(islandActivityDate)).badge
+    }
 
-        if age < 60 {
-            return "<1m"
-        }
-
-        if age < 3_600 {
-            return "\(max(1, age / 60))m"
-        }
-
-        if age < 86_400 {
-            return "\(max(1, age / 3_600))h"
-        }
-
-        return "\(max(1, age / 86_400))d"
+    /// How long this session has been going.
+    ///
+    /// Measured from `firstSeenAt`, not from the last event, because the island
+    /// strip answers "which session is this" rather than "what just happened" —
+    /// a run you started this morning stays an hours-old run even when it
+    /// printed a line a second ago.
+    ///
+    /// A finished session stops at its last event. Letting it keep counting
+    /// would report work that is not happening.
+    func islandElapsed(at referenceDate: Date) -> TimeInterval {
+        let endpoint = phase == .completed ? updatedAt : referenceDate
+        return max(0, endpoint.timeIntervalSince(firstSeenAt))
     }
 
     func islandPresence(at referenceDate: Date) -> IslandSessionPresence {

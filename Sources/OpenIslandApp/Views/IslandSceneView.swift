@@ -62,10 +62,9 @@ struct IslandSceneLayout: Equatable, Sendable {
             IslandStation(
                 id: session.id,
                 species: CreatureSpecies(tool: session.tool),
-                // A session whose shard has not landed yet reads as calm. The
-                // picture may never invent an attention state it was not told
-                // about; a missed wave is recoverable, a phantom one is not.
-                pose: geode.shard(id: session.id).map(CreaturePose.init(shard:)) ?? .working,
+                // Shared with the identity strip so the picture and the words
+                // can never report different states for the same session.
+                pose: geode.pose(for: session.id),
                 // The jump target is optional — a session discovered before its
                 // host is known still has to stand somewhere, and `workshop` is
                 // the answer for a host nobody has taught the app about yet.

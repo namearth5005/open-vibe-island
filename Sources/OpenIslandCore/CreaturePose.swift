@@ -27,3 +27,18 @@ public enum CreaturePose: String, CaseIterable, Sendable {
     /// deliberately not competing for attention, so it may read as calm.
     public var demandsPillLegibility: Bool { self != .fallen }
 }
+
+public extension GeodeState {
+    /// The pose a session's creature holds right now.
+    ///
+    /// Lives here rather than at each call site because the island draws the
+    /// same session twice — once as a picture, once as words — and the two must
+    /// never disagree about what it is doing.
+    ///
+    /// A session whose shard has not landed yet reads as calm. The picture may
+    /// never invent an attention state it was not told about; a missed wave is
+    /// recoverable, a phantom one is not.
+    func pose(for sessionID: String) -> CreaturePose {
+        shard(id: sessionID).map(CreaturePose.init(shard:)) ?? .working
+    }
+}

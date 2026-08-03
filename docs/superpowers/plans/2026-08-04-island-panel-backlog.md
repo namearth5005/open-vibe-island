@@ -94,7 +94,7 @@ it is carried separately on `JumpTarget.tmuxTarget`, so a tmux session currently
 outer host. Showing it as `.multiplexer` would be a call-site change, deliberately out of
 scope here — note it, do not silently add it.
 
-## [in-progress] 3 — Identity strip
+## [done] 3 — Identity strip
 
 The text band under the scene. The picture carries state; this carries identity — that
 split is the design's core clarity rule and must not blur.
@@ -183,6 +183,11 @@ already exist.
 - Reuses `staleThreshold`; does not add a second staleness concept
 - With the island off, panel behaviour is identical to today — assert it
 - A preference write must not change the active appearance profile (see `e79a005`)
+- **Localization debt from task 3:** the identity strip ships English literals
+  (`emptyMessage`, `hostLabel`, the accessibility sentence). The app is bilingual
+  (en + zh-Hans/Hant). Nothing is user-visible until the strip is composed into the
+  panel — which happens here — so this task must run the localization pass rather
+  than shipping untranslated UI.
 **Build with:** `swiftui-design`  **Review with:** `swiftui-pro` + `hig-foundations`
 **Depends on:** 8
 

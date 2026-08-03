@@ -31,6 +31,25 @@ struct CreaturePoseTests {
         #expect(CreaturePose(shard: shard(frozenSince: t0, isSet: true, isFractured: true)) == .fallen)
     }
 
+    /// The island draws a session twice — as a creature and as a strip cell —
+    /// and both read the pose from here, so they cannot report different states
+    /// for the same session.
+    @Test
+    func aSessionWithNoShardYetReadsAsWorking() {
+        var state = GeodeState()
+        #expect(state.pose(for: "unknown") == .working)
+
+        state.apply(.sessionStarted(SessionStarted(
+            sessionID: "s1",
+            title: "s1",
+            tool: .claudeCode,
+            initialPhase: .waitingForApproval,
+            summary: "",
+            timestamp: t0
+        )))
+        #expect(state.pose(for: "s1") == .waiting)
+    }
+
     /// Only these three must be mutually legible at pill size; `fallen` is
     /// deliberately quiet because an interrupted session is not asking for you.
     @Test
