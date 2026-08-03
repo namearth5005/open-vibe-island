@@ -83,13 +83,28 @@ extension AgentSession {
         updatedAt
     }
 
-    var spotlightPrimaryText: String {
+    /// What this session is blocked on, or `nil` while it just works.
+    ///
+    /// Named rather than inlined because the island's detail band needs the
+    /// *presence* of a question, not only its text: a pending question is the
+    /// one thing on that row worth colouring. Reading it out of the same two
+    /// fields `spotlightPrimaryText` leads with keeps the band and the panel's
+    /// cards from ever quoting a session differently.
+    var islandPendingQuestion: String? {
         if let request = permissionRequest {
             return request.summary
         }
 
         if let prompt = questionPrompt {
             return prompt.title
+        }
+
+        return nil
+    }
+
+    var spotlightPrimaryText: String {
+        if let pending = islandPendingQuestion {
+            return pending
         }
 
         if let assistantMessage = lastAssistantMessageText?.trimmedForSurface,

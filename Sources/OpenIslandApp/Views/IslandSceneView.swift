@@ -103,6 +103,11 @@ struct IslandSceneLayout: Equatable, Sendable {
 /// numeral allowed: it is an amount, not a name.
 struct IslandSceneView: View {
     let layout: IslandSceneLayout
+    let selectedSessionID: String?
+    /// Clicking a plot. The band never decides what selection *means* — it
+    /// hands the ID up and renders whatever comes back, so the scene and the
+    /// strip drive one selection rather than two.
+    let onSelect: (String) -> Void
 
     /// Flat bundle, bare filename — see `CreatureSprite.image(named:)`.
     static let backgroundName = "scene-band"
@@ -125,11 +130,15 @@ struct IslandSceneView: View {
             }
 
             ForEach(layout.stations) { station in
-                IslandStationView(station: station)
-                    .position(
-                        x: station.center,
-                        y: layout.height * Self.groundFraction - IslandStationView.height / 2
-                    )
+                IslandStationView(
+                    station: station,
+                    isSelected: station.id == selectedSessionID
+                )
+                .onTapGesture { onSelect(station.id) }
+                .position(
+                    x: station.center,
+                    y: layout.height * Self.groundFraction - IslandStationView.height / 2
+                )
             }
 
             if layout.overflow > 0 {
@@ -154,6 +163,10 @@ struct IslandSceneView: View {
 /// its near corner, both standing on the same ground line.
 struct IslandStationView: View {
     let station: IslandStation
+    let isSelected: Bool
+
+    @State private var isHovered = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Wider than it is tall, because sprites are trimmed to their content and
     /// the broadest standing pose is very nearly square. Every standing creature
@@ -176,8 +189,15 @@ struct IslandStationView: View {
     private static let structureOffsetX: CGFloat = -19
     private static let creatureOffsetX: CGFloat = 9
 
+    /// Light on the ground the pair is standing on, rather than a box drawn
+    /// round it: a rectangle here would read as a UI control dropped into a
+    /// painting, and the plot is a place, not a cell.
+    private static let markerSize = CGSize(width: 62, height: 16)
+
     var body: some View {
         ZStack(alignment: .bottom) {
+            groundMarker
+
             if let image = CreatureSprite.image(named: CreatureSprite.name(for: station.structure)) {
                 Image(nsImage: image)
                     .resizable()
@@ -197,6 +217,30 @@ struct IslandStationView: View {
             .offset(x: Self.creatureOffsetX)
         }
         .frame(height: Self.height, alignment: .bottom)
+        // The sprites are mostly transparent, so without this only the painted
+        // pixels of a creature would answer a click.
+        .contentShape(Rectangle())
+        .onHover { isHovered = $0 }
+    }
+
+    /// Selection is the strong state and hover only a hint that the plot
+    /// answers to a click — hover has to be visible enough to invite the click
+    /// and faint enough that nobody mistakes it for the selection.
+    ///
+    /// Light on dark, which is the opposite of the overflow badge's rule and
+    /// for the same reason: the badge sits up in the bright sky, and the plots
+    /// stand on the near meadow, which is the darkest part of the painting.
+    @ViewBuilder
+    private var groundMarker: some View {
+        Ellipse()
+            .fill(V6Palette.paper)
+            .frame(width: Self.markerSize.width, height: Self.markerSize.height)
+            .blur(radius: 6)
+            .opacity(isSelected ? 0.5 : (isHovered ? 0.16 : 0))
+            .animation(reduceMotion ? nil : .snappy(duration: 0.18), value: isSelected)
+            .animation(reduceMotion ? nil : .snappy(duration: 0.18), value: isHovered)
+            .offset(x: Self.creatureOffsetX, y: 4)
+            .allowsHitTesting(false)
     }
 }
 

@@ -109,7 +109,7 @@ split is the design's core clarity rule and must not blur.
 **Likely files:** `Sources/OpenIslandApp/Views/IslandSceneView.swift` or a sibling
 **Depends on:** 2
 
-## [in-progress] 4 — Selection and detail band
+## [done — with a recorded limitation] 4 — Selection and detail band
 
 Clicking a creature selects its session and fills a detail row.
 
@@ -120,6 +120,28 @@ Clicking a creature selects its session and fills a detail row.
 - Keyboard accessible; not mouse-only
 **Build with:** `swiftui-design`  **Review with:** `swiftui-pro` + `hig-foundations`
 **Depends on:** 3
+
+## [todo] 4b — DECISION NEEDED: should a deselect survive an agent event?
+
+Task 4 built the toggle and it is correct and tested. But `AppModel.synchronizeSelection()`
+owns `selectedSessionID`, runs from **10 call sites** including every bridge event, and:
+
+- re-populates `nil` with `surfacedSessions.first` — so **a deselect lasts until the next
+  agent event**, then silently undoes itself
+- gives selection to any session needing attention **unconditionally**, overriding whatever
+  the user picked
+
+So "tap again to deselect" is half-implemented through no fault of the implementation. Making
+it durable means changing which session the whole panel focuses on after every event — a
+behaviour change well beyond the island, and not something to make unattended at 4am.
+
+**This task is a human decision, not a build.** Options: (a) accept it and document the
+deselect as transient; (b) let an explicit user deselect suppress re-population until the next
+attention event; (c) leave selection alone entirely and have the island read `focusedSession`.
+The loop must NOT pick one. Skip this task and continue.
+
+Also found: `AppModel.select(sessionID:)` (`:1393`) has zero callers — pre-existing dead code,
+left alone per the surgical-scope rail.
 
 ## [todo] 5 — Click-to-jump
 

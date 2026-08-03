@@ -1394,6 +1394,17 @@ final class AppModel {
         selectedSessionID = sessionID
     }
 
+    /// Clicking a creature on the island.
+    ///
+    /// Writes the app's own `selectedSessionID` rather than a second island
+    /// selection, so the island and the session list can never disagree about
+    /// which session is selected. Note that `synchronizeSelection()` owns this
+    /// value the rest of the time and will move it again on the next agent
+    /// event — a session that needs you always wins the selection.
+    func toggleIslandSelection(sessionID: String) {
+        selectedSessionID = IslandSelection.toggled(current: selectedSessionID, tapped: sessionID)
+    }
+
     // MARK: - Overlay forwarding
 
     func toggleOverlay() {

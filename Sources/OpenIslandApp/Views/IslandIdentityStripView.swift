@@ -187,8 +187,12 @@ struct IslandIdentityStripLayout: Equatable, Sendable {
 ///
 /// It is also the island's accessible surface: the scene is hidden from
 /// VoiceOver on purpose, so every cell here speaks the state the picture shows.
+/// That is why selection is reachable here and not only by clicking a creature
+/// — each cell is a real `Button`, so Tab reaches it and Space activates it.
 struct IslandIdentityStripView: View {
     let layout: IslandIdentityStripLayout
+    let selectedSessionID: String?
+    let onSelect: (String) -> Void
 
     var body: some View {
         HStack(spacing: IslandIdentityStripLayout.cellSpacing) {
@@ -199,10 +203,23 @@ struct IslandIdentityStripView: View {
                     .frame(maxWidth: .infinity)
             } else {
                 ForEach(layout.cells) { cell in
-                    IslandIdentityCellView(
-                        cell: cell,
-                        width: layout.cellWidth,
-                        hostWidth: layout.hostWidth
+                    Button {
+                        onSelect(cell.id)
+                    } label: {
+                        IslandIdentityCellView(
+                            cell: cell,
+                            width: layout.cellWidth,
+                            hostWidth: layout.hostWidth,
+                            isSelected: cell.id == selectedSessionID
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(cell.accessibilityDescription)
+                    // Selection is a state a screen reader announces, not a
+                    // colour it can see. Without this the ring would be the
+                    // only thing that said which session is selected.
+                    .accessibilityAddTraits(
+                        cell.id == selectedSessionID ? [.isButton, .isSelected] : .isButton
                     )
                 }
 
@@ -231,6 +248,7 @@ private struct IslandIdentityCellView: View {
     let cell: IslandIdentityCell
     let width: CGFloat
     let hostWidth: CGFloat
+    let isSelected: Bool
 
     @Environment(\.colorSchemeContrast) private var contrast
 
@@ -259,9 +277,54 @@ private struct IslandIdentityCellView: View {
         .truncationMode(.tail)
         .frame(width: width, alignment: .leading)
         .padding(.vertical, IslandIdentityStripLayout.verticalPadding)
-        .background(attentionBacking)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(cell.accessibilityDescription)
+        .background(cellBacking)
+        .overlay(selectionRing)
+        // The enclosing button owns this cell's label and traits, so the cell
+        // itself must not also publish one or VoiceOver would find two.
+        .accessibilityHidden(true)
+    }
+
+    /// Attention and selection are separate channels and can be true at once:
+    /// the amber wash means *this one needs you*, the lift and ring mean *this
+    /// is the one the detail row is describing*. Folding them into one
+    /// treatment would make selecting a waiting session hide that it is
+    /// waiting.
+    ///
+    /// Both sit on the same shape and the same insets so a cell that is
+    /// both reads as one panel rather than as two boxes of different size.
+    private static let backingShape = RoundedRectangle(cornerRadius: 7, style: .continuous)
+
+    /// Wider than the text so the highlight reads as a panel rather than as a
+    /// box drawn round three words, but not so wide that two adjacent cells run
+    /// into each other; inset vertically so it does not butt against the scene.
+    private static let backingInsets = EdgeInsets(top: 3, leading: -3, bottom: 3, trailing: -3)
+
+    /// Both washes go behind the text. A selection fill drawn over it would
+    /// veil the very name it is pointing at.
+    @ViewBuilder
+    private var cellBacking: some View {
+        ZStack {
+            attentionBacking
+
+            if isSelected {
+                Self.backingShape
+                    .fill(V6Palette.paper.opacity(0.09))
+                    .padding(Self.backingInsets)
+            }
+        }
+    }
+
+    /// The edge, over the text, because a 1pt line has to sit above the wash to
+    /// be an edge at all. A lift this faint is easy to miss on its own against
+    /// a dark panel; the ring is what makes it unambiguous.
+    @ViewBuilder
+    private var selectionRing: some View {
+        if isSelected {
+            Self.backingShape
+                .stroke(V6Palette.paper.opacity(0.5), lineWidth: 1)
+                .padding(Self.backingInsets)
+                .allowsHitTesting(false)
+        }
     }
 
     private var workspaceColor: Color {
@@ -273,22 +336,18 @@ private struct IslandIdentityCellView: View {
     @ViewBuilder
     private var attentionBacking: some View {
         if cell.needsAttention {
-            let shape = RoundedRectangle(cornerRadius: 7, style: .continuous)
-            shape
+            Self.backingShape
                 .fill(IslandDesignPalette.Status.waitingAggregate.opacity(0.14))
                 // Increased-contrast users get an explicit edge rather than a
                 // wash they may not resolve — the same accommodation the shard
                 // makes for its frozen state.
                 .overlay {
                     if contrast == .increased {
-                        shape.stroke(IslandDesignPalette.Status.waitingAggregate.opacity(0.85), lineWidth: 1)
+                        Self.backingShape
+                            .stroke(IslandDesignPalette.Status.waitingAggregate.opacity(0.85), lineWidth: 1)
                     }
                 }
-                // Wider than the text so the highlight reads as a panel rather
-                // than as a box drawn round three words, but not so wide that
-                // two adjacent waiting sessions run into each other; inset
-                // vertically so it does not butt against the scene above.
-                .padding(EdgeInsets(top: 3, leading: -3, bottom: 3, trailing: -3))
+                .padding(Self.backingInsets)
         }
     }
 }

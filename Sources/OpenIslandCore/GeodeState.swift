@@ -26,6 +26,17 @@ public struct GeodeShard: Equatable, Sendable {
         ShardForm.make(seed: ShardSeed.value(for: sessionID), stage: stage)
     }
 
+    /// Total seconds this session has spent blocked on the human, including the
+    /// gate it is standing at right now.
+    ///
+    /// The shard already subtracts exactly this from wall clock to decide how
+    /// much it has grown, so exposing it costs nothing and stops the island's
+    /// detail band from keeping a second stopwatch that could drift from the
+    /// one the geometry is derived from.
+    public func waitedSeconds(at now: Date) -> TimeInterval {
+        frozenSeconds + (frozenSince.map { max(0, now.timeIntervalSince($0)) } ?? 0)
+    }
+
     /// Mean seconds the human took to answer this session's gates.
     ///
     /// Frozen time is, by construction, exactly the time spent waiting on the
@@ -231,7 +242,6 @@ public struct GeodeState: Equatable, Sendable {
     /// the agent is actually working, never while it waits on the human.
     private func growthSeconds(of shard: GeodeShard, upTo now: Date) -> TimeInterval {
         let wall = max(0, now.timeIntervalSince(shard.startedAt))
-        let frozen = shard.frozenSeconds + frozenElapsed(of: shard, upTo: now)
-        return max(0, wall - frozen)
+        return max(0, wall - shard.waitedSeconds(at: now))
     }
 }
