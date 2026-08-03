@@ -156,7 +156,7 @@ and the click *is* the jump-back the app already implements.
 **Build with:** `superpowers:test-driven-development`  **Review with:** `swift-concurrency-pro`
 **Depends on:** 4
 
-## [in-progress] 6 — Reward objects: model and rarity
+## [done] 6 — Reward objects: model and rarity
 
 Pure model. What a finished session yields and how good it is.
 
@@ -178,6 +178,11 @@ Pure model. What a finished session yields and how good it is.
 - Collected objects survive relaunch via the existing session log — no new store
 - Back-filled historical sessions rate correctly rather than being skipped
 - No double-award if a session is reconciled twice
+- **Carried from task 6:** consider recording the **worst** gate latency alongside `meanGateLatency`.
+  ★★ currently measures "no gate past grace" by the mean, which is a one-sided approximation — it
+  never denies a qualifying session, but 1s + 59s averages to exactly 30s and slips through. This
+  task owns what gets written to the log, so it is the only place that can close it. If you add it,
+  update `RewardRarity` to use it and delete the approximation test; if you do not, say why.
 **Build with:** `superpowers:test-driven-development`  **Review with:** `swift-testing-pro`
 **Depends on:** 6
 

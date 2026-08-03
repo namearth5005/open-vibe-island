@@ -321,12 +321,31 @@ Reward magnitude attaches to properties that are expensive to fake:
 | Tier | Condition |
 |---|---|
 | ★ | any clean completion |
-| ★★ | clean, zero stalls, and every gate answered inside the grace window |
-| ★★★ | clean, ≥30 min runtime, zero stalls |
+| ★★ | clean, and no gate left past the 30s grace window |
+| ★★★ | ★★ and ≥30 min runtime |
 | ★★★★ | a shipped release (**requires the git watcher — not built**) |
 
 A session with **no gates at all** satisfies the ★★ condition vacuously and qualifies. This is
 deliberate: a run that never needed the human is exactly the outcome the tier is rewarding.
+
+**Corrected 2026-08-04, during implementation.** These tiers previously read "zero stalls **and**
+every gate answered inside the grace window". That is degenerate: `stallCount` counts *gates*, not
+abandonments, and `meanGateLatency` is `frozenSeconds / stallCount` — so `stallCount == 0` implies
+`meanGateLatency == nil`, and the grace clause can never execute. The rule collapsed to "clean and
+the agent never asked you anything", making the 30s window dead in the entire system.
+
+It also inverted this spec's own argument. A 45-minute clean run with six gates each answered in
+three seconds scored ★, *below* an unattended six-minute run at ★★ — while the design says the
+user's contribution is stewardship and answering fast is what pays. The two clauses are now read as
+one statement: **a stall is a gate left past the grace window**, and zero of them is what ★★ asks
+for. Both clauses are live, the vacuous case is preserved, and the tiers nest.
+
+One honest limit: the log records `meanGateLatency`, not the worst gate, so "no gate past grace" is
+measured by the mean. The approximation is **one-sided** — all-gates-inside implies mean-inside, so
+no qualifying session is ever denied; only the reverse leaks (1s + 59s averages to exactly 30s and
+passes). Tightening the threshold does not close it, since enough fast answers drag any single slow
+gate under any positive bound. The real fix is recording the worst gate alongside the mean, which is
+a change to what is *written* to the log.
 
 ### Farmability — read this before adding anything social
 

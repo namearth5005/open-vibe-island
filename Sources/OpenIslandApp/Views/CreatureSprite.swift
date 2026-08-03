@@ -22,6 +22,13 @@ enum CreatureSprite {
         "struct-\(structure.rawValue)"
     }
 
+    /// Resource basename for a reward object, e.g. `obj-lantern`. Prefixed for
+    /// the same reason structures are — `key` or `shard` alone would collide in
+    /// a flat bundle.
+    static func name(for object: RewardObject) -> String {
+        "obj-\(object.rawValue)"
+    }
+
     /// `CreaturePose` cases and the artwork filenames diverge in one place:
     /// `waiting` ships two frames so the raised arm can animate, and the second
     /// is named `wave2` rather than a pose of its own.
