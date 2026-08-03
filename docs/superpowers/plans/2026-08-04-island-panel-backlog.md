@@ -72,7 +72,7 @@ same way `CreatureSpecies` maps ten agents onto six bodies.
 **Likely files:** `Sources/OpenIslandCore/CreatureStructure.swift`, tests
 **Depends on:** nothing
 
-## [in-progress] 2 — IslandSceneView: the panel scene band
+## [done] 2 — IslandSceneView: the panel scene band
 
 The painted island with creatures standing at stations. Rendering only — no interaction yet.
 

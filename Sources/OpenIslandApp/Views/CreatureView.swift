@@ -29,6 +29,12 @@ struct CreatureView: View {
     let pose: CreaturePose
     let seed: UInt64
     var size: CGSize = CreatureView.pillSize
+    /// Where the sprite sits inside `size` when it does not fill it. Sprites are
+    /// trimmed to their content, so aspect varies by species and pose and one of
+    /// the two axes is always slack. `.bottom` is what puts several creatures on
+    /// a shared ground line; the default stays centered so the single-creature
+    /// pill is unaffected.
+    var alignment: Alignment = .center
 
     /// The measured right-slot lane. Width binds, not height.
     static let pillSize = CGSize(width: 28, height: 32)
@@ -59,7 +65,7 @@ struct CreatureView: View {
                     .fill(Color(CreaturePalette.color(for: species)))
             }
         }
-        .frame(width: size.width, height: size.height)
+        .frame(width: size.width, height: size.height, alignment: alignment)
         .animation(.smooth(duration: 0.28), value: pose)
         .task(id: pose) {
             showsAlternate = false
