@@ -171,7 +171,7 @@ Pure model. What a finished session yields and how good it is.
 **Build with:** `superpowers:test-driven-development`  **Review with:** `swift-testing-pro`
 **Depends on:** nothing
 
-## [todo] 7 — Collection: earning and persisting objects
+## [in-progress] 7 — Collection: earning and persisting objects
 
 **Acceptance criteria:**
 - A clean completion yields its object; an interrupt yields scrap
