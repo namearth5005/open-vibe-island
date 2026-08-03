@@ -411,6 +411,34 @@ Every one of these numbers already exists in `SessionLog` / `SessionStats`, whic
 medians and sparklines. **This is the same data as a thing somebody would screenshot.** It is the
 cheapest high-charm item in this spec and a reasonable standalone first slice if the rest is deferred.
 
+**Amended 2026-08-04, during implementation.** Three corrections the build forced:
+
+- **"Every one of these numbers already exists" was not true.** `finished`, `cleanFinishes` and
+  `interrupted` did. *Time kept waiting*, *best run* and *answers inside the grace window* did not
+  exist anywhere and had to be derived. They now live in `StatsSummary` as `totalWaiting`,
+  `longestCleanRun`, and `gatedSessions` / `answeredInsideGrace`, computed in the pass
+  `SessionStats.summary` already makes — rather than in the view, which would have made the
+  receipt a second stats engine free to drift from the first.
+- **The TOTAL is sessions, not points.** No point value is invented. This spec has no scoring
+  system and its non-goals rule out a currency, so a points column would have been an economy with
+  nothing to spend it on and an arbitrary weight per line to re-tune forever. The amount column is
+  instead the unit the receipt already deals in: a clean finish is `+1`, an interrupt is `-1`, and
+  TOTAL is the difference. That is the reference product's `+50 / -2 / TOTAL +48` shape with the
+  multiplier set to one — which is why the quantity column collapses away entirely. The lines that
+  are *not* sessions (a wait, a longest run, a count of answers) therefore cannot enter the total
+  and are printed below it as a memo block, which is standard till-roll grammar and keeps the rule
+  "add up the signed column" true.
+- **"Shipped" is not printed.** It depends on the git watcher that open question 1 defers, exactly
+  as ★★★★ does. Printing a line that is permanently `0` would teach the reader the receipt lies.
+  *Sessions run* takes its place, which is the item count a till roll wants anyway.
+
+Back-filled sessions are counted and credited like any other — inference genuinely supports "this
+session happened and finished", which is the whole of what those lines claim — but are excluded from
+the answers line, because gate timings are the one thing a transcript cannot show. The gap is printed
+rather than swallowed: the receipt says how many of the day's sessions it only inferred. The receipt
+deliberately does **not** read `RewardCollection`: rarity is a rating and a receipt is a record, and
+importing the ★ ladder would make the day's arithmetic move whenever the rating rule was re-tuned.
+
 ### The clarity rule
 
 **The picture carries state. The text carries identity.**

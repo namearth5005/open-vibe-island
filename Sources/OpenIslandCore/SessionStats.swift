@@ -26,6 +26,30 @@ public struct StatsSummary: Equatable, Sendable {
     public let totalRuntime: TimeInterval
     /// Median of per-session mean gate latency, over sessions that had gates.
     public let medianGateLatency: Double?
+    /// Every second an agent in this range stood blocked on the human, summed.
+    ///
+    /// Reconstructed exactly rather than approximated: `meanGateLatency` is
+    /// `frozenSeconds / stallCount` by construction, so the product restores the
+    /// seconds the shard actually counted. Sessions that never blocked
+    /// contribute nothing, which is why this can be zero on a busy day.
+    public let totalWaiting: TimeInterval
+    /// The longest single clean session in the range. `nil` when the range
+    /// contains no clean finish — an interrupt is not a run, however long it
+    /// went before it was killed.
+    public let longestCleanRun: TimeInterval?
+    /// Sessions the app watched live *and* that recorded an answer time.
+    ///
+    /// The denominator for "was the human keeping up". Deliberately narrower
+    /// than `finished`: a session that never asked has no answer to be judged,
+    /// and an inferred one has answer times that were never observed at all.
+    public let gatedSessions: Int
+    /// Of `gatedSessions`, how many kept every gate inside
+    /// `RewardRarity.graceWindow`.
+    public let answeredInsideGrace: Int
+    /// Sessions in this range that were derived from a transcript rather than
+    /// watched. Kept as a count rather than as a filter because callers need to
+    /// *say* how much of a figure was inferred, not to recompute it.
+    public let inferred: Int
     public let byAgent: [AgentStatsSlice]
 
     public var interruptedRate: Double {
@@ -94,12 +118,30 @@ public enum SessionStats {
             return lhs.tool.rawValue < rhs.tool.rawValue
         }
 
+        // Inference can support "this session happened and finished" — that is
+        // what a transcript proves — and nothing about how fast anyone answered
+        // it: back-fill writes no latencies because a transcript has none.
+        // Taking its silence for an answer time is the same inflation the
+        // `isInferred` flag was added to stop, so the grace figures are drawn
+        // from watched sessions alone.
+        let gated = scoped.filter {
+            $0.isInferred != true && ($0.worstGateLatency ?? $0.meanGateLatency) != nil
+        }
+
         return StatsSummary(
             finished: scoped.count,
             cleanFinishes: scoped.filter(\.isCleanFinish).count,
             interrupted: interrupted,
             totalRuntime: scoped.reduce(0) { $0 + $1.duration },
             medianGateLatency: median(latencies),
+            totalWaiting: scoped.reduce(0) { $0 + ($1.meanGateLatency ?? 0) * Double($1.stallCount) },
+            longestCleanRun: scoped.filter(\.isCleanFinish).map(\.duration).max(),
+            gatedSessions: gated.count,
+            // The rarity ladder's rule, called rather than restated, so "in
+            // time" cannot come to mean one thing on the receipt and another on
+            // the object a session leaves behind.
+            answeredInsideGrace: gated.filter(RewardRarity.answeredWithinGrace).count,
+            inferred: scoped.filter { $0.isInferred == true }.count,
             byAgent: byAgent
         )
     }
