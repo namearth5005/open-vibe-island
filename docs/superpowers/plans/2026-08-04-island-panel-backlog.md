@@ -156,7 +156,7 @@ and the click *is* the jump-back the app already implements.
 **Build with:** `superpowers:test-driven-development`  **Review with:** `swift-concurrency-pro`
 **Depends on:** 4
 
-## [todo] 6 — Reward objects: model and rarity
+## [in-progress] 6 — Reward objects: model and rarity
 
 Pure model. What a finished session yields and how good it is.
 
