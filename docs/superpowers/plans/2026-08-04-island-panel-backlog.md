@@ -1,8 +1,21 @@
 # Island Panel — Feature-Loop Backlog (spec items 5–9)
 
-> **For the loop:** one task per iteration, one PR per task. Build via
+> **For the loop:** one task per iteration. Build via
 > `superpowers:subagent-driven-development`. Gate is `zsh scripts/harness.sh ci`
 > (lint → docs → test → build). Never weaken the gate to pass it.
+>
+> **Integration strategy — read this first.** Tasks land as commits on
+> `feat/island-creature`, not as one PR each. The usual one-PR-per-task rule assumes a
+> human merges between iterations; running unattended overnight nobody does, and every
+> task here depends on the previous one being `[done]` — so a strict PR gate would open
+> one PR and stall for eight hours.
+>
+> The safety property is preserved where it actually lives: **`main` is never touched, and
+> a human still merges.** `feat/island-creature` is itself an unmerged topic branch; the
+> whole run becomes a single reviewable PR to `main` at the end. Per task the loop must
+> still: keep the gate green, commit surgically, and mark status in this file. A task that
+> cannot go green honestly flips to `[blocked — reason]` and the loop moves to the next
+> eligible task rather than grinding.
 
 **Goal:** finish the island reward layer inside Open Island. The pill half ships already
 (`206d5bb`); this backlog is the opened panel, the receipt, collection, and customisation.
@@ -189,7 +202,25 @@ Carried over from the pill plan, never done.
 **Build with:** `superpowers:test-driven-development`  **Review with:** `swift-testing-pro`
 **Depends on:** nothing
 
-## [todo] 12 — Reconcile the spec with what was actually built
+## [todo] 12 — Demo readiness: prove it actually runs
+
+The backlog is not "done" when tests pass — it is done when the feature works in the real
+app. Tests prove the parts; this proves the whole.
+
+**Acceptance criteria:**
+- `swift build -c release` succeeds
+- The app launches without crashing and stays up for at least 20 seconds
+- With the island preference ON, loading each `IslandDebugScenario` renders the panel
+  without crashing — assert via the debug-snapshot path, not by driving the UI
+- With the island preference OFF, every existing panel test still passes untouched
+- `zsh scripts/harness.sh ci` green, and `zsh scripts/creature-gate.sh` still exits 0
+- Writes `docs/DEMO-READINESS.md` stating what was verified mechanically and what still
+  needs a human eye — being explicit that "it renders without crashing" is not the same
+  claim as "it looks right in the notch", which no automated check here can make
+**Build with:** `superpowers:verification-before-completion`  **Review with:** none
+**Depends on:** 11
+
+## [todo] 13 — Reconcile the spec with what was actually built
 
 The spec still describes decisions the build overtook.
 
