@@ -29,6 +29,7 @@ This index is the repository map for humans and coding agents. Read these files 
 - [docs/superpowers/plans/2026-04-18-opencode-stability.md](./superpowers/plans/2026-04-18-opencode-stability.md) for the OpenCode stability implementation plan
 - [docs/superpowers/plans/2026-07-30-geode-phase-0-1.md](./superpowers/plans/2026-07-30-geode-phase-0-1.md) for the Geode session-shard Phase 0–1 implementation plan
 - [docs/superpowers/plans/2026-08-02-island-creature-pill.md](./superpowers/plans/2026-08-02-island-creature-pill.md) for the island creature pill implementation plan
+- [docs/superpowers/plans/2026-08-04-island-panel-backlog.md](./superpowers/plans/2026-08-04-island-panel-backlog.md) for the island panel feature-loop backlog
 
 ## Superpowers Specs
 

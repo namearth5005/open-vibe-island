@@ -1,0 +1,203 @@
+# Island Panel — Feature-Loop Backlog (spec items 5–9)
+
+> **For the loop:** one task per iteration, one PR per task. Build via
+> `superpowers:subagent-driven-development`. Gate is `zsh scripts/harness.sh ci`
+> (lint → docs → test → build). Never weaken the gate to pass it.
+
+**Goal:** finish the island reward layer inside Open Island. The pill half ships already
+(`206d5bb`); this backlog is the opened panel, the receipt, collection, and customisation.
+
+**Spec:** `docs/superpowers/specs/2026-08-01-island-reward-mechanics-design.md`
+**Branch base:** `feat/island-creature`
+**Gate:** `zsh scripts/harness.sh ci` — currently green at 482 tests.
+
+---
+
+## ASSUMPTIONS (override any of these)
+
+These are my calls, not yours. Each is cheap to reverse if wrong — say so and the loop adjusts.
+
+1. **Panel ground is the island scene, not warm paper.** The reference uses paper; we have a
+   painted island that measured well. Creatures at L 16% clear 3:1 on both, so either works.
+   I chose the island because it is ours rather than borrowed.
+2. **Everything stays behind the existing preference.** No default changes. A user who never
+   opens Personalization sees exactly today's app.
+3. **Collected objects persist in the existing session log**, not a new store. One append-only
+   file already survives relaunch and is back-filled; a second store would need its own
+   migration story for no gain.
+4. **Rarity is computed, never stored.** It is a pure function of facts the log already has
+   (duration, stalls, interrupts), so a rule change re-rates history instead of stranding it.
+5. **Voice lines ship English-only in this pass.** The app is bilingual (en + zh-Hans/Hant);
+   flavour text is a large translation surface and should not block the mechanic. Task 10
+   wires them through `LanguageManager` so translation is additive later.
+6. **No git/PR watcher.** ★★★★ rarity and the "shipped" reward stay unimplemented — the spec
+   already records them as depending on collection we do not do.
+7. **Panel scene is a fixed band, not scrollable.** Measured ceiling is five visible stations;
+   beyond that overflow collapses to counted dots.
+8. **Structures resolve from the existing jump target**, which already knows the terminal.
+   No new detection.
+
+---
+
+## [todo] 1 — Structure mapping: terminal/IDE → structure asset
+
+Pure model, no UI. The panel needs to know which building a session's terminal maps to, the
+same way `CreatureSpecies` maps ten agents onto six bodies.
+
+**Acceptance criteria (this becomes the test):**
+- `CreatureStructure` enum with exactly 5 cases: `terminal`, `multiplexer`, `editor`, `tower`, `workshop`
+- An initialiser from whatever the app already uses to identify a terminal/IDE — find it,
+  do not invent a parallel type
+- Terminal.app, Ghostty, iTerm2, WezTerm, Kaku, cmux → `.terminal`
+- tmux, Zellij, Orca → `.multiplexer`
+- VS Code, Cursor, Windsurf, Trae → `.editor`
+- JetBrains family → `.tower`
+- Anything unrecognised → `.workshop` (never nil, never a crash)
+- Every case has shipped artwork in `Resources/World/` — assert it resolves, because a
+  missing sprite fails silently
+**Build with:** `superpowers:test-driven-development`  **Review with:** `swift-testing-pro`
+**Likely files:** `Sources/OpenIslandCore/CreatureStructure.swift`, tests
+**Depends on:** nothing
+
+## [todo] 2 — IslandSceneView: the panel scene band
+
+The painted island with creatures standing at stations. Rendering only — no interaction yet.
+
+**Acceptance criteria:**
+- New file, not added to `IslandPanelView.swift` (already 2776 lines)
+- Renders the island background from `Resources/World/`
+- Up to 5 sessions as `CreatureView` at evenly spaced stations; station pitch ~118pt at 540 wide
+- 6th and beyond collapse to a counted overflow indicator, not a 6th creature
+- Each creature's structure drawn behind/beside it
+- Deterministic: same sessions in the same order produce the same layout
+- Renders with zero sessions without crashing or looking broken
+**Build with:** `swiftui-design`  **Review with:** `swiftui-pro` + `hig-foundations`
+**Likely files:** `Sources/OpenIslandApp/Views/IslandSceneView.swift`
+**Depends on:** 1
+
+## [todo] 3 — Identity strip
+
+The text band under the scene. The picture carries state; this carries identity — that
+split is the design's core clarity rule and must not blur.
+
+**Acceptance criteria:**
+- One cell per visible session: agent name, terminal, workspace, elapsed
+- Cell for a session needing attention is visually distinct
+- Truncates gracefully at 540pt; never wraps to two lines
+- Contains no mood/state colour language beyond the attention highlight
+- Empty state reads as deliberate, not broken
+**Build with:** `swiftui-design`  **Review with:** `swiftui-pro` + `hig-foundations`
+**Likely files:** `Sources/OpenIslandApp/Views/IslandSceneView.swift` or a sibling
+**Depends on:** 2
+
+## [todo] 4 — Selection and detail band
+
+Clicking a creature selects its session and fills a detail row.
+
+**Acceptance criteria:**
+- Tapping a creature selects that session; tapping again deselects
+- Detail band shows the pending question (if any), wait time, runtime, stall count
+- Reuses the app's existing selected-session state — do not add a second source of truth
+- Keyboard accessible; not mouse-only
+**Build with:** `swiftui-design`  **Review with:** `swiftui-pro` + `hig-foundations`
+**Depends on:** 3
+
+## [todo] 5 — Click-to-jump
+
+The payoff that makes this a tool rather than decoration: the gesture *is* the notification
+and the click *is* the jump-back the app already implements.
+
+**Acceptance criteria:**
+- Clicking a creature in `waiting` pose invokes the existing jump-back for that session
+- Uses `TerminalJumpService` as-is; no reimplementation
+- Falls back safely when no jump target is known
+- Existing jump tests still pass untouched
+**Build with:** `superpowers:test-driven-development`  **Review with:** `swift-concurrency-pro`
+**Depends on:** 4
+
+## [todo] 6 — Reward objects: model and rarity
+
+Pure model. What a finished session yields and how good it is.
+
+**Acceptance criteria:**
+- `RewardObject` enum covering the 13 shipped object assets
+- `rarity(for:)` computed from session facts only — never stored
+- ★ any clean completion; ★★ clean + zero stalls + all gates answered inside the grace
+  window; ★★★ clean + ≥30min + zero stalls; a session with no gates satisfies ★★ vacuously
+- Interrupted sessions yield `scrap`, never an object
+- Deterministic: the same session always yields the same object
+- ★★★★ deliberately unreachable (needs the unbuilt git watcher) and that is asserted
+**Build with:** `superpowers:test-driven-development`  **Review with:** `swift-testing-pro`
+**Depends on:** nothing
+
+## [todo] 7 — Collection: earning and persisting objects
+
+**Acceptance criteria:**
+- A clean completion yields its object; an interrupt yields scrap
+- Collected objects survive relaunch via the existing session log — no new store
+- Back-filled historical sessions rate correctly rather than being skipped
+- No double-award if a session is reconciled twice
+**Build with:** `superpowers:test-driven-development`  **Review with:** `swift-testing-pro`
+**Depends on:** 6
+
+## [todo] 8 — The receipt
+
+`Open Island Inc.` Cheapest high-charm item in the spec: pure typography over numbers that
+already exist.
+
+**Acceptance criteria:**
+- Reads `SessionStats` — no new computation, no new storage
+- Line items: sessions run, clean finishes, answers inside grace, interrupted, time kept
+  waiting, best run, TOTAL
+- Positive lines and negative lines visually distinct
+- Torn-paper treatment, monospaced figures
+- Correct for a day with zero sessions
+**Build with:** `swiftui-design`  **Review with:** `swiftui-pro` + `hig-foundations`
+**Depends on:** 7
+
+## [todo] 9 — Customisation surface
+
+**Acceptance criteria:**
+- Island on/off in `AppearanceSettingsPane`, off by default
+- Scene height: compact / standard / tall
+- Honours existing `sessionGroup` for station ordering rather than inventing a parallel one
+- Reuses `staleThreshold`; does not add a second staleness concept
+- With the island off, panel behaviour is identical to today — assert it
+- A preference write must not change the active appearance profile (see `e79a005`)
+**Build with:** `swiftui-design`  **Review with:** `swiftui-pro` + `hig-foundations`
+**Depends on:** 8
+
+## [todo] 10 — Voice lines
+
+**Acceptance criteria:**
+- ~12 lines per species, shown on clean completion
+- Routed through `LanguageManager` so translation is additive
+- Deterministic per session; not random on every render
+- Never shown for an interrupt
+**Build with:** `swiftui-design`  **Review with:** `swiftui-pro`
+**Depends on:** 9
+
+## [todo] 11 — Pin creature rendering in debug scenarios
+
+Carried over from the pill plan, never done.
+
+**Acceptance criteria:**
+- `@MainActor` test driving `AppModel.loadDebugSnapshot`, mirroring `GeodeDebugScenarioTests`
+- Every live session in a scenario yields a renderable creature
+- Must not write `islandRightSlot` — that writes shared `UserDefaults` and is the known
+  source of flakiness in this target
+**Build with:** `superpowers:test-driven-development`  **Review with:** `swift-testing-pro`
+**Depends on:** nothing
+
+## [todo] 12 — Reconcile the spec with what was actually built
+
+The spec still describes decisions the build overtook.
+
+**Acceptance criteria:**
+- Records the L 11.2–22.7% two-ground band and that the luminance ladder is gone
+- Records that Task 7's window overhang was skipped and why
+- Records the `.process` flattening and the `rawValue` filename coupling
+- Removes dead `panelColor(for:)` / old `panelGround` if still unused
+- `zsh scripts/check-docs.sh` passes
+**Build with:** none  **Review with:** none
+**Depends on:** 11
