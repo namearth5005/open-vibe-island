@@ -15,6 +15,13 @@ enum CreatureSprite {
         "\(species.rawValue)-\(fileComponent(for: pose))"
     }
 
+    /// Resource basename for a structure, e.g. `struct-tower`. Prefixed rather
+    /// than bare because the bundle is flat (see `image(named:)`) and `terminal`
+    /// or `editor` alone would be a collision waiting to happen.
+    static func name(for structure: CreatureStructure) -> String {
+        "struct-\(structure.rawValue)"
+    }
+
     /// `CreaturePose` cases and the artwork filenames diverge in one place:
     /// `waiting` ships two frames so the raised arm can animate, and the second
     /// is named `wave2` rather than a pose of its own.

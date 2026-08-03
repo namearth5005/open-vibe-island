@@ -52,7 +52,7 @@ These are my calls, not yours. Each is cheap to reverse if wrong — say so and 
 
 ---
 
-## [in-progress] 1 — Structure mapping: terminal/IDE → structure asset
+## [done] 1 — Structure mapping: terminal/IDE → structure asset
 
 Pure model, no UI. The panel needs to know which building a session's terminal maps to, the
 same way `CreatureSpecies` maps ten agents onto six bodies.
@@ -87,6 +87,12 @@ The painted island with creatures standing at stations. Rendering only — no in
 **Build with:** `swiftui-design`  **Review with:** `swiftui-pro` + `hig-foundations`
 **Likely files:** `Sources/OpenIslandApp/Views/IslandSceneView.swift`
 **Depends on:** 1
+**Known from task 1:** `terminalApp` lives on **`JumpTarget`**, not `AgentSession` — reach it
+as `session.jumpTarget?.terminalApp`, and handle the nil case (a session with no known jump
+target still has to render; it falls to `.workshop`). `tmux` never appears in `terminalApp`;
+it is carried separately on `JumpTarget.tmuxTarget`, so a tmux session currently draws as its
+outer host. Showing it as `.multiplexer` would be a call-site change, deliberately out of
+scope here — note it, do not silently add it.
 
 ## [todo] 3 — Identity strip
 
