@@ -277,7 +277,7 @@ actually *see* has to surface in the detail band, not that property.
   whether a 180pt plate above a creature's head reads well at each scene height, and
   whether it collides with the overflow badge in the top-right corner at `compact`.
 
-## [todo] 11 — Pin creature rendering in debug scenarios
+## [in-progress] 11 — Pin creature rendering in debug scenarios
 
 Carried over from the pill plan, never done.
 
