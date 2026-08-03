@@ -657,6 +657,8 @@ struct AppearanceSettingsPane: View {
             return .agents(previewAgentCells)
         case .geode:
             return previewGeodeShard.map { .geode($0, finishedToday: 3) }
+        case .creature:
+            return previewGeodeShard.map { .creature($0, finishedToday: 3) }
         }
     }
 

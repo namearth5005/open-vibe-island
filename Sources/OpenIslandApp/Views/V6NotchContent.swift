@@ -29,6 +29,9 @@ enum IslandRightSlotContent: Equatable {
     // Nothing running, but work was finished today. Keeps the pill informative
     // on a day you have shipped rather than blanking the moment agents go quiet.
     case geodeTallyOnly(finishedToday: Int)
+    // Same inputs as `.geode`, different expression: the creature's pose carries
+    // the state the shard carried through growth and desaturation.
+    case creature(GeodeShard, finishedToday: Int)
 }
 
 // MARK: - Right-slot renderers
@@ -49,6 +52,18 @@ struct V6RightSlotView: View {
         case .geode(let shard, let finishedToday):
             HStack(spacing: Self.geodeTallyGap) {
                 GeodeShardView(shard: shard, size: Self.geodeSize)
+                if finishedToday > 0 {
+                    geodeTally(finishedToday)
+                }
+            }
+        case .creature(let shard, let finishedToday):
+            HStack(spacing: Self.geodeTallyGap) {
+                CreatureView(
+                    species: CreatureSpecies(tool: shard.tool),
+                    pose: CreaturePose(shard: shard),
+                    seed: ShardSeed.value(for: shard.sessionID),
+                    size: CreatureView.pillSize
+                )
                 if finishedToday > 0 {
                     geodeTally(finishedToday)
                 }
@@ -100,9 +115,21 @@ struct V6RightSlotView: View {
             // resize on every growth step; only the tally can change the width,
             // and that changes at most once per finished session.
             return geodeIntrinsicWidth(finishedToday: finishedToday)
+        case .creature(_, let finishedToday):
+            // The creature is a fixed-size sprite, so like the shard it cannot
+            // change the pill width — only the tally can.
+            return creatureIntrinsicWidth(finishedToday: finishedToday)
         case .geodeTallyOnly(let finishedToday):
             return CGFloat(String(finishedToday).count) * 6.6
         }
+    }
+
+    /// The measured MacBook right lane is 28pt usable, which is exactly the
+    /// creature's width — so with no tally it fills the lane and no more.
+    static func creatureIntrinsicWidth(finishedToday: Int) -> CGFloat {
+        guard finishedToday > 0 else { return CreatureView.pillSize.width }
+        return CreatureView.pillSize.width + geodeTallyGap
+            + CGFloat(String(finishedToday).count) * 6.6
     }
 
     // MARK: Balanced layout algorithm
@@ -370,6 +397,10 @@ private enum RightSlotKey: Hashable {
         // and keying the pill's width animation on it would restart that
         // animation every two seconds for no visual gain.
         case .geode(_, let n):        self = .geode(n)
+        // Same reasoning as `.geode`: the pose changes as the session moves
+        // through its states, and keying the width animation on it would
+        // restart that animation on every transition for no visual gain.
+        case .creature(_, let n):     self = .geode(n)
         case .geodeTallyOnly(let n):  self = .geodeTally(n)
         }
     }

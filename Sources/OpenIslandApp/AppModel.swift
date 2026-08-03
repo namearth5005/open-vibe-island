@@ -1014,7 +1014,7 @@ final class AppModel {
     }
 
     private func playGeodeCue(_ name: String) {
-        guard islandRightSlot == .geode, !isSoundMuted else { return }
+        guard islandRightSlot.rendersShard, !isSoundMuted else { return }
         NotificationSoundService.play(name)
     }
 
@@ -1025,7 +1025,7 @@ final class AppModel {
     /// the `islandRightSlot` setter. That keeps the setter free of side effects
     /// and costs at most one extra two-second tick after switching away.
     private func updateGeodeGrowthTicker() {
-        guard islandRightSlot == .geode, geodeState.displayed(at: Date()) != nil else { return }
+        guard islandRightSlot.rendersShard, geodeState.displayed(at: Date()) != nil else { return }
         guard geodeGrowthTask == nil else { return }
 
         // `AppModel` is @MainActor, so this inherits main-actor isolation and
@@ -1034,7 +1034,7 @@ final class AppModel {
             while !Task.isCancelled {
                 try? await Task.sleep(for: AppModel.geodeGrowthInterval)
                 guard !Task.isCancelled, let self else { return }
-                guard self.islandRightSlot == .geode,
+                guard self.islandRightSlot.rendersShard,
                       self.geodeState.displayed(at: Date()) != nil else {
                     self.geodeGrowthTask = nil
                     return
@@ -1068,6 +1068,13 @@ final class AppModel {
                 return tally > 0 ? .geodeTallyOnly(finishedToday: tally) : nil
             }
             return .geode(shard, finishedToday: tally)
+        case .creature:
+            let now = Date()
+            let tally = SessionStats.cleanFinishesToday(records: sessionLogRecords, now: now)
+            guard let shard = geodeState.displayed(at: now) else {
+                return tally > 0 ? .geodeTallyOnly(finishedToday: tally) : nil
+            }
+            return .creature(shard, finishedToday: tally)
         case .agents:
             // Display order = order-of-first-observation-in-the-island. A
             // session that later flips visibility (e.g. attachment churn,

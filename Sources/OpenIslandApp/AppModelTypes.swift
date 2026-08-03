@@ -28,10 +28,21 @@ enum TrackedEventIngress {
 enum IslandRightSlot: String, CaseIterable, Identifiable, Sendable {
     case count   // "×N" badge
     case agents  // colored dot stack, one per active agent tool
-    case geode   // procedural shard for the featured session, grows as it runs
-    case none    // pill collapses — useful if you just want the bars
+    case geode    // procedural shard for the featured session, grows as it runs
+    case creature // drawn creature for the featured session; pose carries state
+    case none     // pill collapses — useful if you just want the bars
 
     var id: String { rawValue }
+
+    /// Slots that render the featured session's shard state.
+    ///
+    /// Sound cues and the growth ticker both gate on this. They used to test
+    /// `== .geode` by equality, which meant any new shard-rendering slot shipped
+    /// silent and frozen with no error anywhere — so the predicate is named once
+    /// here rather than repeated at each call site.
+    var rendersShard: Bool {
+        self == .geode || self == .creature
+    }
 }
 
 /// What the closed island renders in the center label (external displays
