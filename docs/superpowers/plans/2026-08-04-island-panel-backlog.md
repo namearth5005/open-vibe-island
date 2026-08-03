@@ -52,7 +52,7 @@ These are my calls, not yours. Each is cheap to reverse if wrong — say so and 
 
 ---
 
-## [todo] 1 — Structure mapping: terminal/IDE → structure asset
+## [in-progress] 1 — Structure mapping: terminal/IDE → structure asset
 
 Pure model, no UI. The panel needs to know which building a session's terminal maps to, the
 same way `CreatureSpecies` maps ten agents onto six bodies.
