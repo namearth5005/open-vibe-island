@@ -45,28 +45,35 @@ public enum RewardRarity: Int, CaseIterable, Sendable {
     /// with no gates satisfies it vacuously, exactly as the spec says it should.
     public static func rarity(for record: SessionLogRecord) -> RewardRarity? {
         guard record.isCleanFinish else { return nil }
+        // Inference can support "this session happened and finished", and
+        // nothing above it: a back-filled record's clean finish, zero stalls and
+        // duration are all assertions the back-fill made because it had to write
+        // something, not facts anyone observed. ★ is exactly "any clean
+        // completion", so it is the whole of what an unwatched session earns.
+        guard record.isInferred != true else { return .one }
         guard answeredWithinGrace(record) else { return .one }
         return record.duration >= longRunDuration ? .three : .two
     }
 
     /// Whether the human kept up with this session's gates.
     ///
-    /// Named for the mean, because the mean is what it can actually see. The log
-    /// stores `meanGateLatency` and no per-gate timings, so "every gate was
-    /// inside the window" is not decidable here. The mean is a strictly generous
-    /// stand-in: all-inside implies mean-inside, so a session that genuinely
-    /// qualified is never denied, but 1s and 59s average to 30s and pass.
+    /// The worst gate decides it outright when it is recorded: one answer past
+    /// the window loses the tier however fast the rest were. That is the whole
+    /// question ★★ asks, and no summary statistic could answer it — which is why
+    /// the maximum is now written alongside the mean.
     ///
-    /// Lowering the threshold does not fix that — one arbitrarily slow answer
-    /// can be dragged under any positive bound by enough fast ones — it only
-    /// starts denying sessions that did qualify. Closing it means recording the
-    /// worst gate alongside the mean, which is a change to what is written, not
-    /// to how it is read.
+    /// Records predating that field fall back to the mean, which is a strictly
+    /// generous stand-in: all-inside implies mean-inside, so a session that
+    /// genuinely qualified is never denied, but 1s and 59s average to exactly
+    /// 30s and pass. They are not re-rated under the exact rule because the fact
+    /// it needs was never captured, and a lower threshold would not help — one
+    /// slow answer can be dragged under any positive bound by enough fast ones.
     ///
-    /// `nil` is a pass, not a zero: no gates means nothing was answered late.
+    /// Neither recorded is a pass, not a zero: no gates means nothing was
+    /// answered late.
     static func answeredWithinGrace(_ record: SessionLogRecord) -> Bool {
-        guard let mean = record.meanGateLatency else { return true }
-        return mean <= graceWindow
+        guard let latency = record.worstGateLatency ?? record.meanGateLatency else { return true }
+        return latency <= graceWindow
     }
 }
 

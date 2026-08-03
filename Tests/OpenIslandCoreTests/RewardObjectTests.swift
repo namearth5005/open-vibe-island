@@ -10,6 +10,8 @@ struct RewardObjectTests {
         interrupted: Bool = false,
         stalls: Int = 0,
         latency: Double? = nil,
+        worst: Double? = nil,
+        inferred: Bool? = nil,
         minutes: Double = 5
     ) -> SessionLogRecord {
         SessionLogRecord(
@@ -19,7 +21,9 @@ struct RewardObjectTests {
             endedAt: Self.epoch.addingTimeInterval(minutes * 60),
             wasInterrupted: interrupted,
             stallCount: stalls,
-            meanGateLatency: latency
+            meanGateLatency: latency,
+            worstGateLatency: worst,
+            isInferred: inferred
         )
     }
 
@@ -139,15 +143,23 @@ struct RewardObjectTests {
         var reached: Set<RewardRarity> = []
         for minutes in [0.0, 0.5, 29.9, 30, 31, 1440] {
             for latency in [nil, 0, 5, 29, 30, 31, 600] as [Double?] {
-                for stalls in [0, 1, 9] {
-                    for interrupted in [true, false] {
-                        let any = record(
-                            interrupted: interrupted,
-                            stalls: stalls,
-                            latency: latency,
-                            minutes: minutes
-                        )
-                        if let rarity = RewardRarity.rarity(for: any) { reached.insert(rarity) }
+                for worst in [nil, 0, 30, 31, 600] as [Double?] {
+                    for stalls in [0, 1, 9] {
+                        for inferred in [nil, true, false] as [Bool?] {
+                            for interrupted in [true, false] {
+                                let any = record(
+                                    interrupted: interrupted,
+                                    stalls: stalls,
+                                    latency: latency,
+                                    worst: worst,
+                                    inferred: inferred,
+                                    minutes: minutes
+                                )
+                                if let rarity = RewardRarity.rarity(for: any) {
+                                    reached.insert(rarity)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -156,24 +168,62 @@ struct RewardObjectTests {
         #expect(reached == [.one, .two, .three])
     }
 
-    // MARK: - The mean-latency approximation
+    // MARK: - The worst gate
 
-    /// The recorded fact is a *mean* gate latency, so "every gate was answered
-    /// inside the grace window" is not decidable from the log. This pins the
-    /// direction of the error rather than hiding it: two gates at 1s and 59s
-    /// average to exactly 30s and earn ★★, although one of them blew the window
-    /// by twice over.
-    ///
-    /// The approximation is deliberately one-sided. Every-gate-in-window implies
-    /// mean-in-window, so no session that genuinely qualified is ever denied;
-    /// only the reverse leaks. Tightening the threshold cannot close it — any
-    /// single latency can be dragged under any positive bound by enough fast
-    /// answers — so the only real fix is recording the worst gate alongside the
-    /// mean.
+    /// The case the mean could not see. Two gates at 1s and 59s average to
+    /// exactly 30s and used to earn ★★, although one of them blew the window by
+    /// twice over. The recorded maximum decides it outright.
     @Test
-    func theMeanIsAKnowinglyGenerousProxyForEveryGate() {
-        let oneFastOneAbandoned = record(stalls: 2, latency: (1 + 59) / 2)
-        #expect(RewardRarity.rarity(for: oneFastOneAbandoned) == .two)
+    func oneAbandonedGateCostsTheTierNoMatterHowFastTheOthersWere() {
+        #expect(RewardRarity.rarity(for: record(stalls: 2, latency: 30, worst: 59)) == .one)
+        #expect(RewardRarity.rarity(for: record(stalls: 40, latency: 1, worst: 600)) == .one)
+    }
+
+    /// The maximum outranks the mean at every tier, including the long-run one:
+    /// runtime never buys back a gate nobody answered.
+    @Test
+    func theWorstGateDecidesEvenWhenTheMeanWouldPass() {
+        #expect(RewardRarity.rarity(for: record(stalls: 2, latency: 2, worst: 31, minutes: 45)) == .one)
+        #expect(RewardRarity.rarity(for: record(stalls: 2, latency: 2, worst: 30, minutes: 45)) == .three)
+    }
+
+    /// Records written before the worst gate was recorded do not carry it, and
+    /// the fact cannot be recovered — so they keep the mean's one-sided reading
+    /// rather than being re-rated on a field that is absent. All-inside implies
+    /// mean-inside, so no session that qualified is denied; only the reverse
+    /// leaks, and only for history.
+    @Test
+    func recordsWrittenBeforeTheWorstGateExistedFallBackToTheMean() {
+        #expect(RewardRarity.rarity(for: record(stalls: 2, latency: 30, worst: nil)) == .two)
+        #expect(RewardRarity.rarity(for: record(stalls: 2, latency: 45, worst: nil)) == .one)
+    }
+
+    // MARK: - Inferred history
+
+    /// Back-filled records are inference from a transcript: their clean finish,
+    /// their zero stall count and their duration are all asserted rather than
+    /// observed. ★ is the whole of what that supports — the island was not
+    /// running, so it cannot testify that anyone answered anything.
+    @Test
+    func historyInferredFromATranscriptCannotClaimMoreThanOneStar() {
+        #expect(RewardRarity.rarity(for: record(inferred: true, minutes: 240)) == .one)
+        #expect(RewardRarity.rarity(for: record(stalls: 1, latency: 1, worst: 1, inferred: true)) == .one)
+        #expect(RewardObject.pool(for: .one).contains(RewardObject.yield(for: record(inferred: true))))
+    }
+
+    /// Absent means observed: every record already on disk predates the flag and
+    /// must keep the rating it had.
+    @Test
+    func aRecordWithNoProvenanceFlagIsTreatedAsObserved() {
+        #expect(RewardRarity.rarity(for: record(inferred: nil, minutes: 45)) == .three)
+        #expect(RewardRarity.rarity(for: record(inferred: false, minutes: 45)) == .three)
+    }
+
+    /// Inference never claims an interrupt, so it can never manufacture scrap
+    /// either — the floor is ★, not nothing.
+    @Test
+    func inferredHistoryStillNeverLeavesScrap() {
+        #expect(RewardObject.yield(for: record(inferred: true, minutes: 240)) != .scrap)
     }
 
     // MARK: - Which object

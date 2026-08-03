@@ -9,7 +9,9 @@ import Foundation
 ///
 /// Everything here is inference from file metadata rather than observed events,
 /// so it is deliberately conservative: it never claims an interrupt, never
-/// invents gate latencies, and skips anything it cannot date confidently.
+/// invents gate latencies, and skips anything it cannot date confidently. It
+/// also marks what it produces `isInferred`, because a conservative value still
+/// reads as a fact to whoever loads it next.
 public struct SessionLogBackfill {
     private let rootURL: URL
     private let fileManager: FileManager
@@ -138,7 +140,15 @@ public struct SessionLogBackfill {
             stallCount: 0,
             // Never invent a latency: nil keeps these out of the median entirely
             // rather than skewing it with a fabricated number.
-            meanGateLatency: nil
+            meanGateLatency: nil,
+            // Per-gate timings are not in a transcript at all, so the worst gate
+            // is not merely absent here — it is unknowable. Zero would say "every
+            // gate was answered instantly", which is a claim, not a gap.
+            worstGateLatency: nil,
+            // The conservative values above are what this had to write, not what
+            // it saw. Without saying so, a reader takes "clean, no gates" at face
+            // value and hands the top tier to every transcript on disk.
+            isInferred: true
         )
     }
 

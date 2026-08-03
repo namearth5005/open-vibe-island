@@ -964,7 +964,8 @@ final class AppModel {
             endedAt: shard.updatedAt,
             wasInterrupted: shard.isFractured,
             stallCount: shard.stallCount,
-            meanGateLatency: shard.meanGateLatency
+            meanGateLatency: shard.meanGateLatency,
+            worstGateLatency: shard.worstGateLatency
         )
 
         sessionLogRecords.append(record)

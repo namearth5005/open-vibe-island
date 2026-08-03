@@ -17,6 +17,26 @@ public struct SessionLogRecord: Equatable, Codable, Sendable {
     /// `nil` when the session had no gates — distinct from zero, which would
     /// otherwise drag the median toward an answer time nobody achieved.
     public var meanGateLatency: Double?
+    /// Seconds the human took to answer this session's *slowest* gate.
+    ///
+    /// Recorded alongside the mean because the mean cannot answer "was any gate
+    /// left past the grace window": 1s and 59s average to exactly 30s. No
+    /// threshold on a mean can close that — enough fast answers drag any single
+    /// slow gate under any bound — so the fact has to be captured at the source.
+    /// `nil` means unrecorded, which covers both a session with no gates and
+    /// every record written before this field existed.
+    public var worstGateLatency: Double?
+    /// True when this record was derived from a transcript rather than observed
+    /// live.
+    ///
+    /// For an inferred record every field but the timestamps is an assertion:
+    /// back-fill cannot see interrupts, gates or answer times, so it writes the
+    /// conservative value and moves on. Read at face value those assertions earn
+    /// the top tier for every transcript on disk, which is the opposite of what
+    /// they mean. Storing the provenance keeps the rating honest without storing
+    /// the rating itself. `nil` means observed: every record written before this
+    /// field existed came from the live event path.
+    public var isInferred: Bool?
 
     public init(
         sessionID: String,
@@ -26,7 +46,9 @@ public struct SessionLogRecord: Equatable, Codable, Sendable {
         endedAt: Date,
         wasInterrupted: Bool,
         stallCount: Int,
-        meanGateLatency: Double? = nil
+        meanGateLatency: Double? = nil,
+        worstGateLatency: Double? = nil,
+        isInferred: Bool? = nil
     ) {
         self.sessionID = sessionID
         self.tool = tool
@@ -36,6 +58,8 @@ public struct SessionLogRecord: Equatable, Codable, Sendable {
         self.wasInterrupted = wasInterrupted
         self.stallCount = stallCount
         self.meanGateLatency = meanGateLatency
+        self.worstGateLatency = worstGateLatency
+        self.isInferred = isInferred
     }
 
     /// Wall-clock duration. Clamped at zero so a clock adjustment mid-session

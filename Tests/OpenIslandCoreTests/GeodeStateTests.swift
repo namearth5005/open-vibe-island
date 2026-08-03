@@ -148,6 +148,63 @@ struct GeodeStateTests {
         #expect(state.shard(id: "s1")?.stallCount == 1)
     }
 
+    // MARK: - Gate latency
+
+    /// The mean cannot answer "was any gate left past the grace window" — 1s and
+    /// 59s average to exactly 30s — so the shard carries the maximum alongside
+    /// the sum. This is the only place the worst gate can be observed; nothing
+    /// downstream can reconstruct it.
+    @Test
+    func theWorstGateIsRecordedAlongsideTheMean() {
+        var state = GeodeState()
+        state.apply(started("s1", at: t0))
+        state.apply(phaseChange("s1", .waitingForApproval, at: t0.addingTimeInterval(10)))
+        state.apply(phaseChange("s1", .running, at: t0.addingTimeInterval(11)))
+        state.apply(phaseChange("s1", .waitingForAnswer, at: t0.addingTimeInterval(20)))
+        state.apply(resolved("s1", at: t0.addingTimeInterval(79)))
+
+        #expect(state.shard(id: "s1")?.stallCount == 2)
+        #expect(state.shard(id: "s1")?.meanGateLatency == 30)
+        #expect(state.shard(id: "s1")?.worstGateLatency == 59)
+    }
+
+    /// A fast answer after a slow one must not erase the slow one, which is the
+    /// whole reason the maximum exists.
+    @Test
+    func aLaterFasterGateDoesNotLowerTheWorst() {
+        var state = GeodeState()
+        state.apply(started("s1", at: t0))
+        state.apply(phaseChange("s1", .waitingForApproval, at: t0.addingTimeInterval(10)))
+        state.apply(resolved("s1", at: t0.addingTimeInterval(70)))
+        state.apply(phaseChange("s1", .waitingForApproval, at: t0.addingTimeInterval(80)))
+        state.apply(resolved("s1", at: t0.addingTimeInterval(81)))
+        #expect(state.shard(id: "s1")?.worstGateLatency == 60)
+    }
+
+    /// No gates means no worst gate, not a worst gate of zero — the same
+    /// distinction the mean already makes, and the one that keeps a session
+    /// nobody had to answer from reading as a session answered instantly.
+    @Test
+    func aSessionWithNoGatesHasNoWorstGate() {
+        var state = GeodeState()
+        state.apply(started("s1", at: t0))
+        state.apply(completed("s1", at: t0.addingTimeInterval(600)))
+        #expect(state.shard(id: "s1")?.worstGateLatency == nil)
+        #expect(state.shard(id: "s1")?.meanGateLatency == nil)
+    }
+
+    /// A session that finishes while still blocked was never answered, so the
+    /// wait up to completion is that gate's latency — exactly what the mean
+    /// already folds in.
+    @Test
+    func aGateStillOpenAtCompletionCountsItsWholeWait() {
+        var state = GeodeState()
+        state.apply(started("s1", at: t0))
+        state.apply(phaseChange("s1", .waitingForApproval, at: t0.addingTimeInterval(10)))
+        state.apply(completed("s1", at: t0.addingTimeInterval(130)))
+        #expect(state.shard(id: "s1")?.worstGateLatency == 120)
+    }
+
     // MARK: - Completion
 
     @Test

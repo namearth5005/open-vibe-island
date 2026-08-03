@@ -8,6 +8,10 @@ public struct GeodeShard: Equatable, Sendable {
     public let startedAt: Date
     /// Wall-clock seconds already spent frozen. Excluded from growth.
     public var frozenSeconds: TimeInterval
+    /// Longest single freeze this session has served. Tracked alongside the sum
+    /// because "was any gate left unanswered" is not a question a total or a
+    /// mean can answer, and this is the only place the individual waits exist.
+    public var worstGateSeconds: TimeInterval = 0
     /// Set while the session is blocked on the human; nil while it runs.
     public var frozenSince: Date?
     public var stallCount: Int
@@ -46,6 +50,18 @@ public struct GeodeShard: Equatable, Sendable {
     public var meanGateLatency: Double? {
         guard stallCount > 0 else { return nil }
         return frozenSeconds / Double(stallCount)
+    }
+
+    /// Seconds spent at the slowest gate. `nil` when there were no gates, for
+    /// the same reason the mean is: zero would read as "answered instantly"
+    /// rather than "never asked".
+    ///
+    /// Excludes a gate still standing open, exactly as the mean does — a wait
+    /// that has not ended yet is not an answer time. Completion closes the last
+    /// gate, so a logged session never loses one.
+    public var worstGateLatency: Double? {
+        guard stallCount > 0 else { return nil }
+        return worstGateSeconds
     }
 }
 
@@ -130,8 +146,7 @@ public struct GeodeState: Equatable, Sendable {
                     shard.stallCount += 1
                 }
             } else {
-                shard.frozenSeconds += frozenElapsed(of: shard, upTo: payload.timestamp)
-                shard.frozenSince = nil
+                closeGate(of: &shard, at: payload.timestamp)
             }
             shard.updatedAt = payload.timestamp
             shardsBySessionID[payload.sessionID] = shard
@@ -147,8 +162,9 @@ public struct GeodeState: Equatable, Sendable {
 
         case let .sessionCompleted(payload):
             guard var shard = shardsBySessionID[payload.sessionID] else { return }
-            shard.frozenSeconds += frozenElapsed(of: shard, upTo: payload.timestamp)
-            shard.frozenSince = nil
+            // A session that finishes while still blocked was never answered, so
+            // the wait up to completion is that gate's latency.
+            closeGate(of: &shard, at: payload.timestamp)
             shard.stage = ShardForm.stage(
                 forDuration: growthSeconds(of: shard, upTo: payload.timestamp)
             )
@@ -227,10 +243,24 @@ public struct GeodeState: Equatable, Sendable {
 
     private mutating func thaw(_ sessionID: String, at timestamp: Date) {
         guard var shard = shardsBySessionID[sessionID] else { return }
-        shard.frozenSeconds += frozenElapsed(of: shard, upTo: timestamp)
-        shard.frozenSince = nil
+        closeGate(of: &shard, at: timestamp)
         shard.updatedAt = timestamp
         shardsBySessionID[sessionID] = shard
+    }
+
+    /// End the gate the shard is standing at, if any: fold its wait into both
+    /// the running total and the running maximum, then unfreeze.
+    ///
+    /// One place rather than three, because the sum and the maximum have to see
+    /// exactly the same set of waits — a gate closed on one path but not the
+    /// other would make the mean and the worst describe different sessions.
+    /// A no-op on an unfrozen shard, which is what makes it safe to call from
+    /// the phase-change path where the shard may never have been frozen.
+    private func closeGate(of shard: inout GeodeShard, at now: Date) {
+        let waited = frozenElapsed(of: shard, upTo: now)
+        shard.frozenSeconds += waited
+        shard.worstGateSeconds = max(shard.worstGateSeconds, waited)
+        shard.frozenSince = nil
     }
 
     private func frozenElapsed(of shard: GeodeShard, upTo now: Date) -> TimeInterval {

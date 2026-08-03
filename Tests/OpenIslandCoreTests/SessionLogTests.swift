@@ -120,6 +120,58 @@ struct SessionLogTests {
         #expect(store.load().count == 1)
     }
 
+    // MARK: - Backward compatibility
+
+    /// There is a real log on disk written by builds that had neither
+    /// `worstGateLatency` nor `isInferred`. Pinned as literal text rather than a
+    /// round trip, because a round trip only proves this build agrees with
+    /// itself — it would still pass if the on-disk format had changed underneath.
+    /// The two lines are the exact shapes older builds emitted: one with no gate
+    /// data at all, one carrying only the mean.
+    @Test
+    func recordsWrittenBeforeTheNewFieldsExistedStillLoad() throws {
+        let store = makeStore()
+        try FileManager.default.createDirectory(
+            at: store.fileURL.deletingLastPathComponent(), withIntermediateDirectories: true
+        )
+        let legacy = """
+        {"sessionID":"82094fd0","wasInterrupted":false,"workspace":"reel","stallCount":0,\
+        "endedAt":"2026-07-26T13:21:23Z","tool":"claudeCode","startedAt":"2026-07-26T11:21:40Z"}
+        {"sessionID":"e085a66d","wasInterrupted":true,"workspace":"repo","stallCount":2,\
+        "meanGateLatency":12.5,"endedAt":"2026-07-26T13:17:54Z","tool":"codex",\
+        "startedAt":"2026-07-26T12:16:56Z"}
+
+        """
+        try legacy.write(to: store.fileURL, atomically: true, encoding: .utf8)
+
+        let loaded = store.load()
+        try #require(loaded.count == 2)
+
+        let old = try #require(loaded.first { $0.sessionID == "82094fd0" })
+        #expect(old.tool == .claudeCode)
+        #expect(old.workspace == "reel")
+        #expect(old.stallCount == 0)
+        #expect(old.duration == 7_183)
+        #expect(old.meanGateLatency == nil)
+        #expect(old.worstGateLatency == nil)
+        #expect(old.isInferred == nil)
+
+        let gated = try #require(loaded.first { $0.sessionID == "e085a66d" })
+        #expect(gated.wasInterrupted == true)
+        #expect(gated.meanGateLatency == 12.5)
+        #expect(gated.worstGateLatency == nil)
+    }
+
+    @Test
+    func theNewFieldsSurviveARoundTrip() {
+        let store = makeStore()
+        var original = record("s1", stalls: 2, latency: 12.5)
+        original.worstGateLatency = 41
+        original.isInferred = true
+        store.append(original)
+        #expect(store.load() == [original])
+    }
+
     // MARK: - Record semantics
 
     /// A clock adjustment mid-session must not produce negative runtime that

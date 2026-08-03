@@ -65,7 +65,23 @@ struct SessionLogBackfillTests {
         let record = SessionLogBackfill(rootURL: root).derivedRecords(existingSessionIDs: []).first
         #expect(record?.wasInterrupted == false)
         #expect(record?.meanGateLatency == nil)
+        #expect(record?.worstGateLatency == nil)
         #expect(record?.stallCount == 0)
+    }
+
+    /// The conservative values above — no interrupt, no gates, no latencies — are
+    /// assertions, not observations, and a rating that reads them at face value
+    /// hands the top tier to every transcript on disk. The flag says the record
+    /// was inferred, so `RewardRarity` can rate it on what inference supports.
+    @Test
+    func derivedRecordsAreMarkedInferredSoTheyCannotClaimStewardship() throws {
+        let root = makeRoot()
+        writeTranscript(root: root, sessionID: "old", lines: 10,
+                        endedAt: start.addingTimeInterval(4 * 3600))
+        let records = SessionLogBackfill(rootURL: root).derivedRecords(existingSessionIDs: [])
+        let record = try #require(records.first)
+        #expect(record.isInferred == true)
+        #expect(RewardRarity.rarity(for: record) == .one)
     }
 
     /// Running back-fill on every launch must not duplicate history, and a

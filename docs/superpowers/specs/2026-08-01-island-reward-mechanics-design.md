@@ -340,12 +340,25 @@ user's contribution is stewardship and answering fast is what pays. The two clau
 one statement: **a stall is a gate left past the grace window**, and zero of them is what ★★ asks
 for. Both clauses are live, the vacuous case is preserved, and the tiers nest.
 
-One honest limit: the log records `meanGateLatency`, not the worst gate, so "no gate past grace" is
+**Inferred history is capped at ★.** Back-fill derives records from transcripts, which cannot
+show gate timings — so it writes `stallCount: 0` and `meanGateLatency: nil`, and those read
+downstream as *observed* facts rather than absent ones. Under the tier rules that is a vacuous
+★★ pass. Measured against the real log: 80 sessions rated **39 ★★★, 39 ★★, 1 ★, 1 scrap** — the
+rarest tier was the most common thing in the collection. Records therefore carry provenance, and
+an inferred record cannot exceed ★: inference supports "this happened and finished", which is
+exactly what ★ means, and nothing above it. Objects come from sessions the island actually
+watched.
+
+Records written before that flag existed keep their inflated ratings and cannot be repaired —
+back-fill skips known session IDs, and re-appending loses to the log's latest-`endedAt` dedup.
+
+An earlier limit, now closed: the log records `meanGateLatency`, not the worst gate, so "no gate past grace" is
 measured by the mean. The approximation is **one-sided** — all-gates-inside implies mean-inside, so
 no qualifying session is ever denied; only the reverse leaks (1s + 59s averages to exactly 30s and
 passes). Tightening the threshold does not close it, since enough fast answers drag any single slow
 gate under any positive bound. The real fix is recording the worst gate alongside the mean, which is
-a change to what is *written* to the log.
+a change to what is *written* to the log. `worstGateLatency` is now recorded, and rarity reads
+it, falling back to the mean for records written before it existed.
 
 ### Farmability — read this before adding anything social
 
