@@ -109,7 +109,7 @@ split is the design's core clarity rule and must not blur.
 **Likely files:** `Sources/OpenIslandApp/Views/IslandSceneView.swift` or a sibling
 **Depends on:** 2
 
-## [todo] 4 — Selection and detail band
+## [in-progress] 4 — Selection and detail band
 
 Clicking a creature selects its session and fills a detail row.
 
