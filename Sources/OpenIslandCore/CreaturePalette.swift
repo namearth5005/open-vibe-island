@@ -50,28 +50,47 @@ public struct CreatureColor: Equatable, Sendable {
     }
 }
 
-/// Species colours, chosen as a deliberate luminance ladder rather than a hue
-/// wheel.
+/// Species colours, all sitting inside one narrow luminance band.
 ///
-/// The reference style assumes a dark subject on a light ground; the pill
-/// inverts that, so creatures are light masses read by silhouette and dark line
-/// is used only *inside* the shape. The measurements behind that inversion are
-/// in `docs/superpowers/specs/2026-08-01-island-reward-mechanics-design.md`.
+/// **Why a band and not a ladder.** Creatures are drawn once and shown on two
+/// opposite grounds: the near-black pill (L 0.4%) and light paper (L 78.2%).
+/// Clearing 3:1 against *both* pins every species between:
 ///
-/// Values are spread across ~55 luminance points so species survive greyscale
-/// and stay distinguishable for colour-blind users. Every entry clears 3:1
-/// against the pill; `CreaturePaletteTests` enforces both properties.
+/// - **L ≥ 11.2%** — or it disappears on the pill
+/// - **L ≤ 22.7%** — or it disappears on paper
+///
+/// An earlier draft spread the six across ~55 luminance points so they would
+/// separate in greyscale. That only worked because those values failed on paper
+/// outright. Six species cannot be 6 points apart inside an 11-point window, so
+/// **the ladder is gone and silhouette carries species identity** — which is what
+/// the drawn shapes already do. Hue here is brand recognition, not
+/// disambiguation.
+///
+/// Values are the measured means of the shipped sprites after luminance
+/// normalisation. Derivation is in
+/// `docs/superpowers/specs/2026-08-01-island-reward-mechanics-design.md`.
 public enum CreaturePalette {
+    /// The band every species must sit inside to survive both grounds.
+    public static let minimumLuminance = 0.112
+    public static let maximumLuminance = 0.227
+    /// What the asset pipeline normalises each sprite to — centred in the band
+    /// so neither ground is close to its limit.
+    public static let targetLuminance = 0.17
+
     public static func color(for species: CreatureSpecies) -> CreatureColor {
         switch species {
-        case .claude:   CreatureColor(red: 0xf8, green: 0xd7, blue: 0xb7) // L 72.0%  14.23:1
-        case .codex:    CreatureColor(red: 0xb2, green: 0xcb, blue: 0xe8) // L 58.0%  11.65:1
-        case .cursor:   CreatureColor(red: 0x7d, green: 0xc3, blue: 0xa2) // L 46.0%   9.43:1
-        case .gemini:   CreatureColor(red: 0xaa, green: 0x99, blue: 0xbd) // L 35.0%   7.40:1
-        case .kimi:     CreatureColor(red: 0xba, green: 0x74, blue: 0x92) // L 25.0%   5.55:1
-        case .openCode: CreatureColor(red: 0x79, green: 0x71, blue: 0x53) // L 16.5%   3.98:1
+        case .claude:   CreatureColor(red: 0xa5, green: 0x5d, blue: 0x27) // L 16.0%  pill 3.89  paper 3.96
+        case .codex:    CreatureColor(red: 0x38, green: 0x70, blue: 0xa4) // L 15.3%  pill 3.75  paper 4.10
+        case .cursor:   CreatureColor(red: 0x7e, green: 0x62, blue: 0xa5) // L 16.0%  pill 3.88  paper 3.97
+        case .gemini:   CreatureColor(red: 0x33, green: 0x7a, blue: 0x36) // L 15.2%  pill 3.73  paper 4.13
+        case .kimi:     CreatureColor(red: 0x83, green: 0x6e, blue: 0x13) // L 16.2%  pill 3.91  paper 3.93
+        case .openCode: CreatureColor(red: 0x9d, green: 0x61, blue: 0x15) // L 16.0%  pill 3.89  paper 3.96
         }
     }
+
+    /// Warm paper, the light ground creatures are shown against in the panel.
+    /// Measured from the reference product at `#ece3e1`.
+    public static let paperGround = CreatureColor(red: 0xec, green: 0xe3, blue: 0xe1)
 
     /// Interior line work. Never used to carry the silhouette edge — at 1.16:1
     /// against the pill it is invisible there.

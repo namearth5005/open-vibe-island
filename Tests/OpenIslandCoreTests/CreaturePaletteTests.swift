@@ -42,23 +42,76 @@ struct CreaturePaletteTests {
         }
     }
 
-    /// Gate condition 3, the colour half.
+    /// The constraint that replaced the luminance ladder.
+    ///
+    /// Creatures are drawn once and shown on two opposite grounds, so every
+    /// species has to survive both. That pins them into an 11-point window —
+    /// far too narrow for six species to separate by value, which is why
+    /// silhouette carries species identity instead.
     @Test
-    func speciesSeparateByLuminanceNotOnlyHue() {
-        let sorted = CreatureSpecies.allCases
-            .map { CreaturePalette.color(for: $0).relativeLuminance }
-            .sorted(by: >)
-        for (brighter, darker) in zip(sorted, sorted.dropFirst()) {
-            let gap = (brighter - darker) * 100
-            #expect(gap >= 6.0, "adjacent species differ by only \(gap) luminance points")
+    func everySpeciesSitsInsideTheTwoGroundBand() {
+        for species in CreatureSpecies.allCases {
+            let l = CreaturePalette.color(for: species).relativeLuminance
+            #expect(
+                l >= CreaturePalette.minimumLuminance,
+                "\(species.rawValue) at L \(l * 100)% is too dark — it vanishes on the pill"
+            )
+            #expect(
+                l <= CreaturePalette.maximumLuminance,
+                "\(species.rawValue) at L \(l * 100)% is too light — it vanishes on paper"
+            )
         }
     }
 
+    /// The band is derived, not chosen: these are the exact luminances at which
+    /// a colour hits 3:1 against each ground. If either ground changes, the
+    /// band must be recomputed rather than nudged.
     @Test
-    func theLadderSpansAUsefulRange() {
-        let values = CreatureSpecies.allCases.map { CreaturePalette.color(for: $0).relativeLuminance * 100 }
-        let spread = (values.max() ?? 0) - (values.min() ?? 0)
-        #expect(spread >= 40, "luminance spread is only \(spread) points")
+    func theBandBoundsAreTheRealThreeToOneCrossings() {
+        let atFloor = CreatureColor(red: 0, green: 0, blue: 0)
+            .scaledToLuminance(CreaturePalette.minimumLuminance)
+        let atCeiling = CreatureColor(red: 0, green: 0, blue: 0)
+            .scaledToLuminance(CreaturePalette.maximumLuminance)
+        // A pure black seed cannot be rescaled, so assert the arithmetic directly.
+        let floorRatio = (CreaturePalette.minimumLuminance + 0.05)
+            / (CreaturePalette.pillFill.relativeLuminance + 0.05)
+        let ceilingRatio = (CreaturePalette.paperGround.relativeLuminance + 0.05)
+            / (CreaturePalette.maximumLuminance + 0.05)
+        #expect(abs(floorRatio - 3.0) < 0.05, "floor is \(floorRatio):1 against the pill, not 3:1")
+        #expect(abs(ceilingRatio - 3.0) < 0.05, "ceiling is \(ceilingRatio):1 against paper, not 3:1")
+        _ = (atFloor, atCeiling)
+    }
+
+    /// Both grounds, measured. This is the whole point of the band.
+    @Test
+    func everySpeciesClearsBothGrounds() {
+        for species in CreatureSpecies.allCases {
+            let colour = CreaturePalette.color(for: species)
+            let onPill = CreatureColor.contrastRatio(colour, CreaturePalette.pillFill)
+            let onPaper = CreatureColor.contrastRatio(colour, CreaturePalette.paperGround)
+            #expect(onPill >= 3.0, "\(species.rawValue) is \(onPill):1 on the pill")
+            #expect(onPaper >= 3.0, "\(species.rawValue) is \(onPaper):1 on paper")
+        }
+    }
+
+    /// The asset pipeline relies on this: generated sprites drift light every
+    /// run, so each is rescaled onto the target before shipping. Rescaling must
+    /// move value without dragging hue.
+    @Test
+    func normalisingToTheTargetPreservesHue() {
+        for species in CreatureSpecies.allCases {
+            let original = CreaturePalette.color(for: species)
+            let scaled = original.scaledToLuminance(CreaturePalette.targetLuminance)
+            #expect(abs(scaled.relativeLuminance - CreaturePalette.targetLuminance) < 0.01)
+
+            // Channel ordering is a cheap proxy for hue: rescaling in linear
+            // light must not reorder which channel dominates.
+            let before = [original.red, original.green, original.blue]
+            let after = [scaled.red, scaled.green, scaled.blue]
+            let rankBefore = before.indices.sorted { before[$0] > before[$1] }
+            let rankAfter = after.indices.sorted { after[$0] > after[$1] }
+            #expect(rankBefore == rankAfter, "\(species.rawValue) shifted hue when rescaled")
+        }
     }
 
     /// Known-answer pin for the second ground, matching `pillFillMatchesTheShippedInk`.
