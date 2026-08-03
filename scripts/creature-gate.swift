@@ -121,6 +121,72 @@ func writePNG(_ image: CGImage, to url: URL) {
     guard CGImageDestinationFinalize(dest) else { fatalError("PNG write failed: \(url.path)") }
 }
 
+// MARK: - Generated sprites
+
+/// Judges real artwork the same way the harness judges placeholder geometry.
+///
+/// Generated or commissioned sprites arrive as transparent PNGs. The only
+/// honest contrast figure for one is the mean of its *opaque* pixels — a sprite
+/// is mostly empty canvas, so averaging the whole image measures the
+/// background and flatters everything.
+enum Sprite {
+    static func load(_ url: URL) -> CGImage? {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+        return CGImageSourceCreateImageAtIndex(source, 0, nil)
+    }
+
+    /// Mean colour over pixels with meaningful alpha.
+    static func meanOpaqueColour(_ image: CGImage) -> CreatureColor? {
+        let side = 96
+        var pixels = [UInt8](repeating: 0, count: side * side * 4)
+        guard let ctx = CGContext(
+            data: &pixels, width: side, height: side, bitsPerComponent: 8,
+            bytesPerRow: side * 4, space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return nil }
+        ctx.draw(image, in: CGRect(x: 0, y: 0, width: side, height: side))
+
+        var r = 0.0, g = 0.0, b = 0.0, n = 0.0
+        for index in stride(from: 0, to: pixels.count, by: 4) {
+            let alpha = Double(pixels[index + 3]) / 255.0
+            guard alpha > 0.5 else { continue }
+            // Un-premultiply so a soft edge does not drag the mean toward black.
+            r += Double(pixels[index]) / alpha
+            g += Double(pixels[index + 1]) / alpha
+            b += Double(pixels[index + 2]) / alpha
+            n += 1
+        }
+        guard n > 0 else { return nil }
+        func clamp(_ v: Double) -> UInt8 { UInt8(max(0, min(255, (v / n).rounded()))) }
+        return CreatureColor(red: clamp(r), green: clamp(g), blue: clamp(b))
+    }
+
+    /// Composites a sprite onto a ground at true lane size, aspect-fit.
+    static func render(_ image: CGImage, size: CGSize, ground: CreatureColor) -> CGImage {
+        let pixelWidth = Int((size.width * renderScale).rounded())
+        let pixelHeight = Int((size.height * renderScale).rounded())
+        guard let ctx = CGContext(
+            data: nil, width: pixelWidth, height: pixelHeight, bitsPerComponent: 8,
+            bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { fatalError("CGContext allocation failed") }
+
+        ctx.setFillColor(cgColor(ground))
+        ctx.fill(CGRect(x: 0, y: 0, width: CGFloat(pixelWidth), height: CGFloat(pixelHeight)))
+        ctx.interpolationQuality = .high
+
+        let scale = min(CGFloat(pixelWidth) / CGFloat(image.width),
+                        CGFloat(pixelHeight) / CGFloat(image.height))
+        let w = CGFloat(image.width) * scale
+        let h = CGFloat(image.height) * scale
+        ctx.draw(image, in: CGRect(x: (CGFloat(pixelWidth) - w) / 2,
+                                   y: (CGFloat(pixelHeight) - h) / 2,
+                                   width: w, height: h))
+        guard let out = ctx.makeImage() else { fatalError("makeImage failed") }
+        return out
+    }
+}
+
 // MARK: - Measurement
 
 /// The seed whose `waiting` silhouette is the least lopsided.
@@ -168,16 +234,30 @@ func pad(_ text: String, _ width: Int) -> String {
 @main
 enum CreatureGate {
     static func main() throws {
-        guard CommandLine.arguments.count > 1 else {
-            FileHandle.standardError.write(Data("usage: creature-gate <output-directory>\n".utf8))
+        let args = CommandLine.arguments
+        guard args.count > 1 else {
+            FileHandle.standardError.write(
+                Data("usage: creature-gate <output-directory> [--sprites <dir>]\n".utf8))
             exit(2)
         }
-        let out = URL(fileURLWithPath: CommandLine.arguments[1])
+        let out = URL(fileURLWithPath: args[1])
         try FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
 
-        let written = renderSheets(into: out)
+        var spriteDirectory: URL?
+        if let flag = args.firstIndex(of: "--sprites") {
+            guard flag + 1 < args.count else {
+                FileHandle.standardError.write(Data("--sprites needs a directory\n".utf8))
+                exit(2)
+            }
+            spriteDirectory = URL(fileURLWithPath: args[flag + 1])
+        }
+
+        var written = renderSheets(into: out)
         reportContrast()
         reportGeometry()
+        if let spriteDirectory {
+            written += judgeSprites(in: spriteDirectory, into: out)
+        }
         print("")
         print("\(written) PNGs written to \(out.path)")
     }
@@ -255,6 +335,59 @@ enum CreatureGate {
             write(image, "worst-\(pose.rawValue).png")
         }
 
+        return written
+    }
+
+    // MARK: Generated art
+
+    /// Composites `<species>-<pose>.png` sprites onto the real grounds and
+    /// measures them, so generated art is judged by the same instrument as the
+    /// placeholder rather than by eye on a white canvas.
+    static func judgeSprites(in directory: URL, into out: URL) -> Int {
+        let files = (try? FileManager.default.contentsOfDirectory(atPath: directory.path)) ?? []
+        let sprites = files.filter { $0.hasSuffix(".png") }.sorted()
+        guard !sprites.isEmpty else {
+            print("")
+            print("No .png sprites found in \(directory.path)")
+            return 0
+        }
+
+        print("")
+        print("Generated sprites from \(directory.path)")
+        print(pad("file", 30) + pad("mean colour", 14) + pad("on pill", 12) + "verdict")
+
+        var written = 0
+        var worst = Double.greatestFiniteMagnitude
+        for name in sprites {
+            let url = directory.appendingPathComponent(name)
+            guard let image = Sprite.load(url) else {
+                print(pad(name, 30) + "unreadable")
+                continue
+            }
+            let stem = String(name.dropLast(4))
+            let pill = Sprite.render(image, size: pillLane, ground: CreaturePalette.pillFill)
+            writePNG(pill, to: out.appendingPathComponent("sprite-pill-\(stem).png"))
+            let panel = Sprite.render(image, size: panelLane, ground: CreaturePalette.panelGround)
+            writePNG(panel, to: out.appendingPathComponent("sprite-panel-\(stem).png"))
+            written += 2
+
+            guard let mean = Sprite.meanOpaqueColour(image) else {
+                print(pad(name, 30) + "fully transparent")
+                continue
+            }
+            let ratio = CreatureColor.contrastRatio(mean, CreaturePalette.pillFill)
+            worst = min(worst, ratio)
+            print(
+                pad(stem, 30) + pad(hex(mean), 14)
+                    + pad(String(format: "%.2f:1", ratio), 12)
+                    + (ratio >= 3.0 ? "ok" : "TOO DARK FOR THE PILL")
+            )
+        }
+        if worst < .greatestFiniteMagnitude {
+            print(String(format: "worst %.2f:1 — needs >= 3.00:1 — %@",
+                         worst, worst >= 3.0 ? "PASS" : "FAIL"))
+        }
+        print("Judge the sprite-pill-*.png at 1x on screen, not zoomed.")
         return written
     }
 

@@ -30,4 +30,4 @@ swiftc -swift-version 6 -package-name OpenIsland \
   scripts/creature-gate.swift \
   -o "$BUILD/creature-gate"
 
-"$BUILD/creature-gate" "$OUT"
+"$BUILD/creature-gate" "$OUT" "${@:2}"
