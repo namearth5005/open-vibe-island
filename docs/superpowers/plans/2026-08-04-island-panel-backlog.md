@@ -186,7 +186,7 @@ Pure model. What a finished session yields and how good it is.
 **Build with:** `superpowers:test-driven-development`  **Review with:** `swift-testing-pro`
 **Depends on:** 6
 
-## [todo] 8 — The receipt
+## [in-progress] 8 — The receipt
 
 `Open Island Inc.` Cheapest high-charm item in the spec: pure typography over numbers that
 already exist.
