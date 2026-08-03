@@ -143,7 +143,7 @@ The loop must NOT pick one. Skip this task and continue.
 Also found: `AppModel.select(sessionID:)` (`:1393`) has zero callers — pre-existing dead code,
 left alone per the surgical-scope rail.
 
-## [todo] 5 — Click-to-jump
+## [in-progress] 5 — Click-to-jump
 
 The payoff that makes this a tool rather than decoration: the gesture *is* the notification
 and the click *is* the jump-back the app already implements.
