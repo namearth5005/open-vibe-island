@@ -19,6 +19,11 @@ struct IslandBandLayout: Equatable, Sendable {
     let scene: IslandSceneLayout
     let strip: IslandIdentityStripLayout
     let detail: IslandDetailBand
+    /// What a creature that has just finished cleanly is saying, or `nil` for
+    /// silence — which is almost always. Drawn over the scene, so it is absent
+    /// from `height` on purpose: a completion is a moment, and a moment may not
+    /// resize the panel.
+    let voice: IslandVoiceCaption?
 
     /// What the band costs, without building one.
     ///
@@ -46,16 +51,27 @@ struct IslandBandLayout: Equatable, Sendable {
         now: Date,
         lang: LanguageManager = .shared
     ) {
-        scene = IslandSceneLayout(
+        let scene = IslandSceneLayout(
             sessions: sessions,
             geode: geode,
             width: width,
             heightScale: sceneHeight.scale
         )
-        strip = IslandIdentityStripLayout(
+        self.scene = scene
+        let strip = IslandIdentityStripLayout(
             sessions: sessions,
             geode: geode,
             width: width,
+            now: now,
+            lang: lang
+        )
+        self.strip = strip
+        // After the strip, because the caption borrows the name the strip has
+        // already resolved for its speaker rather than resolving a second one.
+        voice = IslandVoiceCaption.resolve(
+            scene: scene,
+            strip: strip,
+            geode: geode,
             now: now,
             lang: lang
         )
@@ -91,6 +107,8 @@ struct IslandBandView: View {
     /// same button drawn twice.
     let onActivate: (String, CreaturePose) -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         VStack(spacing: 0) {
             IslandSceneView(
@@ -98,6 +116,25 @@ struct IslandBandView: View {
                 selectedSessionID: selectedSessionID,
                 onActivate: onActivate
             )
+            // Over the scene rather than inside it, for two reasons: the scene
+            // hides itself from VoiceOver and this line is the one part of the
+            // band that is only words, and a line drawn in the stack would add
+            // its height to the panel for the 45 seconds it exists.
+            .overlay {
+                if let voice = layout.voice {
+                    IslandVoiceCaptionView(caption: voice)
+                        // Keyed on the speaker, so a handover from one creature
+                        // to another is an insert and a remove rather than one
+                        // plate. Without this the `if let` keeps its identity
+                        // across the change and `.position` animates instead —
+                        // the plate slides across the band, hanging for a
+                        // quarter second over creatures that did not say it,
+                        // which is exactly the attribution the geometry exists
+                        // to make.
+                        .id(voice.sessionID)
+                }
+            }
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.24), value: layout.voice)
 
             IslandIdentityStripView(
                 layout: layout.strip,

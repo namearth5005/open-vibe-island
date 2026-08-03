@@ -60,6 +60,7 @@ struct LocalizationTests {
         var keys = Set<String>()
         keys.formUnion(CreaturePose.allCases.map(\.spokenStateKey))
         keys.formUnion(ReceiptItem.allCases.map(\.labelKey))
+        keys.formUnion(CreatureVoice.allLineKeys)
         keys.formUnion([
             IslandIdentityStripLayout.emptyMessageKey,
             IslandDetailBand.emptyMessageKey,
@@ -170,6 +171,44 @@ struct LocalizationTests {
                 #expect(
                     specifiers == expected,
                     "\(key) in \(locale.rawValue) has \(specifiers) specifiers, expected \(expected): \(format)"
+                )
+            }
+        }
+    }
+
+    /// Seventy-two lines is the largest single block of text this app has, and
+    /// the one most likely to be shipped half-translated: a missing voice line
+    /// is not a broken layout, it is one creature out of six saying
+    /// `island.voice.kimi.07` on a good day. Asserted per line so a failure
+    /// names the ones that were skipped.
+    @Test
+    func everyVoiceLineIsWrittenInEveryLocale() {
+        let english = LanguageManager(language: .en)
+
+        for locale in Self.locales.dropFirst() {
+            let translated = LanguageManager(language: locale)
+            for key in CreatureVoice.allLineKeys {
+                #expect(translated.t(key) != key, "\(key) is missing from \(locale.rawValue)")
+                #expect(
+                    translated.t(key) != english.t(key),
+                    "\(key) in \(locale.rawValue) is the English line copied across"
+                )
+            }
+        }
+    }
+
+    /// Twelve distinct lines per species, in every locale. A copy-paste that
+    /// left two keys with the same text would quietly cut a species' vocabulary
+    /// down without failing anything else here.
+    @Test
+    func noSpeciesRepeatsItselfInAnyLocale() {
+        for locale in Self.locales {
+            let lang = LanguageManager(language: locale)
+            for species in CreatureSpecies.allCases {
+                let lines = Set(CreatureVoice.lineKeys(for: species).map(lang.t))
+                #expect(
+                    lines.count == CreatureVoice.linesPerSpecies,
+                    "\(species) has \(lines.count) distinct lines in \(locale.rawValue)"
                 )
             }
         }

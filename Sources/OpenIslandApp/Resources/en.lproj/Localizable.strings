@@ -306,3 +306,85 @@
 "settings.appearance.sceneHeight.compact" = "Compact";
 "settings.appearance.sceneHeight.standard" = "Standard";
 "settings.appearance.sceneHeight.tall" = "Tall";
+
+/* Island - Voice lines. One is spoken when a session finishes cleanly, never
+   after an interrupt. Twelve per species; the species is the creature's body,
+   not the tool, so the four Claude Code forks all speak Claude's lines.
+   Keep them under ~34 characters: the plate is 180pt wide and does not wrap. */
+"island.voice.claude.01" = "Everything is where I left it.";
+"island.voice.claude.02" = "I checked it twice.";
+"island.voice.claude.03" = "Tidied up on the way out.";
+"island.voice.claude.04" = "That one wanted thinking about.";
+"island.voice.claude.05" = "Nothing left to explain.";
+"island.voice.claude.06" = "I kept the notes.";
+"island.voice.claude.07" = "It reads better now.";
+"island.voice.claude.08" = "No sharp edges left.";
+"island.voice.claude.09" = "Small change. Right change.";
+"island.voice.claude.10" = "I put the tools back.";
+"island.voice.claude.11" = "Take a look when you like.";
+"island.voice.claude.12" = "Quiet again.";
+
+"island.voice.codex.01" = "Done. Next.";
+"island.voice.codex.02" = "Ran clean.";
+"island.voice.codex.03" = "No surprises.";
+"island.voice.codex.04" = "Output matches.";
+"island.voice.codex.05" = "Zero diffs left.";
+"island.voice.codex.06" = "Closed the loop.";
+"island.voice.codex.07" = "Steps completed.";
+"island.voice.codex.08" = "Nothing to report.";
+"island.voice.codex.09" = "Exit code zero.";
+"island.voice.codex.10" = "It compiles.";
+"island.voice.codex.11" = "Held under load.";
+"island.voice.codex.12" = "Filed and finished.";
+
+"island.voice.cursor.01" = "Saved everything.";
+"island.voice.cursor.02" = "Straight through, no detours.";
+"island.voice.cursor.03" = "Found it on the first pass.";
+"island.voice.cursor.04" = "Every file closed.";
+"island.voice.cursor.05" = "That was a fast one.";
+"island.voice.cursor.06" = "Caught it before you did.";
+"island.voice.cursor.07" = "Back where I started.";
+"island.voice.cursor.08" = "One pass was enough.";
+"island.voice.cursor.09" = "Jumped, edited, done.";
+"island.voice.cursor.10" = "Nothing left highlighted.";
+"island.voice.cursor.11" = "Keystrokes well spent.";
+"island.voice.cursor.12" = "Ready for the next buffer.";
+
+"island.voice.gemini.01" = "Both halves agree.";
+"island.voice.gemini.02" = "The pattern held.";
+"island.voice.gemini.03" = "I looked at it twice over.";
+"island.voice.gemini.04" = "Two paths, same ending.";
+"island.voice.gemini.05" = "It came out balanced.";
+"island.voice.gemini.06" = "The shape is right now.";
+"island.voice.gemini.07" = "Symmetry, at last.";
+"island.voice.gemini.08" = "I weighed the other option.";
+"island.voice.gemini.09" = "Wide search, small answer.";
+"island.voice.gemini.10" = "Constellation complete.";
+"island.voice.gemini.11" = "Nothing pulls against it.";
+"island.voice.gemini.12" = "Settled, on both sides.";
+
+"island.voice.kimi.01" = "All wrapped up!";
+"island.voice.kimi.02" = "That went well.";
+"island.voice.kimi.03" = "Fresh off the bench.";
+"island.voice.kimi.04" = "Neat and quick.";
+"island.voice.kimi.05" = "Happy with that one.";
+"island.voice.kimi.06" = "Better than I expected.";
+"island.voice.kimi.07" = "Straight to the point.";
+"island.voice.kimi.08" = "Light work today.";
+"island.voice.kimi.09" = "Packed it up for you.";
+"island.voice.kimi.10" = "Warm off the press.";
+"island.voice.kimi.11" = "Good run. Good end.";
+"island.voice.kimi.12" = "Ready whenever you are.";
+
+"island.voice.openCode.01" = "Built in the open.";
+"island.voice.openCode.02" = "Plain, and finished.";
+"island.voice.openCode.03" = "Anyone could read this.";
+"island.voice.openCode.04" = "No magic in it.";
+"island.voice.openCode.05" = "Kept it simple.";
+"island.voice.openCode.06" = "Better than I found it.";
+"island.voice.openCode.07" = "Patched and set aside.";
+"island.voice.openCode.08" = "Common tools, honest work.";
+"island.voice.openCode.09" = "Nothing hidden in here.";
+"island.voice.openCode.10" = "Ready for the next hands.";
+"island.voice.openCode.11" = "It does what it says.";
+"island.voice.openCode.12" = "Shared, and done.";

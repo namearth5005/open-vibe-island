@@ -238,7 +238,7 @@ actually *see* has to surface in the detail band, not that property.
 - `LocalizationTests.everyLocaleDefinesTheSameKeys` now enforces key parity across en /
   zh-Hans / zh-Hant. Any new key must be added to all three or the gate fails.
 
-## [in-progress] 10 — Voice lines
+## [done] 10 — Voice lines
 
 **Acceptance criteria:**
 - ~12 lines per species, shown on clean completion
@@ -247,6 +247,35 @@ actually *see* has to surface in the detail band, not that property.
 - Never shown for an interrupt
 **Build with:** `swiftui-design`  **Review with:** `swiftui-pro`
 **Depends on:** 9
+**Known from task 10, for 11–13:**
+- **ASSUMPTION 5 above is now dead and should be read as overridden.** It says voice
+  lines "ship English-only in this pass" and that task 10 only wires them up for
+  translation later. Task 9 added `LocalizationTests.everyLocaleDefinesTheSameKeys`,
+  which fails the gate on any key missing from zh-Hans or zh-Hant — so "English-only"
+  and "routed through `LanguageManager`" cannot both hold. All 72 lines ship in all
+  three locales; 216 strings.
+- `CreatureVoice` (Core) picks the line and returns a **key**; the app resolves it.
+  `CreatureVoice.lineKey(for: shard)` returns `nil` for anything that is not the
+  `holding` pose, so "never for an interrupt" is a property of the function rather
+  than of its callers. `CreatureVoice.allLineKeys` is what the localization gate
+  iterates — add species there and the gate demands their translations.
+- Seeded `ShardSeed.value(for: "voice:" + sessionID)`. The salt is load-bearing:
+  `RewardObject.yield` takes the *same* first `SplitMix64` draw from the *unsalted*
+  seed and reduces it mod 4, so without the prefix the object index would be exactly
+  the line index mod 4 and a coin would only ever pair with three of twelve lines.
+- The line is drawn as an **overlay on the scene band**, not as a fourth band, so it
+  costs no height — `IslandBandLayout.height` is unchanged and the session list does
+  not move when a session finishes. It lives for `GeodeState.lingerWindow` (45s) and
+  the newest clean completion takes it from any older one.
+- The scene band is `accessibilityHidden(true)` on the grounds that everything in it
+  is also carried in words by the identity strip. The caption is the first exception:
+  it is applied by `IslandBandView` from *outside* `IslandSceneView`, so it stays
+  reachable by VoiceOver, and its label names the speaker because position — the
+  whole of the visible attribution — is not available to a screen reader. Anything
+  else added to the scene has to keep that promise or move the words into the strip.
+- Task 12's demo pass has something real to look at here that no test can check:
+  whether a 180pt plate above a creature's head reads well at each scene height, and
+  whether it collides with the overflow badge in the top-right corner at `compact`.
 
 ## [todo] 11 — Pin creature rendering in debug scenarios
 

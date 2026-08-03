@@ -306,3 +306,84 @@
 "settings.appearance.sceneHeight.compact" = "緊湊";
 "settings.appearance.sceneHeight.standard" = "標準";
 "settings.appearance.sceneHeight.tall" = "加高";
+
+/* Island - Voice lines. 工作階段乾淨結束時說一句；被中斷時永遠不說。
+   每個物種十二句；物種指的是身體而非工具，所以四個 Claude Code 分支都說 Claude 的台詞。
+   請保持簡短：文字牌寬 180pt，不換行。 */
+"island.voice.claude.01" = "東西都在原處。";
+"island.voice.claude.02" = "我檢查了兩遍。";
+"island.voice.claude.03" = "走之前順手收拾了。";
+"island.voice.claude.04" = "這個值得多想一會兒。";
+"island.voice.claude.05" = "沒有需要再解釋的了。";
+"island.voice.claude.06" = "筆記我留下了。";
+"island.voice.claude.07" = "現在讀起來順多了。";
+"island.voice.claude.08" = "沒有留下毛刺。";
+"island.voice.claude.09" = "改動不大，但改對了。";
+"island.voice.claude.10" = "工具都放回去了。";
+"island.voice.claude.11" = "有空再看看吧。";
+"island.voice.claude.12" = "又安靜下來了。";
+
+"island.voice.codex.01" = "完成，下一個。";
+"island.voice.codex.02" = "跑得很乾淨。";
+"island.voice.codex.03" = "沒有意外。";
+"island.voice.codex.04" = "輸出對得上。";
+"island.voice.codex.05" = "差異清零。";
+"island.voice.codex.06" = "閉環了。";
+"island.voice.codex.07" = "步驟走完了。";
+"island.voice.codex.08" = "無事可報。";
+"island.voice.codex.09" = "退出碼為零。";
+"island.voice.codex.10" = "能編譯。";
+"island.voice.codex.11" = "壓力之下也穩。";
+"island.voice.codex.12" = "歸檔，收工。";
+
+"island.voice.cursor.01" = "全都儲存好了。";
+"island.voice.cursor.02" = "一路直行，沒有回頭。";
+"island.voice.cursor.03" = "第一遍就找到了。";
+"island.voice.cursor.04" = "每個檔案都關好了。";
+"island.voice.cursor.05" = "這次很快。";
+"island.voice.cursor.06" = "在你發現之前就抓到了。";
+"island.voice.cursor.07" = "回到起點了。";
+"island.voice.cursor.08" = "一遍就夠了。";
+"island.voice.cursor.09" = "跳過去，改完，結束。";
+"island.voice.cursor.10" = "沒有留下標記。";
+"island.voice.cursor.11" = "每次敲擊都沒白費。";
+"island.voice.cursor.12" = "隨時可以開下一個。";
+
+"island.voice.gemini.01" = "兩邊意見一致。";
+"island.voice.gemini.02" = "規律站得住。";
+"island.voice.gemini.03" = "我來回看了兩遍。";
+"island.voice.gemini.04" = "兩條路，同一個結局。";
+"island.voice.gemini.05" = "出來的結果很均衡。";
+"island.voice.gemini.06" = "現在形狀對了。";
+"island.voice.gemini.07" = "終於對稱了。";
+"island.voice.gemini.08" = "另一個方案我也掂量過。";
+"island.voice.gemini.09" = "找得很廣，答案很小。";
+"island.voice.gemini.10" = "星圖補齊了。";
+"island.voice.gemini.11" = "沒有互相拉扯的地方。";
+"island.voice.gemini.12" = "兩頭都安頓好了。";
+
+"island.voice.kimi.01" = "全部收工啦！";
+"island.voice.kimi.02" = "這次挺順利。";
+"island.voice.kimi.03" = "剛出爐的。";
+"island.voice.kimi.04" = "又快又整齊。";
+"island.voice.kimi.05" = "這個我挺滿意。";
+"island.voice.kimi.06" = "比我想的還好。";
+"island.voice.kimi.07" = "直奔主題。";
+"island.voice.kimi.08" = "今天活兒不重。";
+"island.voice.kimi.09" = "給你打包好了。";
+"island.voice.kimi.10" = "還熱著呢。";
+"island.voice.kimi.11" = "跑得好，收得也好。";
+"island.voice.kimi.12" = "你隨時說一聲。";
+
+"island.voice.openCode.01" = "一切都在明處做的。";
+"island.voice.openCode.02" = "樸素，做完了。";
+"island.voice.openCode.03" = "誰來都讀得懂。";
+"island.voice.openCode.04" = "裡面沒有魔法。";
+"island.voice.openCode.05" = "盡量做簡單了。";
+"island.voice.openCode.06" = "比我來的時候好一點。";
+"island.voice.openCode.07" = "補好了，放到一邊。";
+"island.voice.openCode.08" = "普通的工具，實在的活。";
+"island.voice.openCode.09" = "這裡沒有藏東西。";
+"island.voice.openCode.10" = "交給下一雙手也行。";
+"island.voice.openCode.11" = "說什麼就做什麼。";
+"island.voice.openCode.12" = "分享出去，收工。";

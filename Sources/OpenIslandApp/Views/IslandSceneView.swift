@@ -129,7 +129,12 @@ struct IslandSceneView: View {
 
     /// Where feet meet the ground, as a fraction of band height. Puts the plots
     /// on the near meadow with their heads against the hill rather than the sky.
-    private static let groundFraction: CGFloat = 0.88
+    ///
+    /// Not private, because `IslandVoiceCaption` places its plate just above a
+    /// creature's head and has to measure from the same ground line. Two copies
+    /// of this number would let the line drift off the creature it belongs to at
+    /// one scene height and not another.
+    static let groundFraction: CGFloat = 0.88
 
     var body: some View {
         ZStack(alignment: .topLeading) {
