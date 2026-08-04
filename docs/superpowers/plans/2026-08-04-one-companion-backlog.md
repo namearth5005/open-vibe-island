@@ -35,7 +35,7 @@ open human decisions and are carried into the spec.
 
 ---
 
-## [in-progress] 1 — Aggregate companion state
+## [done] 1 — Aggregate companion state
 
 The one reducer: given the whole session list, what is the companion doing?
 
@@ -56,7 +56,7 @@ The one reducer: given the whole session list, what is the companion doing?
 
 ---
 
-## [todo] 2 — The companion row
+## [in-progress] 2 — The companion row
 
 Replace the 309pt band with a slim row: the companion, a timer, today's tally.
 
@@ -242,7 +242,10 @@ found the design unsound — something no test caught.** So this task is not opt
 - **`.process("Resources")` flattens the bundle** — filenames are globally unique and coupled to enum
   `rawValue`s. Round 1 lost 4 sprites to `openCode` vs `opencode` casing.
 - **Profile trap:** write preferences *after* `loadDebugSnapshot`, or write both profiles.
-- **Known flake, not yours:** `completionNotificationHoverCancelsPendingTimedCollapse`, ~2 in 20 runs
-  under load. Pre-existing and unrelated. Re-run and say so.
+- **Two known flakes, neither yours.** Both are load-dependent and pre-existing:
+  `completionNotificationHoverCancelsPendingTimedCollapse` (~2 in 20 runs), and
+  `CodexAppServerTimeoutTests.swift:30` `sendRequestThrowsTimeoutWhenAppServerNeverReplies` (1 in 15),
+  which guards a 0.1s timeout with a 2.0s wall-clock budget and trips when the suite takes 11s
+  instead of the usual 2-7s. Re-run and say so.
 - **`lastActionMessage` is never rendered.** Anything a user must see has to be in the view.
 - **Baseline:** 720 tests in 74 suites, green at `c7204da`.
