@@ -1,7 +1,11 @@
 # The Island — Reward & Progression Mechanics
 
 **Date:** 2026-08-01
-**Status:** Design approved, not yet implemented
+**Status:** Built on `feat/island-creature`, behind an off-by-default preference. Reconciled with the
+shipped code on 2026-08-04 — sections carrying a dated **Amended** / **Superseded** / **Obsolete** /
+**Resolved** note describe what shipped; the prose above each such note is the original design and is
+kept as the record of what was intended. What is *proven* versus what still needs a human eye is in
+`docs/DEMO-READINESS.md`, not here.
 **Scope:** The expressive layer across both bars (closed pill + opened panel). Phase 0 is a kill gate.
 **Supersedes:** nothing. **Extends:** `2026-07-30-geode-session-crystals-design.md`,
 `2026-07-31-session-log-and-stats-design.md`
@@ -120,6 +124,11 @@ the entire reference style is built on and which our pill inverts. Therefore:
   size. Species values must be **deliberately spread**, not just hue-shifted.
 - Pill and panel creatures are **separately authored optical sizes**, not one master scaled down.
 
+**Superseded 2026-08-04, during implementation.** The second bullet is now *impossible*, not merely
+hard. Deliberately spreading species by value assumes one ground to spread against; the shipped
+sprites are shown on two opposite ones, which pins all six into an eleven-point window. See "The
+palette after the first real sprites" below.
+
 ## Phase 0 — kill gate (blocking)
 
 **Nothing else in this spec may be built until this passes.** This mirrors the geode Phase 0 gate.
@@ -137,7 +146,9 @@ Pass conditions:
 3. At 64px, all four poses are distinguishable.
 4. **Greyscale separation:** with colour removed, the six species remain tellable apart. The luminance
    ladder carries this, so it is testable on placeholder geometry and is asserted in
-   `CreaturePaletteTests`.
+   `CreaturePaletteTests`. **The ladder did not survive the real sprites** — silhouette carries this
+   condition now, which is what condition 5 was always for. See "The palette after the first real
+   sprites" below.
 5. **Silhouette separation:** the six species are distinguishable from shape alone. This is
    **deferred to the first real asset batch** and is *not* testable on the placeholder shapes — those
    vary per session seed, not per species, so all six bodies are currently the same shape in different
@@ -243,6 +254,21 @@ Derived rather than hand-picked, so the 3:1 property holds by construction. Chec
 as in colour — the previous panel renders vanished under greyscale, and these do not. Panel renders in
 the gate now use these values.
 
+**Obsolete 2026-08-04, during implementation — this whole subsection describes a problem that no
+longer exists.** The two-ground band below moved every species down into L 14.9–16.0%, and at those
+values the *pill* colours already clear 3:1 on `#b4de6f` unaided: claude 3.25:1, codex 3.39:1, cursor
+3.26:1, gemini 3.42:1, kimi 3.24:1, openCode 3.28:1. The table above — 1.08:1 to 2.27:1 — was
+measured against the old ladder and no longer describes anything shipped. `scripts/creature-gate.sh`
+still prints its "pill values cannot be reused here" heading and then answers **"was already fine"**
+on all six rows, which is the finding rather than a bug in the gate.
+
+`panelGround` and `panelColor(for:)` are therefore **superseded but not dead**, and were deliberately
+left in place: `scripts/creature-gate.swift` renders and reports through them in three places, and
+four tests in `CreaturePaletteTests` assert on them. Nothing in the shipped app has ever called
+either — the panel draws creatures over painted scene artwork (`scene-band.png`), not over a flat
+wash. Retiring them is a change to the gate's output and to test coverage, which is a decision for
+whoever next re-runs the art gate, not a docs edit.
+
 ### Procedural variety, also resolved
 
 Not by widening the proportions. Width is the lane's binding constraint and the raised-arm gesture needs
@@ -267,6 +293,27 @@ built.** If a later art batch wants a gesture that leaves the capsule, this beco
 constraint is recorded in `docs/STYLE-SPEC.md` §6, and `CreatureSilhouetteTests` asserts the containment
 that makes it unnecessary today.
 
+**Confirmed skipped 2026-08-04, after the whole build.** Concretely, **Task 7 of
+`docs/superpowers/plans/2026-08-02-island-creature-pill.md`** — "Window geometry spike: can the pill
+draw below itself?" — was never started. It would have added
+`OverlayPanelController.closedPoseOverhang` and `closedFrameHeight(pillHeight:)`; neither symbol
+exists anywhere in the tree, and `OverlayPanelController` is untouched by this branch. Build order
+item 1 and the "window-geometry risk" section below both still describe it as blocking work. It is
+not: it was made unnecessary before it was due, and the re-gate above is the evidence.
+
+Two consequences the rest of this spec should be read against:
+
+- **The closed pill never grows.** `V6RightSlotView` draws `.creature` at a fixed
+  `CreatureView.pillSize` inside the existing lane, and only the finished-today tally can change the
+  pill's width — the same rule `.geode` already followed. The seven-beats table's beat 5, "object
+  floats above the capsule, glowing", is **not what shipped**: the pill shows the `holding` pose plus
+  that numeric tally, entirely inside the outline. The reward object itself is a panel thing.
+- **The panel carries every gesture that wanted room**, which is why nothing above needed the
+  overhang. The reveal, the ★ rating, the voice line and the collected object are all opened-panel
+  surfaces with hundreds of points to spend; the pill's job reduced to "which one session most wants
+  you", which fits in 28 × 32 pt. The design's expressive load moved to the surface that could afford
+  it rather than the window being grown to afford it.
+
 ### One definition of the shape
 
 The silhouette moved out of the harness into `CreatureSilhouette` in Core, and the harness now calls it.
@@ -281,6 +328,65 @@ collapsing `waiting` into `holding` and sending the arms upward each fail it lou
 
 Still open: the aesthetic target for the pill creature — small painterly figure versus bold flat glyph —
 and whether `waiting` should alternate which arm it raises. Both tracked in `docs/STYLE-SPEC.md` §11.
+
+## The palette after the first real sprites — 2026-08-04
+
+Conditions 3, 5 and 6 were left art-gated above, to re-run "on the first real asset batch". The gate
+gained a mode that measures shipped PNGs rather than procedural shapes (`4bbc787`), the batch was put
+through it, and what broke was the **palette**, not the art (`84fb35a`). The pill then rendered from
+the sprites rather than from `CreatureSilhouette` (`206d5bb`).
+
+### The luminance ladder is gone. A two-ground band replaced it
+
+The ladder assumed a creature is drawn once and shown on **one** ground. It is drawn once and shown on
+**two opposite** ones, and the same pixels have to survive both:
+
+| Ground | Constant | Luminance |
+|---|---|---|
+| Closed pill | `CreaturePalette.pillFill` `#0d0d0f` | L 0.4% |
+| Light paper | `CreaturePalette.paperGround` `#ece3e1` | L 78.2% |
+
+Clearing 3:1 against both pins every species inside an **eleven-point window**:
+
+- **L ≥ 11.2%** (`CreaturePalette.minimumLuminance`) or it disappears on the pill
+- **L ≤ 22.7%** (`CreaturePalette.maximumLuminance`) or it disappears on paper
+
+Neither bound is a round number: both are the exact luminance at which a colour hits 3:1 against its
+ground, and `CreaturePaletteTests.theBandBoundsAreTheRealThreeToOneCrossings` re-derives them from the
+two constants — so changing a ground forces the band to be recomputed rather than nudged. The asset
+pipeline normalises each generated sprite to `targetLuminance` 17%, centred so neither ground is close
+to its limit, using `scaledToLuminance` so only value moves and hue does not.
+
+Six species cannot be six points apart inside an eleven-point window. **The ladder is gone.** The
+shipped values sit within 1.1 luminance points of each other:
+
+| Species | Value | L | On pill | On paper |
+|---|---|---|---|---|
+| Claude | `#a55d27` | 16.0% | 3.88:1 | 3.97:1 |
+| Codex | `#3870a4` | 15.1% | 3.72:1 | 4.14:1 |
+| Cursor | `#7e62a5` | 15.9% | 3.86:1 | 3.98:1 |
+| Gemini | `#337a36` | 14.9% | 3.68:1 | 4.18:1 |
+| Kimi | `#836e13` | 16.0% | 3.89:1 | 3.96:1 |
+| OpenCode | `#9d6115` | 15.8% | 3.84:1 | 4.01:1 |
+
+Hexes are `CreaturePalette.color(for:)`; the ratios are recomputed from those constants. *The
+per-case trailing comments in `CreaturePalette.swift` are stale by up to 0.05 and should not be
+trusted over this table* — gemini is annotated "L 15.2% pill 3.73 paper 4.13" and actually measures
+14.9% / 3.68 / 4.18. Nothing crosses 3:1 either way, so this is an annotation defect rather than a
+palette defect — but the worst contrast in the system is gemini's **3.68:1** on the pill, and the
+comments are the reason a slightly rosier number has been repeated from them.
+
+What the band retires, and what it does not:
+
+- **Retired:** value as a species cue. Greyscale separation (condition 4) is now carried by
+  **silhouette**, which is where this spec said species identity lives from the beginning — the
+  ladder was only ever the placeholder-geometry stand-in for a shape difference the placeholder
+  shapes could not express. Condition 5 stopped being deferred work and became the mechanism.
+- **Retired:** the argument that the old ladder passed. It only ever passed because nobody asked it
+  the paper question; it failed that ground outright.
+- **Kept:** hue per family. It is brand recognition now, not disambiguation — which is what the
+  "kept but demoted" line under *Relationship to the geode spec* already said, and the band simply
+  finishes the demotion.
 
 ## Non-goals
 
@@ -314,6 +420,22 @@ Cat on Chair shows *"Hold to cancel — cancel within 30s for no penalty."* We b
 answer within **30 seconds** and the session is unpenalised. Past it, accumulated wait lands on the receipt
 as idle time. Reply latency is already computed for the Stats pane; this surfaces it live.
 
+**Amended 2026-08-04, during implementation.** The window is `RewardRarity.graceWindow`, and the
+question "did this session keep inside it" is answered in exactly **one** function —
+`RewardRarity.answeredWithinGrace(_:)`. Both consumers call it rather than restating it: the ★★ tier,
+and `SessionStats.summary`, which builds the receipt's `answeredInsideGrace` count from
+`gated.filter(RewardRarity.answeredWithinGrace)`. That is deliberate, and it is the *only* coupling
+between the two: the receipt otherwise refuses to read `RewardCollection` at all, for the reason
+given under "The receipt". One shared predicate is what stops "in time" meaning one thing on the
+receipt and another on the object a session leaves behind; two copies would drift the first time the
+rule was re-tuned.
+
+The two surfaces still legitimately disagree on the **no-gates** case, which is not drift but
+different questions. A session nobody asked anything of passes `answeredWithinGrace` vacuously, so it
+earns ★★ — a tier is a judgement about a whole session, and "never needed you" is exactly what that
+tier rewards. The receipt excludes it from both numerator and denominator, because a *count of
+answers* that included a session with no questions would simply be false.
+
 ### Rarity
 
 Reward magnitude attaches to properties that are expensive to fake:
@@ -327,6 +449,13 @@ Reward magnitude attaches to properties that are expensive to fake:
 
 A session with **no gates at all** satisfies the ★★ condition vacuously and qualifies. This is
 deliberate: a run that never needed the human is exactly the outcome the tier is rewarding.
+
+**★★★★ shipped as an unreachable case, on purpose.** It is declared so the ladder is complete and so
+the next reader knows the tier is *unbuilt* rather than *broken*, and
+`RewardObjectTests.fourStarsIsUnreachableUntilTheGitWatcherExists` holds that line — if someone wires
+the watcher, that test is the one that tells them what else to finish. It borrows the ★★★ object pool
+because it has no artwork of its own; shipping the tier means shipping its objects. Its counterpart
+on the receipt, the *shipped* line, is likewise not printed. Both wait on open question 1.
 
 **Corrected 2026-08-04, during implementation.** These tiers previously read "zero stalls **and**
 every gate answered inside the grace window". That is degenerate: `stallCount` counts *gates*, not
@@ -348,6 +477,13 @@ rarest tier was the most common thing in the collection. Records therefore carry
 an inferred record cannot exceed ★: inference supports "this happened and finished", which is
 exactly what ★ means, and nothing above it. Objects come from sessions the island actually
 watched.
+
+The provenance is `SessionLogRecord.isInferred`, written by `SessionLogBackfill` and read in two
+places, both of which treat "we did not watch this" as *absent* rather than as *zero*:
+`RewardRarity.rarity(for:)` returns `.one` early on it, and `SessionStats.summary` drops it from
+`gated` so it cannot enter the receipt's answers line. It is `Bool?` rather than `Bool` because
+records predating the flag must stay decodable, which is why every test is `!= true` and never
+`== false`.
 
 Records written before that flag existed keep their inflated ratings and cannot be repaired —
 back-fill skips known session IDs, and re-appending loses to the log's latest-`endedAt` dedup.
@@ -402,6 +538,24 @@ One written line on completion, drawn from the species' personality. Roughly 12 
 by hand — this is a writing task, not a code task. Cat on Chair gives each cat a backstory and a name, and
 naming is what makes users say "mine".
 
+**Amended 2026-08-04, during implementation.** Twelve lines per family shipped, and they shipped
+**in all three locales, not English-only**. The backlog assumed flavour text was too large a
+translation surface to block the mechanic and would be back-filled later; that assumption could not
+survive, because `LocalizationTests.everyLocaleDefinesTheSameKeys` fails the gate on any key missing
+from zh-Hans or zh-Hant. "English-only" and "routed through `LanguageManager`" cannot both hold. All
+72 lines exist in en / zh-Hans / zh-Hant — 216 strings.
+
+The split that made that cheap: `CreatureVoice` lives in Core and returns a **key**, never a string,
+and the app resolves it. `CreatureVoice.lineKey(for:)` returns `nil` for anything that is not the
+`holding` pose, so "never on an interrupt" is a property of the function rather than a rule its
+callers have to remember. The line is drawn as an **overlay on the scene band**, not as a fourth
+band, so it costs the layout no height and the session list does not move when a session finishes.
+
+One load-bearing detail: the line is seeded `ShardSeed.value(for: "voice:" + sessionID)`. The salt
+matters — `RewardObject.yield` takes the same first `SplitMix64` draw from the *unsalted* seed and
+reduces it mod 4, so without the prefix the object index would be exactly the line index mod 4 and a
+coin could only ever pair with three of its twelve lines.
+
 ### The receipt
 
 `Open Island Inc.` Line items, positive in green and negative in red: clean finishes, answers inside the
@@ -411,8 +565,15 @@ Every one of these numbers already exists in `SessionLog` / `SessionStats`, whic
 medians and sparklines. **This is the same data as a thing somebody would screenshot.** It is the
 cheapest high-charm item in this spec and a reasonable standalone first slice if the rest is deferred.
 
-**Amended 2026-08-04, during implementation.** Three corrections the build forced:
+**Amended 2026-08-04, during implementation.** Four corrections the build forced:
 
+- **It is not in the panel.** This spec draws the receipt as a panel beat — beat 7, "end of day / on
+  demand". It shipped in the **Stats pane**, gated on `range == .today`
+  (`StatsSettingsPane.swift:196`), and `Receipt` is hard-wired to `StatsRange.today` internally. The
+  reason is that a receipt is a *record* and the panel is *live state*: printing today's till roll
+  beside a seven-day grid would put two different arithmetics on one screen and let the paper
+  contradict the numbers under it. The panel keeps the beats that are live — the reveal, the voice
+  line, the object — and the receipt sits where the day is already being totted up.
 - **"Every one of these numbers already exists" was not true.** `finished`, `cleanFinishes` and
   `interrupted` did. *Time kept waiting*, *best run* and *answers inside the grace window* did not
   exist anywhere and had to be derived. They now live in `StatsSummary` as `totalWaiting`,
@@ -472,6 +633,12 @@ resolves.
 Beyond two concurrent sessions, stop drawing bodies: one body (the most urgent) plus dots in agent hue.
 Never more than one silhouette competing.
 
+**Amended 2026-08-04, during implementation.** "Poke out of it" is not what shipped and is not
+needed. The outline breaks *sideways within the lane* — `waiting` raises one arm, `holding` two — so
+every pose stays inside the capsule and the closed window was never resized. Beyond one body the pill
+shows the featured creature plus the finished-today tally, reusing `.geode`'s existing rule that only
+the tally may change the pill's width.
+
 ### Customisation, and full opt-out
 
 This design **slots into preferences that already exist** rather than replacing them:
@@ -507,6 +674,37 @@ utility that forces whimsy on a working developer gets uninstalled by exactly th
 `IslandPanelView.swift` is already 2776 lines. The scene, strip and receipt go in **new files**; only the
 composition point changes there. Do not grow that file further.
 
+### Artwork lookup is coupled to enum `rawValue`s
+
+**Recorded 2026-08-04, during implementation.** This was not anticipated and is the sharpest
+maintenance edge the island layer added.
+
+`Package.swift` declares the app target's resources as `.process("Resources")`. `.process`
+**flattens the directory tree**: sprites live in `Sources/OpenIslandApp/Resources/Creatures/` and
+world assets in `Resources/World/`, but both land at the **bundle root**. Asking for a `Creatures`
+subdirectory returns `nil`. `CreatureSprite.image(named:)` therefore looks up a bare filename with
+no subdirectory, and the comment there says so.
+
+Two consequences:
+
+- **Filenames are globally unique across every resource directory**, not just within their own.
+  This is why structures and objects carry prefixes — `CreatureSprite.name(for:)` builds
+  `"struct-\(structure.rawValue)"` and `"obj-\(object.rawValue)"`. Bare `terminal`, `editor`, `key`
+  or `shard` would be a collision waiting for whoever adds the next resource.
+- **The enum `rawValue` *is* the filename.** `CreatureSprite.name(for:pose:)` builds
+  `"\(species.rawValue)-\(pose)"`, and `RewardObject`'s cases are declared to match
+  `Resources/World/obj-*.png` after the prefix. Renaming a case renames a file lookup. At runtime
+  that fails **silently and safely** — a missing sprite degrades to the procedural
+  `CreatureSilhouette` rather than erroring, which is deliberate, because the offscreen gate links
+  Core without a bundle at all.
+
+Because the runtime failure is silent, the guard has to be a test, and it is: `CreatureSpriteTests`
+(every species × pose, plus the wave frame), `CreatureStructureArtworkTests`,
+`RewardObjectArtworkTests` and `IslandSceneLayoutTests` each assert that every enum case resolves to
+real artwork. A rename therefore fails `swift test` rather than shipping a panel full of grey
+placeholders — but only for cases those tests enumerate. **Add an enum case and its sprite in the
+same change, and never rename one without the other.**
+
 ### The window-geometry risk
 
 Breaking the capsule outline is the riskiest part of this design and it is **not a drawing change**. The
@@ -520,6 +718,12 @@ display, so upward has no pixels at all.
 This must be proven in Phase 1 before any art depends on it. If it cannot be solved cleanly, the fallback
 is in-capsule-only poses, which costs the peripheral-vision property and weakens but does not kill
 the design.
+
+**Resolved 2026-08-04 — the fallback is what shipped, and it was not a fallback.** The sideways
+arm-count fix contained the gesture inside the lane, so the spike (pill plan Task 7) was never run
+and `OverlayPanelController` was never touched. Read this section as history: no art depends on
+drawing outside the capsule, and `CreatureSilhouetteTests` asserts the containment. See "The window
+overhang is not needed" above.
 
 ## Art direction and production
 
@@ -584,7 +788,9 @@ The Phase 0 gate runs on the **first real asset batch**, not on placeholder art,
 
 0. **Render harness + kill gate.** Blocking. No other task starts until it passes. Renders composited on
    `#0d0d0f`, with contrast measured rather than eyeballed, and a colour-removed pass.
-1. **Window geometry spike.** Prove the pill can draw *below* the capsule.
+1. ~~**Window geometry spike.** Prove the pill can draw *below* the capsule.~~ **Skipped** — the
+   re-gate removed the need before the task came due. Nothing was drawn outside the lane, so nothing
+   had to be proven. See "The window overhang is not needed".
 2. **`IslandCreature` + `pose(for:)`,** pure, unit-tested against `GeodeState` transitions.
 3. **`CreatureView`** at both scales, pinned in the debug scenario the way shard rendering already is.
 4. **Pill integration** as a fifth `rightSlot` option, off by default.
@@ -620,7 +826,7 @@ single plan spanning the whole build order.
 |---|---|---|
 | Creature illegible in a 28 × 32 pt lane on `#0d0d0f` | kills the pill half | Phase 0 gate, measured ≥3:1, judged on the worst roll |
 | Species indistinguishable without hue | fails colour-blind users and degrades at pill size | Silhouette carries species; spread values deliberately; gate condition 3 tests with colour removed |
-| Window geometry cannot draw outside the capsule | weakens the notification | Phase 1 spike before art; downward only |
+| ~~Window geometry cannot draw outside the capsule~~ **closed** | weakens the notification | Retired: the pose never leaves the capsule, so the spike was skipped. `CreatureSilhouetteTests` asserts containment |
 | Art reads as generic AI output | kills the whole premise — the reference's growth came from *not* looking generated | Cull hard; palette conformance as a lint rule; the six-family taxonomy gives distinct silhouettes to aim at |
 | Scene hides operational information | makes the tool worse | The clarity rule; the strip is mandatory, not optional |
 | `IslandPanelView` grows unmanageable | maintenance | New files; composition point only |

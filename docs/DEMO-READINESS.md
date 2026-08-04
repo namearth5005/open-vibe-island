@@ -103,7 +103,9 @@ Nothing in this section is a defect. These are claims no automated check on this
 
 The pill artwork was gated on **measured contrast**, not on looking at it. The two-ground constraint
 (near-black pill at L 0.4%, light paper at L 78.2%) was solved numerically and every species sits in
-the viable band at ≥3.7:1 against both. That is a proof the creature *can* be distinguished from its
+the viable band at ≥3.68:1 against both — the worst is gemini on the pill. (This read ≥3.7:1 until
+the figures were recomputed from `CreaturePalette` rather than taken from its trailing comments,
+which are stale by up to 0.05; see the spec's "The palette after the first real sprites".) That is a proof the creature *can* be distinguished from its
 background. It is not a proof it looks good at 28pt on a physical display, at your screen brightness,
 at arm's length.
 

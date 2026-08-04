@@ -328,7 +328,7 @@ app. Tests prove the parts; this proves the whole.
 **Build with:** `superpowers:verification-before-completion`  **Review with:** none
 **Depends on:** 11
 
-## [in-progress] 13 — Reconcile the spec with what was actually built
+## [done] 13 — Reconcile the spec with what was actually built
 
 The spec still describes decisions the build overtook.
 
