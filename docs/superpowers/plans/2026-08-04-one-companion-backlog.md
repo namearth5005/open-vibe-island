@@ -20,8 +20,12 @@ open human decisions and are carried into the spec.
 1. **No new art.** 42 creature sprites ship today across 6 characters and 7 poses each. This round
    uses them. If something genuinely needs art that does not exist, **stop and say so** rather than
    shipping without it.
-2. **The companion lives in the panel**, in a slim row near the session list — not a separate window.
-   A larger destination surface is a later, separate call.
+2. **The companion lives in two places, and they have different jobs.** In the *panel* it is a slim
+   row that reacts to the list — glanceable, cheap, never competing for height. In its *own surface*
+   (task 9) it is large, scenic and slow, and that is where the collection and the receipt live.
+   Confirmed by the human 2026-08-04. The panel row must therefore stay minimal: anything that
+   invites lingering belongs on the destination surface, not above a list you opened to deal with
+   something.
 3. **Still behind `islandScene`, still off by default.** A user who has not opted in sees a
    byte-identical panel. Round 1 asserted this and the assertions must keep passing.
 4. **The pill companion is untouched** by this round. It is the strongest part of the feature and
@@ -181,6 +185,38 @@ link to any creature; with one companion, attribution is no longer ambiguous.
 
 ---
 
+## [todo] 9 — The companion's own place
+
+**The destination surface.** Confirmed as direction by the human. Everything above lives in the panel
+and must stay out of the way; this is the opposite — somewhere you *go*, where the companion is large
+and properly animated and nothing competes with it.
+
+This is what the reference product actually is: you open it to look at your companion. The panel row
+is the glance; this is the visit.
+
+**It is also the right home for two things currently mounted awkwardly:**
+- **The receipt** — round 1 put it in the Stats pane gated on `range == .today`, which was the least
+  bad option available at the time. It is a printed daily record and it belongs somewhere you visit.
+- **The collection** — `RewardCollection` is built and has no home at all. Objects accumulate and the
+  user has never seen them.
+
+**Acceptance criteria:**
+- A surface the user can open deliberately — decide window vs tab vs sheet and defend it against how
+  macOS menu-bar utilities usually do this.
+- The companion is **large**. The round-1 failure was a 58×54pt creature adrift in a 211pt scene; the
+  point of a destination is that the subject dominates. State its share of the frame.
+- The receipt moves here from the Stats pane. **Read `StatsSettingsPane.swift:196` for why it was
+  gated on `.today`** — `Receipt` is hard-wired to `StatsRange.today`, so it must not end up beside a
+  seven-day figure it can contradict.
+- The collection is shown — what has been earned, and what has not.
+- Opening it must not disturb the panel or the pill.
+- Localized in all three locales; `everyLocaleDefinesTheSameKeys` fails the gate on any missing key.
+
+**Build with:** `swiftui-design`  **Review with:** `swiftui-pro` + `hig-foundations`
+**Depends on:** 6, 7
+
+---
+
 ## [todo] 8 — Look at it and say what is still wrong
 
 Round 1 shipped `docs/DEMO-READINESS.md` on the principle that the honest inventory of what is *not*
@@ -195,7 +231,7 @@ found the design unsound — something no test caught.** So this task is not opt
 - **Say plainly whether it is actually better** than the five-creature band, and what still is not.
 
 **Build with:** `superpowers:verification-before-completion`  **Review with:** none
-**Depends on:** 6, 7
+**Depends on:** 7, 9
 
 ---
 
