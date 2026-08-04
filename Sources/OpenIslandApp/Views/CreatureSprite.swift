@@ -47,6 +47,48 @@ enum CreatureSprite {
         return "\(species.rawValue)-wave2"
     }
 
+    /// Resource basename for the one companion in an aggregate state.
+    ///
+    /// Three of the four states wear a pose's artwork, because the companion
+    /// waving and a session's creature waving are the same gesture and drawing
+    /// them from two files is how they end up looking like two characters.
+    ///
+    /// `asleep` is the exception and needs no new art: `<species>-side` ships
+    /// for all six characters — a profile with its eyes closed and its arms
+    /// down — and until now no code path drew it. It is the only frame in the
+    /// set that can say "nothing is happening" without also saying something
+    /// about a session, which is exactly what an empty list means.
+    static func name(for species: CreatureSpecies, state: CompanionState) -> String {
+        switch state {
+        case .waving: name(for: species, pose: .waiting)
+        case .working: name(for: species, pose: .working)
+        case .resting: name(for: species, pose: .holding)
+        case .asleep: "\(species.rawValue)-\(sleepingComponent)"
+        }
+    }
+
+    /// The alternate frame for states that animate. `nil` when the state is
+    /// still — which is every state but the wave, because motion that happens
+    /// when nothing is wrong trains the eye to ignore motion.
+    static func alternateName(for species: CreatureSpecies, state: CompanionState) -> String? {
+        state == .waving ? alternateName(for: species, pose: .waiting) : nil
+    }
+
+    /// What the fallback silhouette draws when a companion frame is missing.
+    ///
+    /// `asleep` has no pose — the companion is not standing in for a session at
+    /// all — so it degrades to the plain standing shape rather than to
+    /// `holding`, which would have it clutching a reward it was never given.
+    static func fallbackPose(for state: CompanionState) -> CreaturePose {
+        switch state {
+        case .waving: .waiting
+        case .working, .asleep: .working
+        case .resting: .holding
+        }
+    }
+
+    private static let sleepingComponent = "side"
+
     /// Cached because the pill re-renders on every tick and `NSImage(contentsOf:)`
     /// hits the disk each call.
     private static let cache = NSCache<NSString, NSImage>()

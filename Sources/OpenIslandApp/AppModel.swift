@@ -422,6 +422,9 @@ final class AppModel {
         return IslandBandLayout(
             sessions: islandListSessions,
             geode: geodeState,
+            // The same log the Stats view reads, so "worked today" in the panel
+            // and "worked today" in Stats are one figure rather than two.
+            records: sessionLogRecords,
             selectedSessionID: selectedSessionID,
             width: width,
             sceneHeight: islandSceneHeight,

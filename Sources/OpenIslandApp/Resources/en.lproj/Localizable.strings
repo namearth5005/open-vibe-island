@@ -388,3 +388,13 @@
 "island.voice.openCode.10" = "Ready for the next hands.";
 "island.voice.openCode.11" = "It does what it says.";
 "island.voice.openCode.12" = "Shared, and done.";
+
+/* Companion row */
+"island.companion.worked" = "worked today";
+"island.companion.done" = "%lld done";
+"island.companion.stopped" = "%lld stopped";
+"island.companion.state.waving" = "A session needs you";
+"island.companion.state.working" = "Agents are working";
+"island.companion.state.resting" = "Everything has finished";
+"island.companion.state.asleep" = "Nothing is running";
+"island.companion.spoken" = "%1$@. %2$@ worked today. %3$@";

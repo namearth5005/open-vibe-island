@@ -16,6 +16,11 @@ import SwiftUI
 /// instance. One formula, two readers, so the window cannot be sized for a band
 /// of a different height than the one drawn into it.
 struct IslandBandLayout: Equatable, Sendable {
+    /// The whole of what the island now draws.
+    ///
+    /// The three layouts below are still built because task 3 owns removing
+    /// them and the tests that pin them; nothing renders them any more.
+    let companion: IslandCompanionRow
     let scene: IslandSceneLayout
     let strip: IslandIdentityStripLayout
     let detail: IslandDetailBand
@@ -31,10 +36,13 @@ struct IslandBandLayout: Equatable, Sendable {
     /// `panelSize(for:on:)` runs whenever the screen or the session list
     /// changes, and constructing three layouts there to read one number would
     /// mean walking the session list on every screen-configuration event.
+    /// Width no longer enters it: the row is one line of content beside one
+    /// character, so it costs the same on a 520pt external display as on a
+    /// 760pt panel. That is the structural fix, not a simplification — round
+    /// 1's height was derived from width through the scene's aspect, which is
+    /// how widening the panel made the creature a *smaller* share of it.
     static func height(width: CGFloat, sceneHeight: IslandSceneHeight) -> CGFloat {
-        IslandSceneLayout.height(width: width, scale: sceneHeight.scale)
-            + IslandIdentityStripLayout.height
-            + IslandDetailBand.height
+        IslandCompanionRow.height(scale: sceneHeight.scale)
     }
 
     /// Sessions arrive already grouped and sorted — see `AppModel.`
@@ -45,12 +53,25 @@ struct IslandBandLayout: Equatable, Sendable {
     init(
         sessions: [AgentSession],
         geode: GeodeState,
+        records: [SessionLogRecord] = [],
+        species: CreatureSpecies = IslandCompanionRow.defaultSpecies,
         selectedSessionID: String?,
         width: CGFloat,
         sceneHeight: IslandSceneHeight,
         now: Date,
         lang: LanguageManager = .shared
     ) {
+        companion = IslandCompanionRow(
+            sessions: sessions,
+            geode: geode,
+            records: records,
+            species: species,
+            width: width,
+            heightScale: sceneHeight.scale,
+            now: now,
+            lang: lang
+        )
+
         let scene = IslandSceneLayout(
             sessions: sessions,
             geode: geode,
@@ -85,65 +106,29 @@ struct IslandBandLayout: Equatable, Sendable {
         )
     }
 
-    var width: CGFloat { scene.width }
+    var width: CGFloat { companion.width }
 
     /// The instance's own total, which must equal what `height(width:sceneHeight:)`
     /// promised the window sizer — asserted rather than assumed, because the two
     /// diverging is exactly the bug that clips a band or leaves a gap under it.
-    var height: CGFloat { scene.height + strip.height + detail.height }
+    var height: CGFloat { companion.height }
 }
 
 /// The island, above the session list.
 ///
-/// A plain vertical stack and nothing else. Every decision worth making — what
-/// stands where, what is named, what is described — was made by the three
-/// layouts before this view was handed one, which is what keeps this file short
-/// and the composition point in `IslandPanelView` a single line.
+/// One row and nothing else. Every decision worth making — what the companion
+/// is doing, what the day came to — was made by `IslandCompanionRow` before
+/// this view was handed one, which is what keeps the composition point in
+/// `IslandPanelView` a single line.
+///
+/// It is not interactive. Round 1's band was, because a creature stood for a
+/// session and clicking it meant something; this companion stands for the list
+/// as a whole, and the list itself is directly below and already clickable.
 struct IslandBandView: View {
     let layout: IslandBandLayout
-    let selectedSessionID: String?
-    /// Handed straight through to both interactive bands so the scene and the
-    /// strip drive one rule rather than two — the creature and its name are the
-    /// same button drawn twice.
-    let onActivate: (String, CreaturePose) -> Void
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        VStack(spacing: 0) {
-            IslandSceneView(
-                layout: layout.scene,
-                selectedSessionID: selectedSessionID,
-                onActivate: onActivate
-            )
-            // Over the scene rather than inside it, for two reasons: the scene
-            // hides itself from VoiceOver and this line is the one part of the
-            // band that is only words, and a line drawn in the stack would add
-            // its height to the panel for the 45 seconds it exists.
-            .overlay {
-                if let voice = layout.voice {
-                    IslandVoiceCaptionView(caption: voice)
-                        // Keyed on the speaker, so a handover from one creature
-                        // to another is an insert and a remove rather than one
-                        // plate. Without this the `if let` keeps its identity
-                        // across the change and `.position` animates instead —
-                        // the plate slides across the band, hanging for a
-                        // quarter second over creatures that did not say it,
-                        // which is exactly the attribution the geometry exists
-                        // to make.
-                        .id(voice.sessionID)
-                }
-            }
-            .animation(reduceMotion ? nil : .easeInOut(duration: 0.24), value: layout.voice)
-
-            IslandIdentityStripView(
-                layout: layout.strip,
-                selectedSessionID: selectedSessionID,
-                onActivate: onActivate
-            )
-
-            IslandDetailBandView(band: layout.detail)
-        }
-        .frame(width: layout.width, height: layout.height)
+        IslandCompanionRowView(row: layout.companion)
+            .frame(width: layout.width, height: layout.height)
     }
 }

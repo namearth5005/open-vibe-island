@@ -13,7 +13,7 @@ import Foundation
 ///
 /// Declared in precedence order: waving outranks working outranks resting.
 /// `asleep` is the empty list, which nothing else can be.
-public enum CompanionState: Sendable {
+public enum CompanionState: String, CaseIterable, Sendable {
     /// Something is asking you for an answer. The only state that is a
     /// *request*, so it outranks everything else.
     case waving

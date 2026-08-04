@@ -61,7 +61,12 @@ struct LocalizationTests {
         keys.formUnion(CreaturePose.allCases.map(\.spokenStateKey))
         keys.formUnion(ReceiptItem.allCases.map(\.labelKey))
         keys.formUnion(CreatureVoice.allLineKeys)
+        keys.formUnion(CompanionState.allCases.map(\.spokenStateKey))
         keys.formUnion([
+            "island.companion.worked",
+            "island.companion.done",
+            "island.companion.stopped",
+            "island.companion.spoken",
             IslandIdentityStripLayout.emptyMessageKey,
             IslandDetailBand.emptyMessageKey,
             Receipt.busyFooterKey,

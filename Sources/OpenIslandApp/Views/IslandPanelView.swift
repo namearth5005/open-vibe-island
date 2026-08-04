@@ -468,13 +468,7 @@ struct IslandPanelView: View {
                 // renders what it is given, which is what keeps the island's
                 // wiring testable rather than sealed inside a view body.
                 if let layout = model.islandBandLayout(width: width, now: context.date) {
-                    IslandBandView(
-                        layout: layout,
-                        selectedSessionID: model.selectedSessionID,
-                        onActivate: { sessionID, pose in
-                            model.activateIslandCreature(sessionID: sessionID, pose: pose)
-                        }
-                    )
+                    IslandBandView(layout: layout)
                 }
             }
         }
