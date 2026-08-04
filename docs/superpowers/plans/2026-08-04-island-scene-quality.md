@@ -1,5 +1,9 @@
 # Island scene quality — round 2 backlog
 
+> **SUPERSEDED 2026-08-04** by `2026-08-04-one-companion-backlog.md`. This backlog tried to fix the
+> five-creature island; the design itself was judged unsound after seeing it run. Tasks 1 and 1c's
+> findings are carried into the new spec. Kept for the measurements in task 1's VERDICT block.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: use `superpowers:subagent-driven-development` to
 > implement task-by-task. Each task names the domain skills to build and review with — those are not
 > optional, they are the mechanism.

@@ -30,12 +30,14 @@ This index is the repository map for humans and coding agents. Read these files 
 - [docs/superpowers/plans/2026-07-30-geode-phase-0-1.md](./superpowers/plans/2026-07-30-geode-phase-0-1.md) for the Geode session-shard Phase 0–1 implementation plan
 - [docs/superpowers/plans/2026-08-02-island-creature-pill.md](./superpowers/plans/2026-08-02-island-creature-pill.md) for the island creature pill implementation plan
 - [docs/superpowers/plans/2026-08-04-island-panel-backlog.md](./superpowers/plans/2026-08-04-island-panel-backlog.md) for the island panel feature-loop backlog
-- [docs/superpowers/plans/2026-08-04-island-scene-quality.md](./superpowers/plans/2026-08-04-island-scene-quality.md) for the island scene quality round-2 backlog — individuation, composition, grounding, and motion
+- [docs/superpowers/plans/2026-08-04-island-scene-quality.md](./superpowers/plans/2026-08-04-island-scene-quality.md) for the island scene quality round-2 backlog — SUPERSEDED by the one-companion design
+- [docs/superpowers/plans/2026-08-04-one-companion-backlog.md](./superpowers/plans/2026-08-04-one-companion-backlog.md) for the one-companion implementation backlog
 
 ## Superpowers Specs
 
 - [docs/superpowers/specs/2026-07-30-geode-session-crystals-design.md](./superpowers/specs/2026-07-30-geode-session-crystals-design.md) for the Geode session-shard design, including the Phase 0 legibility gate outcome and rejected shape candidates
 - [docs/superpowers/specs/2026-07-31-session-log-and-stats-design.md](./superpowers/specs/2026-07-31-session-log-and-stats-design.md) for the session log and Stats view design
+- [docs/superpowers/specs/2026-08-04-one-companion-design.md](./superpowers/specs/2026-08-04-one-companion-design.md) for the one-companion design — why the five-creature island was replaced rather than polished, with the measurements that decided it
 - [docs/superpowers/specs/2026-08-01-island-reward-mechanics-design.md](./superpowers/specs/2026-08-01-island-reward-mechanics-design.md) for the island reward mechanics design, including the creature Phase 0 legibility gate and measured pill geometry
 
 ## Demo Readiness
