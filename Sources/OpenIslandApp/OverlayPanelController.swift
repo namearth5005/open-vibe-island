@@ -5,8 +5,13 @@ import OpenIslandCore
 
 @MainActor
 final class OverlayPanelController {
-    private static let preferredNotchOpenedPanelWidth: CGFloat = 540
-    private static let preferredTopBarOpenedPanelWidth: CGFloat = 520
+    // The island scene's height is `width / bandAspect`, so these two numbers
+    // set how big the whole panel reads, not just how wide. Both stay well
+    // under the `visibleFrame.width - 32` clamp in `openedPanelWidth(for:)` on
+    // every Mac the app supports, so the clamp remains a guard rather than the
+    // thing actually choosing the width.
+    private static let preferredNotchOpenedPanelWidth: CGFloat = 760
+    private static let preferredTopBarOpenedPanelWidth: CGFloat = 740
     private static let preferredNotificationPanelWidth: CGFloat = 620
     private static let openedContentWidthPadding: CGFloat = 0
     private static let openedContentBottomPadding: CGFloat = 0
