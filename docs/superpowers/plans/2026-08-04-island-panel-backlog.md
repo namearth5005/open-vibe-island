@@ -310,7 +310,7 @@ grouping; (c) sort sections by "does this section contain attention" before alph
 
 Task 11 pins the default (`.none`) only, so the tests do not encode an answer either way.
 
-## [in-progress] 12 — Demo readiness: prove it actually runs
+## [done] 12 — Demo readiness: prove it actually runs
 
 The backlog is not "done" when tests pass — it is done when the feature works in the real
 app. Tests prove the parts; this proves the whole.
@@ -328,7 +328,7 @@ app. Tests prove the parts; this proves the whole.
 **Build with:** `superpowers:verification-before-completion`  **Review with:** none
 **Depends on:** 11
 
-## [todo] 13 — Reconcile the spec with what was actually built
+## [in-progress] 13 — Reconcile the spec with what was actually built
 
 The spec still describes decisions the build overtook.
 

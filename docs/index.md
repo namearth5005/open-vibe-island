@@ -37,6 +37,10 @@ This index is the repository map for humans and coding agents. Read these files 
 - [docs/superpowers/specs/2026-07-31-session-log-and-stats-design.md](./superpowers/specs/2026-07-31-session-log-and-stats-design.md) for the session log and Stats view design
 - [docs/superpowers/specs/2026-08-01-island-reward-mechanics-design.md](./superpowers/specs/2026-08-01-island-reward-mechanics-design.md) for the island reward mechanics design, including the creature Phase 0 legibility gate and measured pill geometry
 
+## Demo Readiness
+
+- [docs/DEMO-READINESS.md](./DEMO-READINESS.md) for what the island reward layer has and has not been proven to do — mechanical verification, the bridge-socket single-instance hazard, and the checks that still need a human eye
+
 ## Design And Art
 
 - [docs/STYLE-SPEC.md](./STYLE-SPEC.md) for the visual style specification and illustrator brief — measured palette, two-tier style system, pill silhouette grammar, and the art acceptance gate
