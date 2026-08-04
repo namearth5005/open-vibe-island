@@ -390,10 +390,8 @@
 
 /* Companion row */
 "island.companion.worked" = "今日工作时长";
-"island.companion.done" = "完成 %lld 个";
-"island.companion.stopped" = "中断 %lld 个";
 "island.companion.state.waving" = "有会话需要你";
 "island.companion.state.working" = "智能体正在工作";
 "island.companion.state.resting" = "全部已完成";
 "island.companion.state.asleep" = "当前没有运行中的会话";
-"island.companion.spoken" = "%1$@。今日工作 %2$@。%3$@";
+"island.companion.spoken" = "%1$@。今日工作 %2$@。";

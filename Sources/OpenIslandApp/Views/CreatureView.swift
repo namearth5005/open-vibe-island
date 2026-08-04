@@ -26,7 +26,12 @@ extension Color {
 /// the eye to ignore movement.
 struct CreatureView: View {
     let species: CreatureSpecies
-    let pose: CreaturePose
+    /// The resting frame's basename.
+    let frameName: String
+    /// The frame it alternates with, or `nil` when this one is still.
+    let alternateFrameName: String?
+    /// The shape drawn when the sprite is missing.
+    let fallbackPose: CreaturePose
     let seed: UInt64
     var size: CGSize = CreatureView.pillSize
     /// Where the sprite sits inside `size` when it does not fill it. Sprites are
@@ -35,6 +40,47 @@ struct CreatureView: View {
     /// a shared ground line; the default stays centered so the single-creature
     /// pill is unaffected.
     var alignment: Alignment = .center
+
+    /// A session's creature, which is always in a pose.
+    init(
+        species: CreatureSpecies,
+        pose: CreaturePose,
+        seed: UInt64,
+        size: CGSize = CreatureView.pillSize,
+        alignment: Alignment = .center
+    ) {
+        self.species = species
+        frameName = CreatureSprite.name(for: species, pose: pose)
+        alternateFrameName = CreatureSprite.alternateName(for: species, pose: pose)
+        fallbackPose = pose
+        self.seed = seed
+        self.size = size
+        self.alignment = alignment
+    }
+
+    /// The one companion, which reacts to the whole list and can therefore be in
+    /// a state no single session has — `asleep`, which no pose can express.
+    ///
+    /// A second *initialiser* rather than a second view, so waking up and
+    /// falling asleep stay inside one node. Branching on the state in a view
+    /// body would make `_ConditionalContent` of it: crossing the boundary would
+    /// tear down the subtree, reset the wave and make the day's first session
+    /// and its last the only two transitions that structurally cannot animate.
+    init(
+        species: CreatureSpecies,
+        state: CompanionState,
+        seed: UInt64,
+        size: CGSize = CreatureView.pillSize,
+        alignment: Alignment = .center
+    ) {
+        self.species = species
+        frameName = CreatureSprite.name(for: species, state: state)
+        alternateFrameName = CreatureSprite.alternateName(for: species, state: state)
+        fallbackPose = CreatureSprite.fallbackPose(for: state)
+        self.seed = seed
+        self.size = size
+        self.alignment = alignment
+    }
 
     /// The measured right-slot lane. Width binds, not height.
     static let pillSize = CGSize(width: 28, height: 32)
@@ -47,10 +93,7 @@ struct CreatureView: View {
     @State private var showsAlternate = false
 
     private var currentSpriteName: String {
-        if showsAlternate, let alternate = CreatureSprite.alternateName(for: species, pose: pose) {
-            return alternate
-        }
-        return CreatureSprite.name(for: species, pose: pose)
+        showsAlternate ? (alternateFrameName ?? frameName) : frameName
     }
 
     var body: some View {
@@ -61,15 +104,15 @@ struct CreatureView: View {
                     .interpolation(.high)
                     .aspectRatio(contentMode: .fit)
             } else {
-                CreatureSilhouetteShape(seed: seed, pose: pose)
+                CreatureSilhouetteShape(seed: seed, pose: fallbackPose)
                     .fill(Color(CreaturePalette.color(for: species)))
             }
         }
         .frame(width: size.width, height: size.height, alignment: alignment)
-        .animation(.smooth(duration: 0.28), value: pose)
-        .task(id: pose) {
+        .animation(.smooth(duration: 0.28), value: frameName)
+        .task(id: frameName) {
             showsAlternate = false
-            guard pose == .waiting, CreatureSprite.alternateName(for: species, pose: pose) != nil else { return }
+            guard alternateFrameName != nil else { return }
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(Self.waveInterval))
                 if Task.isCancelled { return }

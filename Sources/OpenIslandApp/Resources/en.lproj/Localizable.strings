@@ -391,10 +391,8 @@
 
 /* Companion row */
 "island.companion.worked" = "worked today";
-"island.companion.done" = "%lld done";
-"island.companion.stopped" = "%lld stopped";
 "island.companion.state.waving" = "A session needs you";
 "island.companion.state.working" = "Agents are working";
 "island.companion.state.resting" = "Everything has finished";
 "island.companion.state.asleep" = "Nothing is running";
-"island.companion.spoken" = "%1$@. %2$@ worked today. %3$@";
+"island.companion.spoken" = "%1$@. %2$@ worked today.";

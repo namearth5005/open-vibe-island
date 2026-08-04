@@ -56,7 +56,7 @@ The one reducer: given the whole session list, what is the companion doing?
 
 ---
 
-## [in-progress] 2 — The companion row
+## [done] 2 — The companion row
 
 Replace the 309pt band with a slim row: the companion, a timer, today's tally.
 
@@ -86,6 +86,12 @@ Replace the 309pt band with a slim row: the companion, a timer, today's tally.
 Delete what the companion replaces, now that nothing renders it.
 
 **Acceptance criteria:**
+- **BLOCKER, verified by task 2:** `IslandIdentityStripView`'s cells were real `Button`s — by its own
+  doc comment, deliberately, so the island's one useful action was not mouse-only. Removing the strip
+  took away the island's only keyboard/VoiceOver route to a session. Task 2 added
+  `.accessibilityElement(children: .contain)` + `.isButton` + `.accessibilityAction(.default,)` to the
+  panel's session rows (`IslandPanelView.swift:1341`) as the replacement, **but nobody has run
+  VoiceOver against it.** Do not delete the strip until that is confirmed by a real pass.
 - Removed: `IslandSceneLayout` and its five stations, `IslandIdentityStripView`,
   `IslandDetailBandView`, `CreatureStructure` and the terminal→building mapping, and the scene
   background assets that nothing else uses.

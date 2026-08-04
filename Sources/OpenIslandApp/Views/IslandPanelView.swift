@@ -459,10 +459,17 @@ struct IslandPanelView: View {
         // instead is what makes "off" mean the panel that shipped before this
         // existed.
         if model.islandScene.isVisible {
-            // Two of the three bands print elapsed time and one counts how long
-            // a session has been kept waiting — numbers that are wrong the
-            // moment they stop advancing.
-            TimelineView(.periodic(from: .now, by: 1)) { context in
+            // A minute, not a second. The 1Hz tick was for the three bands the
+            // companion replaced: two printed live elapsed time and one counted
+            // how long a session had been kept waiting, all wrong the moment
+            // they stopped advancing. The companion row prints one figure —
+            // "worked today" — summed over *finished* log records, so it cannot
+            // change except when a session ends, and that already invalidates
+            // the view through `AppModel`. What is left for the timeline is the
+            // local-midnight rollover, which a minute catches. At 1Hz this was
+            // a full `SessionStats.summary` over the whole session log, every
+            // second, for a number that had not moved.
+            TimelineView(.periodic(from: .now, by: 60)) { context in
                 // Every other decision — which sessions, in what order, at what
                 // height — belongs to `AppModel.islandBandLayout`. This view
                 // renders what it is given, which is what keeps the island's
@@ -1333,6 +1340,17 @@ private struct IslandSessionRow: View {
         .contentShape(Rectangle())
         .animation(.easeInOut(duration: 0.15), value: isHighlighted)
         .onTapGesture(perform: handlePrimaryTap)
+        // Selecting and jumping used to be reachable without a mouse through
+        // the island's identity strip, whose cells were real `Button`s. The
+        // companion row replaced that strip and is deliberately not
+        // interactive — it stands for the list, not for a session — so this
+        // row is now the only place the action lives, and a bare tap gesture
+        // is invisible to VoiceOver and to the keyboard. `.contain` rather
+        // than `.combine` so the row's own detail and dismiss buttons stay
+        // individually reachable.
+        .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction(.default, handlePrimaryTap)
         .onHover { hovering in
             guard isInteractive, allowsRowHoverHighlight else { return }
             isHighlighted = hovering

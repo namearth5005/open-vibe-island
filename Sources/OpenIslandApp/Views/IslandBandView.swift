@@ -128,7 +128,9 @@ struct IslandBandView: View {
     let layout: IslandBandLayout
 
     var body: some View {
+        // No frame here: `IslandCompanionRowView` already sizes itself from the
+        // same layout, and a second copy of the numbers is a second place they
+        // can disagree.
         IslandCompanionRowView(row: layout.companion)
-            .frame(width: layout.width, height: layout.height)
     }
 }

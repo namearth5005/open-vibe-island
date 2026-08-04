@@ -179,31 +179,16 @@ struct IslandCompanionRowTests {
 
     @Test
     func aDayWithNoFinishedWorkStillDrawsARow() {
-        let row = row()
-        #expect(row.workedBadge == IslandDurationGrain.underAMinute.badge)
-        #expect(row.finishedToday == 0)
-        #expect(row.interruptedToday == 0)
+        #expect(row().workedBadge == IslandDurationGrain.underAMinute.badge)
     }
 
-    // MARK: - The tally
-
+    /// An interrupted run is still time an agent spent working for you, so it
+    /// counts toward the clock even though it will never count toward the tally
+    /// in the header. `totalRuntime` already makes exactly this call.
     @Test
-    func theTallyCountsTodaysCleanFinishes() {
-        let records = [
-            record("a", seconds: 60),
-            record("b", seconds: 60),
-            record("c", seconds: 60, interrupted: true),
-        ]
-        #expect(row(records: records).finishedToday == 2)
-        #expect(row(records: records).interruptedToday == 1)
-    }
-
-    /// An interrupt is not a failure worth shouting about, so it only appears
-    /// when there was one. A permanent "0 stopped" would be a scold.
-    @Test
-    func aCleanDayShowsNoInterruptBadge() {
-        #expect(row(records: [record("a", seconds: 60)]).stoppedBadge == nil)
-        #expect(row(records: [record("a", seconds: 60, interrupted: true)]).stoppedBadge != nil)
+    func aninterruptedRunStillCountsAsTimeWorked() {
+        let records = [record("a", seconds: 3_600, interrupted: true)]
+        #expect(row(records: records).workedToday == IslandDurationGrain(seconds: 3_600))
     }
 
     // MARK: - It does not duplicate the list
@@ -223,18 +208,33 @@ struct IslandCompanionRowTests {
         let text = [
             drawn.workedBadge,
             drawn.workedLabel,
-            drawn.doneBadge,
-            drawn.stoppedBadge,
             drawn.accessibilityDescription,
-        ].compactMap { $0 }.joined(separator: " ")
+        ].joined(separator: " ")
 
-        for forbidden in ["refactor the parser", "fix the flake", "open-vibe-island", "a", "b"]
-        where forbidden.count > 2 {
+        for forbidden in ["refactor the parser", "fix the flake", "open-vibe-island"] {
             #expect(text.contains(forbidden) == false, "row leaked \(forbidden)")
         }
         for tool in AgentTool.allCases {
             #expect(text.contains(tool.displayName) == false, "row leaked \(tool.displayName)")
         }
+    }
+
+    /// The day's tally is deliberately *not* here. `IslandPanelView.`
+    /// `shippedTodayBadge` already renders "N shipped today" with a
+    /// week-over-week delta, in the session-list header a few points below,
+    /// from the same `SessionStats` call. Saying it twice in one panel is the
+    /// round-1 failure at a smaller scale.
+    @Test
+    func theRowDoesNotRepeatTheHeadersTally() {
+        // Seven half-hour finishes: the tally is 7 and the clock reads 3h, so a
+        // stray "7" anywhere in the row can only have come from the tally.
+        let records = (0..<7).map { record("c\($0)", seconds: 1_800) }
+        let drawn = row(records: records)
+        let text = drawn.workedLabel + " " + drawn.accessibilityDescription
+
+        #expect(drawn.workedBadge == "3h")
+        #expect(text.contains(lang.t("island.shippedToday", 7)) == false)
+        #expect(text.contains("7") == false)
     }
 
     // MARK: - Accessibility
@@ -288,7 +288,6 @@ struct IslandCompanionRowTests {
     @Test(arguments: [
         IslandCompanionRow.primaryTextOpacity,
         IslandCompanionRow.secondaryTextOpacity,
-        IslandCompanionRow.tertiaryTextOpacity,
     ])
     func everyTextTierClearsTheContrastFloor(opacity: Double) {
         let ratio = CreatureColor.contrastRatio(
@@ -298,16 +297,12 @@ struct IslandCompanionRowTests {
         #expect(ratio >= 4.5, "\(opacity) paper on ink is \(ratio):1")
     }
 
-    /// Three tiers, actually distinct, in the order the eye should read them.
+    /// Two tiers, actually distinct, in the order the eye should read them.
     @Test
     func theTextTiersAreOrderedAndDistinct() {
-        let tiers = [
-            IslandCompanionRow.tertiaryTextOpacity,
-            IslandCompanionRow.secondaryTextOpacity,
-            IslandCompanionRow.primaryTextOpacity,
-        ]
-        #expect(tiers == tiers.sorted())
-        #expect(Set(tiers).count == 3)
+        #expect(
+            IslandCompanionRow.secondaryTextOpacity < IslandCompanionRow.primaryTextOpacity
+        )
     }
 
     // MARK: - It fits
@@ -326,44 +321,34 @@ struct IslandCompanionRowTests {
     /// "今日工作时长" is the case that would go first, and truncation here would
     /// silently eat the label that says what the number means.
     ///
-    /// Worst case on purpose: a two-digit tally, a two-character duration and
-    /// an interrupt badge present, which is the widest a real day gets.
+    /// Worst case on purpose: a full day on the clock, which is the widest the
+    /// duration and its label ever get.
     @Test(arguments: [LanguageManager.AppLanguage.en, .zhHans, .zhHant])
     func theRowFitsTheNarrowestPanelInEveryLocale(language: LanguageManager.AppLanguage) {
         let lang = LanguageManager(language: language)
-        let records = (0..<99).map { record("c\($0)", seconds: 3_600) }
-            + (0..<99).map { record("i\($0)", seconds: 60, interrupted: true) }
-
-        var geode = GeodeState()
         let row = IslandCompanionRow(
             sessions: [],
-            geode: geode,
-            records: records,
+            geode: GeodeState(),
+            records: [record("a", seconds: 82_800)],
             species: IslandCompanionRow.defaultSpecies,
             width: 360,
             heightScale: 1,
             now: t0,
             lang: lang
         )
-        geode.reconcile(with: [], now: t0)
 
         let creature = row.creatureHeight * 1.08
         let timer = max(
             measure(row.workedBadge, size: 21, weight: .semibold, rounded: true),
             measure(row.workedLabel, size: 10, weight: .medium)
         )
-        let tally = max(
-            measure(row.doneBadge, size: 11, weight: .medium),
-            measure(row.stoppedBadge ?? "", size: 11, weight: .medium)
-        )
 
-        // Three gaps at the stack's spacing, plus the spacer's own floor.
+        // Two gaps at the stack's spacing, plus the spacer's own floor.
         let required = IslandCompanionRow.horizontalInset * 2
             + creature
-            + IslandCompanionRow.contentSpacing * 3
+            + IslandCompanionRow.contentSpacing * 2
             + timer
             + 8
-            + tally
 
         #expect(required <= 360, "\(language.rawValue) needs \(required)pt")
     }
@@ -381,22 +366,41 @@ struct IslandCompanionRowTests {
         #expect(CreatureSprite.name(for: .claude, state: .resting) == "claude-holding")
     }
 
-    /// The row draws three of the four states through `CreatureView`, keyed by
-    /// `CompanionState.pose`, and the sprite table names them independently.
-    /// Those two agreeing is what stops the companion and the pill's creature
-    /// from being two characters that happen to look alike.
+    /// The companion in the panel and the creature in the pill draw the same
+    /// files. If they ever named different ones they would stop being one
+    /// individual, which is the whole argument for going to a single companion.
     @Test(arguments: CreatureSpecies.allCases)
-    func theBorrowedPoseAndTheSpriteTableAgree(species: CreatureSpecies) throws {
-        for state in CompanionState.allCases {
-            guard let pose = state.pose else {
-                #expect(state == .asleep)
-                continue
-            }
-            #expect(
-                CreatureSprite.name(for: species, state: state)
-                    == CreatureSprite.name(for: species, pose: pose)
-            )
+    func theCompanionAndThePillDrawTheSameFrames(species: CreatureSpecies) {
+        #expect(
+            CreatureSprite.name(for: species, state: .waving)
+                == CreatureSprite.name(for: species, pose: .waiting)
+        )
+        #expect(
+            CreatureSprite.name(for: species, state: .working)
+                == CreatureSprite.name(for: species, pose: .working)
+        )
+        #expect(
+            CreatureSprite.name(for: species, state: .resting)
+                == CreatureSprite.name(for: species, pose: .holding)
+        )
+    }
+
+    /// Only the wave alternates. A companion that moved while nothing was wrong
+    /// would train the eye to ignore the one movement that matters.
+    @Test(arguments: CreatureSpecies.allCases)
+    func onlyTheWaveHasASecondFrame(species: CreatureSpecies) {
+        #expect(CreatureSprite.alternateName(for: species, state: .waving) != nil)
+        for state in CompanionState.allCases where state != .waving {
+            #expect(CreatureSprite.alternateName(for: species, state: state) == nil)
         }
+    }
+
+    /// Both frames of the wave have to exist, or the companion blinks out of
+    /// existence every 0.45s in the one state that is asking for you.
+    @Test(arguments: CreatureSpecies.allCases)
+    func theWavesSecondFrameShipped(species: CreatureSpecies) throws {
+        let name = try #require(CreatureSprite.alternateName(for: species, state: .waving))
+        #expect(Bundle.appResources.url(forResource: name, withExtension: "png") != nil)
     }
 
     /// Every character has a frame for every aggregate state, or some user's

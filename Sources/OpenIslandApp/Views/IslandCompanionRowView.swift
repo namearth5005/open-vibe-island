@@ -22,22 +22,6 @@ extension CompanionState {
         case .asleep: "island.companion.state.asleep"
         }
     }
-
-    /// The session pose the companion borrows its frame from, or `nil` when
-    /// there is no session behind it.
-    ///
-    /// Only `asleep` is `nil`, and that is the point: an empty list is the one
-    /// companion state no shard can produce, so it is the one with no pose to
-    /// borrow. Everything else is a pose the pill already draws, which is what
-    /// keeps the two surfaces one individual rather than two.
-    var pose: CreaturePose? {
-        switch self {
-        case .waving: .waiting
-        case .working: .working
-        case .resting: .holding
-        case .asleep: nil
-        }
-    }
 }
 
 /// The slim row that replaced the island band.
@@ -47,9 +31,14 @@ extension CompanionState {
 /// better, and its 12pt coloured dot said more legibly than the whole 211pt
 /// meadow. So this row is defined as much by what it may not say as by what it
 /// says: **no session names, no per-session rows, no agent labels**. What is
-/// left is the two facts the list genuinely does not carry — how long you have
-/// worked today, and what the day came to — plus one companion reacting to the
-/// list in aggregate rather than representing it.
+/// left is one fact the panel does not carry anywhere else — how long you have
+/// worked today — and one companion reacting to the list in aggregate rather
+/// than representing it.
+///
+/// The day's tally went the same way for the same reason: `IslandPanelView.`
+/// `shippedTodayBadge` already prints it, with a week-over-week delta, a few
+/// points below. Saying it twice in one panel is round 1's mistake at a
+/// smaller scale.
 ///
 /// Split from the view for the same reason every other island layout is: the
 /// claims worth making are about what the row costs and what it says, and a
@@ -67,17 +56,11 @@ struct IslandCompanionRow: Equatable, Sendable {
     /// already computes this; held as a grain rather than as a string so the
     /// badge and the spoken sentence are two renderings of one rounding.
     let workedToday: IslandDurationGrain
-    let finishedToday: Int
-    let interruptedToday: Int
     /// Everything the picture shows, in words. Resolved at construction like
     /// every other island string, so this stays a plain `Equatable` value
     /// instead of carrying a reference to a translation engine.
     let accessibilityDescription: String
     let workedLabel: String
-    let doneBadge: String
-    /// `nil` on a clean day. A permanent "0 stopped" would be a scold, and an
-    /// interrupt is not a failure worth a standing reminder.
-    let stoppedBadge: String?
 
     /// Base row height, before the user's height preference scales it.
     ///
@@ -104,16 +87,16 @@ struct IslandCompanionRow: Equatable, Sendable {
     static let horizontalInset: CGFloat = 16
     static let contentSpacing: CGFloat = 14
 
-    /// The three text weights on the row, as opacities of `V6Palette.paper`.
+    /// The row's two text weights, as opacities of `V6Palette.paper`.
     ///
-    /// Named rather than written at each `foregroundStyle` because every one of
-    /// them has to clear 4.5:1 against the panel's ink and a fourth tier added
-    /// by eye would not. The island's other bands go down to 0.38, which they
-    /// can afford because the picture beside them carries the meaning; this row
-    /// has four words in total and every one of them is load-bearing.
+    /// Named rather than written at each `foregroundStyle` because both have to
+    /// clear 4.5:1 against the panel's ink and a third tier added by eye would
+    /// not. The island's other bands go down to 0.38 and can afford it, because
+    /// a creature stands beside them carrying the same fact; this row has three
+    /// words in total and the quiet one is the only thing that says what the
+    /// number counts.
     static let primaryTextOpacity: Double = 1
-    static let secondaryTextOpacity: Double = 0.72
-    static let tertiaryTextOpacity: Double = 0.55
+    static let secondaryTextOpacity: Double = 0.58
 
     /// Shared with `OverlayPanelController` through `IslandBandLayout` so the
     /// window's height budget and the row actually drawn are one number.
@@ -145,34 +128,25 @@ struct IslandCompanionRow: Equatable, Sendable {
         let today = SessionStats.summary(for: .today, records: records, now: now)
         let worked = IslandDurationGrain(seconds: today.totalRuntime)
         workedToday = worked
-        finishedToday = today.cleanFinishes
-        interruptedToday = today.interrupted
-
         workedLabel = lang.t("island.companion.worked")
-        let done = lang.t("island.companion.done", today.cleanFinishes)
-        doneBadge = done
-        let stopped = today.interrupted > 0
-            ? lang.t("island.companion.stopped", today.interrupted)
-            : nil
-        stoppedBadge = stopped
 
-        // The visible badges said again rather than a second vocabulary invented
-        // for VoiceOver: two ways of saying one tally is how the spoken row ends
-        // up describing a day the screen is not showing.
-        let tally = [done, stopped].compactMap { $0 }.joined(separator: ", ")
+        // Exactly what the row draws, in the order it draws it — nothing more.
+        // The day's tally is deliberately absent here because it is absent from
+        // the row: `IslandPanelView.shippedTodayBadge` already renders it 8pt
+        // below, and a VoiceOver sentence that described it would be announcing
+        // the header's content from the companion's element.
         accessibilityDescription = lang.t(
             "island.companion.spoken",
             state.spokenState(lang),
-            worked.spoken(lang),
-            tally
+            worked.spoken(lang)
         )
     }
 }
 
 /// The opened panel's companion row.
 ///
-/// One character, a duration and the day's tally, in that reading order. The
-/// companion is bound by the row's height rather than by a fixed box, which is
+/// One character and one duration, in that reading order. The companion is
+/// bound by the row's height rather than by a fixed box, which is
 /// the whole structural difference from round 1: widening the panel used to
 /// make the creature a smaller share of it, and now it cannot.
 struct IslandCompanionRowView: View {
@@ -194,22 +168,10 @@ struct IslandCompanionRowView: View {
 
                 Text(row.workedLabel)
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(V6Palette.paper.opacity(IslandCompanionRow.tertiaryTextOpacity))
+                    .foregroundStyle(V6Palette.paper.opacity(IslandCompanionRow.secondaryTextOpacity))
             }
 
             Spacer(minLength: 8)
-
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(row.doneBadge)
-                    .foregroundStyle(V6Palette.paper.opacity(IslandCompanionRow.secondaryTextOpacity))
-
-                if let stopped = row.stoppedBadge {
-                    Text(stopped)
-                        .foregroundStyle(V6Palette.paper.opacity(IslandCompanionRow.tertiaryTextOpacity))
-                }
-            }
-            .font(.system(size: 11, weight: .medium))
-            .monospacedDigit()
         }
         .lineLimit(1)
         .truncationMode(.tail)
@@ -225,12 +187,15 @@ struct IslandCompanionRowView: View {
 
 /// The companion itself, at whatever size the row gives it.
 ///
-/// Three of the four states are poses the pill already draws, so they go through
-/// `CreatureView` and inherit its wave animation and its cross-fade between
-/// poses — the companion in the notch and the one in the panel are meant to be
-/// the same individual, and sharing the drawing code is how that stays true
-/// rather than being asserted. `asleep` is the exception: no session, so no pose
-/// to borrow, so it draws the calm profile directly.
+/// One `CreatureView` for all four states, never a branch on the state.
+///
+/// Drawing the companion through the same view the pill uses is what keeps the
+/// two surfaces one individual rather than two that happen to look alike — it
+/// inherits the wave's frame alternation and the cross-fade between frames
+/// rather than running a second copy that could fall out of step. And keeping
+/// it to a single node is what leaves waking up and falling asleep animatable:
+/// an `if` here would be `_ConditionalContent`, and crossing that boundary
+/// tears the subtree down.
 struct IslandCompanionView: View {
     let state: CompanionState
     let species: CreatureSpecies
@@ -249,37 +214,12 @@ struct IslandCompanionView: View {
     }
 
     var body: some View {
-        if let pose = state.pose {
-            // `CreatureView` already sizes itself and owns the wave's frame
-            // alternation, so the companion inherits the pill's animation rather
-            // than running a second copy of it that could fall out of step.
-            CreatureView(
-                species: species,
-                pose: pose,
-                seed: Self.seed,
-                size: size,
-                alignment: .bottom
-            )
-        } else {
-            calmProfile
-                .frame(width: size.width, height: size.height, alignment: .bottom)
-        }
-    }
-
-    @ViewBuilder
-    private var calmProfile: some View {
-        if let sprite = CreatureSprite.image(
-            named: CreatureSprite.name(for: species, state: state)
-        ) {
-            Image(nsImage: sprite)
-                .resizable()
-                .interpolation(.high)
-                .aspectRatio(contentMode: .fit)
-        } else {
-            // Degrades to the shape the legibility gate measured, exactly as the
-            // pill does — a missing asset must not leave an empty slot.
-            CreatureSilhouetteShape(seed: Self.seed, pose: CreatureSprite.fallbackPose(for: state))
-                .fill(Color(CreaturePalette.color(for: species)))
-        }
+        CreatureView(
+            species: species,
+            state: state,
+            seed: Self.seed,
+            size: size,
+            alignment: .bottom
+        )
     }
 }
