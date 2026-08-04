@@ -277,7 +277,7 @@ actually *see* has to surface in the detail band, not that property.
   whether a 180pt plate above a creature's head reads well at each scene height, and
   whether it collides with the overflow badge in the top-right corner at `compact`.
 
-## [in-progress] 11 — Pin creature rendering in debug scenarios
+## [done] 11 — Pin creature rendering in debug scenarios
 
 Carried over from the pill plan, never done.
 
@@ -289,7 +289,28 @@ Carried over from the pill plan, never done.
 **Build with:** `superpowers:test-driven-development`  **Review with:** `swift-testing-pro`
 **Depends on:** nothing
 
-## [todo] 12 — Demo readiness: prove it actually runs
+## [todo] 11b — DECISION NEEDED: can a blocked session be pushed off the island?
+
+Found by task 11 while pinning scenario rendering. Not a defect in any task's work — a
+consequence of two correct rules meeting.
+
+The scene band caps at **five plots**. Under the shipped default (`islandSessionGroup ==
+.none`) ranking puts attention first, so a blocked session always gets a plot. But under
+`.project`, sections sort **alphabetically by workspace** — so a session that is asking for
+you can be pushed past the cap and become part of the `+N` badge while the closed pill is
+still signalling for it.
+
+That is the island contradicting the pill: the notch says someone needs you, the panel does
+not show them. It fails silently, because `+N` is *correct* — it counts them.
+
+**This is a human decision, not a build.** Options: (a) accept it — `.project` is opt-in and
+the pill still signals; (b) always reserve a plot for a blocked session regardless of
+grouping; (c) sort sections by "does this section contain attention" before alphabetically.
+(b) and (c) both change grouping semantics beyond the island. The loop must NOT pick one.
+
+Task 11 pins the default (`.none`) only, so the tests do not encode an answer either way.
+
+## [in-progress] 12 — Demo readiness: prove it actually runs
 
 The backlog is not "done" when tests pass — it is done when the feature works in the real
 app. Tests prove the parts; this proves the whole.
