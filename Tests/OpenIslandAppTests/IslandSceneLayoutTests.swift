@@ -132,25 +132,110 @@ struct IslandSceneLayoutTests {
         #expect(scene.stations[0].structure == .workshop)
     }
 
+    // MARK: - Pose, one state at a time
+    //
+    // Split one state per test rather than asserted together, because the whole
+    // claim the island rests on is that the picture carries state: a regression
+    // here has to name *which* state stopped arriving, not just that one did.
+    // `CreaturePoseTests` pins the same four derivations on the shard itself;
+    // these pin that they survive the trip through `IslandSceneLayout`, which is
+    // the only place a session's pose and its plot are joined.
+
+    /// The pose the band draws for a one-session island.
+    ///
+    /// `#require`d rather than subscripted so that a layout which stopped
+    /// producing stations at all fails the test that asked, instead of trapping
+    /// and taking the rest of the run with it.
+    private func drawnPose(
+        of session: AgentSession,
+        geode: GeodeState? = nil,
+        sourceLocation: SourceLocation = #_sourceLocation
+    ) throws -> CreaturePose {
+        let scene = IslandSceneLayout(
+            sessions: [session],
+            geode: geode ?? self.geode(for: [session]),
+            width: 540
+        )
+        return try #require(scene.stations.first, sourceLocation: sourceLocation).pose
+    }
+
     @Test
-    func poseComesFromTheSessionsOwnShard() {
-        let scene = layout([
+    func aRunningSessionIsDrawnWorking() throws {
+        #expect(try drawnPose(of: session("a")) == .working)
+    }
+
+    /// Both blocked phases collapse to the one raised hand on purpose — the
+    /// picture says "it needs you", and *what* it needs is the strip's job.
+    @Test(arguments: [SessionPhase.waitingForApproval, .waitingForAnswer])
+    func aSessionBlockedOnTheHumanIsDrawnWaiting(phase: SessionPhase) throws {
+        #expect(try drawnPose(of: session("a", phase: phase)) == .waiting)
+    }
+
+    @Test
+    func aFinishedSessionIsDrawnHolding() throws {
+        #expect(try drawnPose(of: session("a", phase: .completed)) == .holding)
+    }
+
+    /// Interruption is not a `SessionPhase` — it arrives only as `isInterrupt`
+    /// on the completion event, so this is the one pose that cannot be reached
+    /// by describing a session's state.
+    @Test
+    func anInterruptedSessionIsDrawnFallen() throws {
+        let interrupted = session("a", phase: .completed)
+        var geode = self.geode(for: [interrupted])
+        geode.apply(.sessionCompleted(
+            SessionCompleted(sessionID: "a", summary: "stopped", timestamp: t0, isInterrupt: true)
+        ))
+        #expect(try drawnPose(of: interrupted, geode: geode) == .fallen)
+    }
+
+    /// The four states must land on four *different* poses, or the band is
+    /// drawing a distinction it cannot show. Asserted as a set as well as a
+    /// sequence, so that two states quietly collapsing onto one sprite fails
+    /// here rather than being discovered by looking at the panel.
+    @Test
+    func theFourStatesReachFourDifferentPoses() {
+        let sessions = [
             session("running"),
             session("blocked", phase: .waitingForAnswer),
             session("done", phase: .completed),
-        ])
-        #expect(scene.stations[0].pose == .working)
-        #expect(scene.stations[1].pose == .waiting)
-        #expect(scene.stations[2].pose == .holding)
+            session("stopped", phase: .completed),
+        ]
+        var geode = self.geode(for: sessions)
+        geode.apply(.sessionCompleted(
+            SessionCompleted(sessionID: "stopped", summary: "stopped", timestamp: t0, isInterrupt: true)
+        ))
+        let poses = IslandSceneLayout(sessions: sessions, geode: geode, width: 540).stations.map(\.pose)
+
+        #expect(poses == [.working, .waiting, .holding, .fallen])
+        #expect(Set(poses).count == 4, "two of the four states are drawn as the same creature")
     }
 
     /// A session the shard state has not caught up with reads as calm rather
-    /// than as an alarm — the picture must never invent an attention state.
+    /// than as an alarm — the picture may never invent an attention state it
+    /// was not told about.
+    ///
+    /// Checked for every phase, not just a running one: the fallback also has
+    /// to refuse to turn a finished session into a wave.
+    @Test(arguments: SessionPhase.allCases)
+    func aSessionWithNoShardYetReadsAsWorking(phase: SessionPhase) throws {
+        #expect(
+            try drawnPose(of: session("a", phase: phase), geode: GeodeState()) == .working,
+            "\(phase) invented a pose without a shard"
+        )
+    }
+
+    /// A session that arrives by discovery rather than by hook events is
+    /// back-filled by `GeodeState.reconcile`, which never fractures a shard —
+    /// so an interrupted session the app only learned about at launch is drawn
+    /// holding its reward up, exactly like a clean finish.
+    ///
+    /// Deliberate (claiming a fracture that did not happen is worse than
+    /// missing one) but it is why `fallen` is close to unreachable in practice:
+    /// everything on screen at launch came through this path.
     @Test
-    func aSessionWithNoShardYetReadsAsWorking() {
-        let sessions = [session("a")]
-        let scene = IslandSceneLayout(sessions: sessions, geode: GeodeState(), width: 540)
-        #expect(scene.stations[0].pose == .working)
+    func anInterruptTheAppOnlyDiscoveredIsDrawnAsACleanFinish() throws {
+        #expect(try drawnPose(of: session("a", phase: .completed)) == .holding)
     }
 
     /// Individual variation reuses the existing seed generator, so a creature

@@ -33,7 +33,7 @@ occupying ~70% of the pixels and carrying no information.
 
 ---
 
-## [in-progress] 1 — DIAGNOSE: is state actually reaching the picture?
+## [done] 1 — DIAGNOSE: is state actually reaching the picture?
 
 **This gates everything else.** "The picture carries state" is the claim the entire feature rests
 on. In the observed screenshot all five creatures appeared to be in `holding` — arms up, cradling the
@@ -60,6 +60,93 @@ Two very different explanations, and the fix differs completely:
 
 **Build with:** `superpowers:test-driven-development`  **Review with:** `swift-testing-pro`
 **Depends on:** nothing
+
+### VERDICT: (b). Working as designed, and the design is the problem.
+
+State reaches the picture. Pose is correct at every plot. There is no bug to fix
+here, so nothing was fixed — task 2 is the real work.
+
+Evidence, all of it in `Tests/OpenIslandAppTests/IslandPoseDistributionTests.swift`,
+which replays the reported mix (*1 running, 7 done, 3 idle*) through
+`AppModel.islandBandLayout`:
+
+- The band draws `[working, holding, holding, holding, holding]`. Four identical
+  creatures is the **correct** output for that mix.
+- The running session is plotted, and plotted **first**, under all eight
+  grouping × sort combinations. "The running session was not among the five
+  plotted" is false.
+- 10 of the 11 sessions behind those plots are `holding`. No choice of five could
+  have done better; the cap is not the constraint.
+- `waiting` and `fallen` occur **zero** times. Two of the four poses are unused.
+
+Two facts task 2 and 3 should carry forward:
+
+1. **`fallen` is close to unreachable.** Interrupt is not a `SessionPhase`; it
+   arrives only as `isInterrupt` on a completion event. `GeodeState.reconcile`
+   deliberately never fractures a back-filled shard, so every session discovered
+   at launch reads `holding` even if it was interrupted. Pinned by
+   `anInterruptTheAppOnlyDiscoveredIsDrawnAsACleanFinish`.
+2. **The one distinction that *was* drawn is not readable.** `<species>-working`
+   and `<species>-holding` are the same silhouette in the same standing posture,
+   separated by paw position and a ~10px orb, rendered into a 58×54pt box. That
+   is very likely why the human counted five identical bears where the band drew
+   four. Stated as an observation from looking at the sprites, not a measurement
+   — an attempt to quantify it by pixel difference measured silhouette offset
+   rather than glanceability and was discarded.
+
+---
+
+## [in-progress] 1b — Make the one distinction that IS drawn actually readable
+
+**Promoted to the front by task 1's diagnosis, which found something better than either hypothesis
+it was sent to test.**
+
+The band draws `[working, holding, holding, holding, holding]` for the observed mix. That is *four*
+identical creatures, not five — and a human counted five. The reason: `<species>-working` and
+`<species>-holding` are **the same silhouette in the same standing posture**, separated only by paw
+position and a ~10px orb inside a 58×54pt box.
+
+So the feature's core promise fails one step earlier than round 2 assumed. It is not only that most
+sessions land on one pose (they do — 80% of plots, 91% of sessions). It is that **the one state
+distinction the band actually drew was not legible**, and no amount of workspace tinting fixes that.
+
+Fixing this is likely cheaper than any other task here, because **the art already exists**:
+`<species>-side.png` is a calm profile pose, arms down, eyes closed — a genuine *silhouette*
+difference rather than a detail difference, and therefore readable at any size.
+
+**Acceptance criteria:**
+- `working` and `holding` are distinguishable **by silhouette**, not by a small detail. State which
+  sprites you used and why.
+- Measure it rather than assert it: pick a metric that survives scrutiny (task 1 tried pixel
+  difference and correctly **discarded** it for measuring silhouette offset rather than
+  glanceability — do better or say plainly that the judgement is visual).
+- Render both poses at the real drawn size and **look at them**. Attach what you looked at.
+- Adding a pose case means `CreatureSpriteTests.everySpeciesAndPoseHasArtwork` requires artwork for
+  **all six species** — all twelve unused files exist, so this is satisfiable without new art.
+- Contrast gate stays exit 0.
+
+**Build with:** `swiftui-design`  **Review with:** `swiftui-pro`
+**Depends on:** 1
+
+---
+
+## [todo] 1c — `fallen` is nearly unreachable
+
+Also from task 1. Interrupt is **not** a `SessionPhase` — it arrives only as `isInterrupt` on a
+completion event, and `GeodeState.reconcile` deliberately never fractures a back-filled shard. So
+**every session discovered at launch reads as a clean finish**, even if it was killed. Pinned by
+`anInterruptTheAppOnlyDiscoveredIsDrawnAsACleanFinish`.
+
+Half the pose vocabulary (`waiting`, `fallen`) was unused in the observed mix. `waiting` is genuinely
+reachable and simply did not occur. `fallen` is close to structurally unreachable for discovered
+history.
+
+**This is a design question, not a bug.** Options: (a) accept it — a transcript cannot prove an
+interrupt, same argument as `isInferred` capping rarity at ★; (b) infer interrupts from transcript
+shape where possible; (c) drop `fallen` from the vocabulary and stop implying a distinction the data
+cannot support. **The loop must NOT pick one.**
+
+**Depends on:** 1
 
 ---
 
