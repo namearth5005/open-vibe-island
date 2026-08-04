@@ -323,10 +323,31 @@ Silhouette blocks precede all of the above and are approved separately.
    lane width. Re-gated — pose separations are unchanged at 2.43pt and 4.74pt, and no roll
    reads as a dud or as a different species.
 
-4. **Target aesthetic.** Whether the pill creature should read as a small painterly figure or
-   as a bold flat glyph with strong silhouette character. At 28 × 32pt the second is more
-   achievable and more defensible; the first is closer to the panel's world. This is a
-   deliberate choice and should not be made by default.
+4. ~~**Target aesthetic.**~~ **Resolved** — and not by taste. Once the companion moved out of
+   the panel and onto its own surface, the two tiers in §2 stopped being alternatives and
+   became an assignment, which the measurements in §3.3 and §4 already made for us.
+
+   **The pill is Tier B.** A bold flat glyph: light masses on near-black, read by silhouette,
+   dark line only *inside* the shape. At 28 × 32pt a painterly figure is not a harder option,
+   it is an impossible one — every mark that makes a painterly mark read as painterly lives
+   under the ~2px resolution floor, and a drawing built dark-on-light loses roughly 3× its
+   contrast when moved onto this ground.
+
+   **The destination surface is Tier A.** Painterly, outlined, rich. `#211e12` measures
+   10.82:1 there against 1.16:1 on the pill, so the surface that can carry a drawn line should
+   carry one.
+
+   **Corollary — the destination surface does not inherit the pill's palette derivation.**
+   §3.4's panel values are dark because they were scaled to clear 3:1 against the *pill's*
+   near-black ground. A surface that does not have that ground is not bound by that
+   constraint, and applying it there buys nothing while costing all the colour: `#766656` is
+   drab for exactly this reason. Re-derive the destination values against the destination's
+   own ground. The rule in §3.2 still holds — hue is free, luminance rank and spacing are
+   load-bearing — but the band they are compressed into is the *destination's* to choose.
+
+   The failure this resolves is worth naming, because it is easy to repeat: rendering the
+   **pill** treatment at destination size. It produces a drained, flat drawing and reads as a
+   sticker, which is the note that has come back three times.
 
 5. **Which arm is raised.** `waiting` always lifts the leading arm. Alternating it by session
    seed would add individuality at no legibility cost, but it also makes two sessions in the

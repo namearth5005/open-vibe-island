@@ -481,16 +481,9 @@ final class OverlayPanelController {
         let panelWidth = openedPanelWidth(for: screen)
         let contentHeight = openedContentHeight(for: model)
         // The island band is added to the budget rather than taken out of it.
-        // `openedContent` is hard-clipped to this height in `IslandPanelView`,
-        // so a band drawn inside the existing allowance would push the session
-        // list into the clip — a taller island would then silently show fewer
-        // sessions, which is precisely the trade a notch utility must not make.
-        // Zero when the island is off, which is what keeps the panel identical
-        // to today for everyone who has not asked for it.
-        let bandHeight = model.islandBandHeight(width: panelWidth)
         // Use at least the empty-state height so the window doesn't shrink
         // when sessions come and go while opened.
-        let height = screen.notchSize.height + max(contentHeight, Self.openedEmptyStateHeight) + bandHeight + Self.openedContentBottomPadding + insets.bottom
+        let height = screen.notchSize.height + max(contentHeight, Self.openedEmptyStateHeight) + Self.openedContentBottomPadding + insets.bottom
 
         return CGSize(
             width: panelWidth + Self.openedContentWidthPadding + (insets.horizontal * 2),

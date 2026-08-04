@@ -52,241 +52,60 @@ struct IslandCustomisationTests {
         return session
     }
 
-    // MARK: - Off by default
+    // MARK: - The list the companion used to sit above
 
-    /// The whole of "a user who never opens Personalization sees exactly
-    /// today's app".
-    @Test
-    func theIslandIsOffByDefault() {
-        clearAppearanceDefaults()
-        let model = AppModel()
+    /// What this suite used to be: the island band's on/off preference, its
+    /// height preference, and the window-sizing contract between them. All three
+    /// are gone. The companion left the panel because it stood 8pt above
+    /// `sessionPanelHeader`, whose overview chips already answer "does anything
+    /// need me" numerically and whose `shippedTodayBadge` already prints the
+    /// day's tally — the same duplication that sank the five-creature band.
+    ///
+    /// Two claims outlived it, and neither was ever really about the island.
+    /// They are about the *session list*: that its order is the grouping
+    /// preference's to decide, and that "finished long enough ago to go quiet"
+    /// has exactly one rule. Both were asserted through the band's plots, so
+    /// both are re-pointed here at `islandListSessions` — the list the plots
+    /// were only ever mirroring.
 
-        #expect(model.islandScene == .off)
-        #expect(!model.islandScene.isVisible)
-        // Nothing is drawn, which is the claim that actually matters — the
-        // preference reading `.off` would be worth nothing if the band were
-        // built anyway.
-        #expect(model.islandBandLayout(width: 540, now: t0) == nil)
-    }
-
-    /// Two things have to say "off" and they are written in different places:
-    /// the struct's own default, and the fallback `loadAppearancePreferences`
-    /// uses when nothing is stored. A test that only drove `AppModel` would
-    /// leave the struct default free to drift, and it is what a future profile
-    /// or migration would pick up.
-    @Test
-    func theStoredDefaultAndTheStructDefaultBothSayOff() {
-        #expect(IslandAppearancePreferences().scene == .off)
-        #expect(IslandAppearancePreferences().sceneHeight == .standard)
-    }
-
-    /// Off by default has to survive the profile the machine happens to resolve
-    /// to, or the guarantee holds on one kind of Mac and not the other.
-    @Test
-    func theIslandIsOffByDefaultInBothProfiles() {
-        clearAppearanceDefaults()
-        let model = AppModel()
-
-        for profile in IslandAppearanceDisplayProfile.allCases {
-            #expect(model.appearancePreferences(for: profile).scene == .off)
-        }
-    }
-
-    /// Someone who already asked for a creature in the closed pill did not
-    /// thereby ask for a landscape in their panel — and turning the island on
-    /// must not reach back and change their pill either. The two preferences
-    /// govern two surfaces and are deliberately independent.
-    @Test
-    func theIslandIsIndependentOfTheCreatureRightSlot() {
-        clearAppearanceDefaults()
-        let model = AppModel()
-
-        model.islandRightSlot = .creature
-        #expect(model.islandScene == .off)
-
-        model.islandScene = .on
-        #expect(model.islandRightSlot == .creature)
-
-        model.islandScene = .off
-        #expect(model.islandRightSlot == .creature)
-    }
-
-    // MARK: - Scene height
-
-    @Test
-    func sceneHeightOffersExactlyCompactStandardAndTall() {
-        #expect(IslandSceneHeight.allCases == [.compact, .standard, .tall])
-    }
-
-    /// `standard` is the artwork's own 3.6:1 aspect, so it neither crops nor
-    /// reveals; the other two are a real difference either side of it.
-    @Test
-    func theThreeHeightsAreOrderedAndDistinct() {
-        let scales = IslandSceneHeight.allCases.map(\.scale)
-        #expect(scales == scales.sorted())
-        #expect(Set(scales).count == 3)
-        #expect(IslandSceneHeight.standard.scale == 1)
-    }
-
-    @Test
-    func standardIsTheDefault() {
-        clearAppearanceDefaults()
-        #expect(AppModel().islandSceneHeight == .standard)
-    }
-
-    /// A taller island has to actually be taller in the number the window is
-    /// sized from, or the preference is decoration.
-    @Test
-    func atallerSceneMakesATallerBand() {
-        let heights = IslandSceneHeight.allCases.map {
-            IslandBandLayout.height(width: 540, sceneHeight: $0)
-        }
-        #expect(heights == heights.sorted())
-        #expect(Set(heights).count == 3)
-    }
-
-    /// The window is sized from the static formula and the band is drawn from
-    /// an instance. If those two ever disagree the band is clipped or leaves a
-    /// gap, and nothing else in the app would notice.
-    @Test
-    func theHeightTheWindowReservesIsTheHeightTheBandDraws() {
-        let sessions = (0..<3).map { session("s\($0)") }
-        var geode = GeodeState()
-        geode.reconcile(with: sessions, now: t0)
-
-        for height in IslandSceneHeight.allCases {
-            for width in [520.0, 540.0] as [CGFloat] {
-                let band = IslandBandLayout(
-                    sessions: sessions,
-                    geode: geode,
-                    selectedSessionID: nil,
-                    width: width,
-                    sceneHeight: height,
-                    now: t0,
-                    lang: LanguageManager(language: .en)
-                )
-                #expect(band.height == IslandBandLayout.height(width: width, sceneHeight: height))
-            }
-        }
-    }
-
-    // MARK: - With the island off, nothing changes
-
-    /// The island's only claim on the window is this number, so proving it is
-    /// zero while off proves the panel is sized exactly as it was before the
-    /// island existed — at every height setting, so a stale `sceneHeight` left
-    /// over from a trial cannot leak back in.
-    @Test
-    func anIslandThatIsOffCostsThePanelNoHeight() {
-        clearAppearanceDefaults()
-        let model = AppModel()
-
-        for height in IslandSceneHeight.allCases {
-            model.islandSceneHeight = height
-            #expect(model.islandScene == .off)
-            #expect(model.islandBandHeight(width: 540) == 0)
-            #expect(model.islandBandHeight(width: 520) == 0)
-        }
-    }
-
-    /// And when it is on it costs exactly the band, not a rounded-up guess.
-    @Test
-    func anIslandThatIsOnCostsThePanelExactlyItsBand() {
-        clearAppearanceDefaults()
-        let model = AppModel()
-        model.islandScene = .on
-        model.islandSceneHeight = .tall
-
-        #expect(
-            model.islandBandHeight(width: 540)
-                == IslandBandLayout.height(width: 540, sceneHeight: .tall)
-        )
-    }
-
-    /// The session list is the panel's actual content, and the island must not
-    /// perturb it in either direction — not what is in it, not what order it is
-    /// in, not how it is grouped. Asserted both ways round because a preference
-    /// that only broke things on the way *back* off would be worse.
-    @Test
-    func togglingTheIslandDoesNotDisturbTheSessionList() {
-        clearAppearanceDefaults()
-        let model = AppModel()
-        model.islandSessionGroup = .state
-        model.state = SessionState(sessions: [
-            session("a", phase: .waitingForApproval),
-            session("b", phase: .running),
-            session("c", phase: .completed),
-        ])
-
-        func snapshot() -> ([String], [String]) {
-            (model.islandSessionSections.map(\.id), model.islandListSessions.map(\.id))
-        }
-
-        let before = snapshot()
-
-        model.islandScene = .on
-        #expect(snapshot() == before)
-
-        model.islandSceneHeight = .compact
-        #expect(snapshot() == before)
-
-        model.islandScene = .off
-        #expect(snapshot() == before)
-    }
-
-    // MARK: - Reusing what already exists
-
-    /// Station order is the session list's order. The island does not decide a
-    /// second time where a creature stands, so changing how the list is grouped
-    /// changes where the creatures are — that is the whole of "honours the
-    /// existing `sessionGroup`".
     /// Ungrouped, equally-urgent sessions come out most-recent-first. Grouped by
     /// project they come out by project name. The two orders are deliberately
-    /// opposed here, because that opposition is what lets this test tell the
-    /// grouped list from the raw one — an island wired to `surfacedSessions`
-    /// would keep the recency order and fail.
+    /// opposed, because that opposition is what tells the grouped list from the
+    /// raw one — anything wired to `surfacedSessions` would keep the recency
+    /// order and fail.
     @Test
-    func stationOrderFollowsTheSessionGroupPreference() throws {
+    func listOrderFollowsTheSessionGroupPreference() {
         clearAppearanceDefaults()
         let model = AppModel()
-        model.islandScene = .on
         let now = Date()
         model.state = SessionState(sessions: [
             session("zulu", phase: .running, updatedAt: now),
             session("alpha", phase: .running, updatedAt: now.addingTimeInterval(-60)),
         ])
 
-        func stations() throws -> [String] {
-            try #require(model.islandBandLayout(width: 540, now: now)).scene.stations.map(\.id)
-        }
-
         model.islandSessionGroup = .none
-        let ungrouped = try stations()
+        let ungrouped = model.islandListSessions.map(\.id)
 
         model.islandSessionGroup = .project
-        let grouped = try stations()
+        let grouped = model.islandListSessions.map(\.id)
 
-        // Same sessions, different plots.
         #expect(Set(grouped) == Set(ungrouped))
         #expect(ungrouped == ["zulu", "alpha"])
         #expect(grouped == ["alpha", "zulu"])
-
-        // The strip captions the plots, so it has to agree station for station
-        // or cell *n* stops naming creature *n*.
-        let band = try #require(model.islandBandLayout(width: 540, now: now))
-        #expect(band.strip.cells.map(\.id) == grouped)
-        #expect(band.scene.stations.map(\.id) == model.islandListSessions.map(\.id))
     }
 
-    /// The island reuses `completedStaleThreshold` rather than adding a second
-    /// idea of when a finished session goes quiet: a completed session moves
-    /// between the "just done" and "idle" sections as the threshold changes,
-    /// and the island's plots move with it because it reads the same list.
+    /// One idea of when a finished session goes quiet, not two: a completed
+    /// session moves between the "just done" and "idle" sections as
+    /// `completedStaleThreshold` changes, and it never falls out of the list
+    /// while doing so.
+    ///
+    /// That second assertion is the one that catches a hardcoded staleness rule
+    /// hiding behind the preference — one that disagreed would drop a session
+    /// out of both sections while the section list still looked sane.
     @Test
-    func theIslandReusesTheExistingStaleThreshold() throws {
+    func theListReusesTheExistingStaleThreshold() {
         clearAppearanceDefaults()
         let model = AppModel()
-        model.islandScene = .on
         model.islandSessionGroup = .state
         let now = Date()
         model.state = SessionState(sessions: [
@@ -294,77 +113,36 @@ struct IslandCustomisationTests {
             session("fresh", phase: .completed, updatedAt: now),
         ])
 
-        func sections() -> [String] { model.islandSessionSections.map(\.id) }
-        func stations() throws -> [String] {
-            try #require(model.islandBandLayout(width: 540, now: now)).scene.stations.map(\.id)
-        }
-
         model.completedStaleThreshold = .twoMinutes
-        let tight = sections()
-        let tightStations = try stations()
+        let tight = model.islandSessionSections.map(\.id)
+        let tightListed = Set(model.islandListSessions.map(\.id))
 
         model.completedStaleThreshold = .never
-        let loose = sections()
-        let looseStations = try stations()
+        let loose = model.islandSessionSections.map(\.id)
+        let looseListed = Set(model.islandListSessions.map(\.id))
 
-        // Under a two-minute threshold the ten-minute-old session has gone
-        // idle; under `never` nothing ever does, so both sit in "just done".
         #expect(tight == ["state-done", "state-idle"])
         #expect(loose == ["state-done"])
-
-        // Every session keeps a plot under both thresholds. This is the
-        // assertion that catches a second, hardcoded staleness rule: one that
-        // disagreed with the preference would leave a completed session in
-        // neither the "done" nor the "idle" section, and the island would
-        // quietly lose a creature while the section list still looked sane.
-        #expect(Set(tightStations) == ["old", "fresh"])
-        #expect(Set(looseStations) == ["old", "fresh"])
+        #expect(tightListed == ["old", "fresh"])
+        #expect(looseListed == ["old", "fresh"])
     }
 
-    // MARK: - The appearance-profile trap (see e79a005)
-
-    /// `activeAppearanceProfile` is derived from live overlay placement. If a
-    /// write can re-resolve that placement, the value goes into one profile and
-    /// comes back from the other and the write silently does nothing. Both new
-    /// preferences are checked, because the bug was in the shared write path.
+    /// A running session whose process stopped being seen leaves the list.
+    ///
+    /// Re-pointed from `IslandPoseDistributionTests`, which measured the pose
+    /// mix across the band and is deleted with it. This half of that suite was
+    /// never about poses: a session the app can no longer find must stop being
+    /// listed, or the header counts "1 running" for something that is not.
     @Test
-    func writingTheIslandPreferencesDoesNotChangeTheActiveProfile() {
+    func aRunningSessionWhoseProcessWentUnseenLeavesTheList() {
         clearAppearanceDefaults()
         let model = AppModel()
+        var stale = session("run-0", phase: .running)
+        stale.isProcessAlive = false
+        stale.processNotSeenCount = 4
+        stale.isHookManaged = false
+        model.state = SessionState(sessions: [stale, session("done-0", phase: .completed)])
 
-        let before = model.activeAppearanceProfile
-        model.islandScene = .on
-        model.islandSceneHeight = .tall
-
-        #expect(model.activeAppearanceProfile == before)
-    }
-
-    @Test
-    func anIslandPreferenceWriteSurvivesBeingWritten() {
-        clearAppearanceDefaults()
-        let model = AppModel()
-
-        model.islandScene = .on
-        #expect(model.islandScene == .on)
-
-        model.islandSceneHeight = .compact
-        #expect(model.islandSceneHeight == .compact)
-        // The first write must still be there after the second.
-        #expect(model.islandScene == .on)
-    }
-
-    /// The two profiles keep their own island, exactly as they keep their own
-    /// right slot — a MacBook and an external display are different amounts of
-    /// room and the choice should not follow you between them.
-    @Test
-    func eachProfileKeepsItsOwnIsland() {
-        clearAppearanceDefaults()
-        let model = AppModel()
-
-        model.updateAppearancePreferences(for: .notch) { $0.scene = .on }
-        model.updateAppearancePreferences(for: .topBar) { $0.scene = .off }
-
-        #expect(model.appearancePreferences(for: .notch).scene == .on)
-        #expect(model.appearancePreferences(for: .topBar).scene == .off)
+        #expect(model.islandListSessions.contains { $0.id == "run-0" } == false)
     }
 }

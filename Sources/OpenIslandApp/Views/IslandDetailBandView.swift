@@ -137,9 +137,8 @@ struct IslandDetailBand: Equatable, Sendable {
     /// it is a printer's mark, not a word.
     static let absentBadge = "—"
 
-    /// Sessions are taken in the order given and truncated at the scene's plot
-    /// ceiling, so this band can only ever describe a creature that is actually
-    /// on the island. `selectedSessionID` is the whole app's selection and may
+    /// Sessions are taken in the order given and truncated at the strip's cell
+    /// ceiling, so this band can only ever describe a session the strip names. `selectedSessionID` is the whole app's selection and may
     /// well point somewhere else — at an overflowed session, or at one that has
     /// since gone — and captioning that would describe a creature nobody can
     /// see.
@@ -156,7 +155,7 @@ struct IslandDetailBand: Equatable, Sendable {
 
         guard let selectedSessionID,
               let session = sessions
-                  .prefix(IslandSceneLayout.stationCapacity)
+                  .prefix(IslandIdentityStripLayout.cellCapacity)
                   .first(where: { $0.id == selectedSessionID })
         else {
             detail = nil

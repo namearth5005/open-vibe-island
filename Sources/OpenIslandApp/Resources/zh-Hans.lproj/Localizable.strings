@@ -296,16 +296,6 @@
 "settings.stats.receipt" = "今日小票";
 
 /* Settings - Personalization - Island */
-"settings.appearance.islandPart.title" = "岛";
-"settings.appearance.islandScene.title" = "07 · 岛";
-"settings.appearance.islandScene.note" = "在展开的面板中，于会话列表上方显示岛。";
-"settings.appearance.islandScene.off" = "关闭";
-"settings.appearance.islandScene.on" = "开启";
-"settings.appearance.sceneHeight.title" = "08 · 岛高度";
-"settings.appearance.sceneHeight.note" = "控制面板中岛的显示高度。面板会随之变高，会话列表的空间保持不变。";
-"settings.appearance.sceneHeight.compact" = "紧凑";
-"settings.appearance.sceneHeight.standard" = "标准";
-"settings.appearance.sceneHeight.tall" = "加高";
 
 /* Island - Voice lines. 会话干净结束时说一句；被中断时永远不说。
    每个物种十二句；物种指的是身体而非工具，所以四个 Claude Code 分支都说 Claude 的台词。
@@ -388,10 +378,3 @@
 "island.voice.openCode.11" = "说什么就做什么。";
 "island.voice.openCode.12" = "分享出去，收工。";
 
-/* Companion row */
-"island.companion.worked" = "今日工作时长";
-"island.companion.state.waving" = "有会话需要你";
-"island.companion.state.working" = "智能体正在工作";
-"island.companion.state.resting" = "全部已完成";
-"island.companion.state.asleep" = "当前没有运行中的会话";
-"island.companion.spoken" = "%1$@。今日工作 %2$@。";

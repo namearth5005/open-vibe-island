@@ -296,16 +296,6 @@
 "settings.stats.receipt" = "Today, printed";
 
 /* Settings - Personalization - Island */
-"settings.appearance.islandPart.title" = "Island";
-"settings.appearance.islandScene.title" = "07 · Island";
-"settings.appearance.islandScene.note" = "Draw the island above the session list in the opened panel.";
-"settings.appearance.islandScene.off" = "Off";
-"settings.appearance.islandScene.on" = "On";
-"settings.appearance.sceneHeight.title" = "08 · Island height";
-"settings.appearance.sceneHeight.note" = "How much of the island the panel shows. The panel grows; the session list keeps its room.";
-"settings.appearance.sceneHeight.compact" = "Compact";
-"settings.appearance.sceneHeight.standard" = "Standard";
-"settings.appearance.sceneHeight.tall" = "Tall";
 
 /* Island - Voice lines. One is spoken when a session finishes cleanly, never
    after an interrupt. Twelve per species; the species is the creature's body,
@@ -389,10 +379,3 @@
 "island.voice.openCode.11" = "It does what it says.";
 "island.voice.openCode.12" = "Shared, and done.";
 
-/* Companion row */
-"island.companion.worked" = "worked today";
-"island.companion.state.waving" = "A session needs you";
-"island.companion.state.working" = "Agents are working";
-"island.companion.state.resting" = "Everything has finished";
-"island.companion.state.asleep" = "Nothing is running";
-"island.companion.spoken" = "%1$@. %2$@ worked today.";

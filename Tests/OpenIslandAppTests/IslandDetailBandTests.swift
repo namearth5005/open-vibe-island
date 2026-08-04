@@ -543,9 +543,8 @@ struct IslandDetailBandTests {
             session("done", phase: .completed),
         ]
         let shared = geode(for: sessions)
-        let scene = IslandSceneLayout(sessions: sessions, geode: shared, width: 540)
 
-        for station in scene.stations {
+        for station in sessions.map({ (id: $0.id, pose: shared.pose(for: $0.id)) }) {
             let detail = band(sessions, selecting: station.id, geode: shared).detail
             #expect(detail?.pose == station.pose)
         }

@@ -296,16 +296,6 @@
 "settings.stats.receipt" = "今日收據";
 
 /* Settings - Personalization - Island */
-"settings.appearance.islandPart.title" = "島";
-"settings.appearance.islandScene.title" = "07 · 島";
-"settings.appearance.islandScene.note" = "在展開的面板中，於會話列表上方顯示島。";
-"settings.appearance.islandScene.off" = "關閉";
-"settings.appearance.islandScene.on" = "開啟";
-"settings.appearance.sceneHeight.title" = "08 · 島高度";
-"settings.appearance.sceneHeight.note" = "控制面板中島的顯示高度。面板會隨之變高，會話列表的空間維持不變。";
-"settings.appearance.sceneHeight.compact" = "緊湊";
-"settings.appearance.sceneHeight.standard" = "標準";
-"settings.appearance.sceneHeight.tall" = "加高";
 
 /* Island - Voice lines. 工作階段乾淨結束時說一句；被中斷時永遠不說。
    每個物種十二句；物種指的是身體而非工具，所以四個 Claude Code 分支都說 Claude 的台詞。
@@ -388,10 +378,3 @@
 "island.voice.openCode.11" = "說什麼就做什麼。";
 "island.voice.openCode.12" = "分享出去，收工。";
 
-/* Companion row */
-"island.companion.worked" = "今日工作時長";
-"island.companion.state.waving" = "有工作階段需要你";
-"island.companion.state.working" = "智能代理正在工作";
-"island.companion.state.resting" = "全部已完成";
-"island.companion.state.asleep" = "目前沒有執行中的工作階段";
-"island.companion.spoken" = "%1$@。今日工作 %2$@。";

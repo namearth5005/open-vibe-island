@@ -383,56 +383,6 @@ final class AppModel {
         set { updateAppearancePreferences(for: activeAppearanceProfile) { $0.completedStaleThreshold = newValue } }
     }
 
-    var islandScene: IslandSceneVisibility {
-        get { appearancePreferences(for: activeAppearanceProfile).scene }
-        set { updateAppearancePreferences(for: activeAppearanceProfile) { $0.scene = newValue } }
-    }
-
-    var islandSceneHeight: IslandSceneHeight {
-        get { appearancePreferences(for: activeAppearanceProfile).sceneHeight }
-        set { updateAppearancePreferences(for: activeAppearanceProfile) { $0.sceneHeight = newValue } }
-    }
-
-    /// The island band's contribution to the opened panel's height, and zero
-    /// when the island is off.
-    ///
-    /// Read by `OverlayPanelController` when it sizes the window and by the
-    /// panel when it draws the band, so the two can never disagree about how
-    /// much room the island takes — a disagreement would either clip the band
-    /// or leave a gap under it.
-    func islandBandHeight(width: CGFloat) -> CGFloat {
-        guard islandScene.isVisible else { return 0 }
-        return IslandBandLayout.height(width: width, sceneHeight: islandSceneHeight)
-    }
-
-    /// Everything the island band draws, or `nil` when the island is off.
-    ///
-    /// Lives here rather than in the panel's view body so that *which* sessions
-    /// the island stands up, and in what order, is a decision a test can drive
-    /// — a view body cannot be asked what it passed. It is the whole of the
-    /// panel's island wiring: `IslandPanelView` renders whatever this returns
-    /// and decides nothing itself.
-    ///
-    /// `islandListSessions` and not `surfacedSessions`: the former is already
-    /// grouped by `sessionGroup`, sorted by `sessionSort` and aged by
-    /// `completedStaleThreshold`, so the island reuses the session list's own
-    /// ordering instead of inventing a parallel one.
-    func islandBandLayout(width: CGFloat, now: Date) -> IslandBandLayout? {
-        guard islandScene.isVisible else { return nil }
-        return IslandBandLayout(
-            sessions: islandListSessions,
-            geode: geodeState,
-            // The same log the Stats view reads, so "worked today" in the panel
-            // and "worked today" in Stats are one figure rather than two.
-            records: sessionLogRecords,
-            selectedSessionID: selectedSessionID,
-            width: width,
-            sceneHeight: islandSceneHeight,
-            now: now,
-            lang: lang
-        )
-    }
-
     @ObservationIgnored
     var openSettingsWindow: (() -> Void)?
 
@@ -482,8 +432,6 @@ final class AppModel {
         defaults.set(preferences.sessionGroup.rawValue, forKey: Self.appearanceDefaultsKey(profile, "sessionGroup"))
         defaults.set(preferences.sessionSort.rawValue, forKey: Self.appearanceDefaultsKey(profile, "sessionSort"))
         defaults.set(preferences.completedStaleThreshold.rawValue, forKey: Self.appearanceDefaultsKey(profile, "completedStaleThreshold"))
-        defaults.set(preferences.scene.rawValue, forKey: Self.appearanceDefaultsKey(profile, "scene"))
-        defaults.set(preferences.sceneHeight.rawValue, forKey: Self.appearanceDefaultsKey(profile, "sceneHeight"))
     }
 
     // MARK: - Watch Notification
@@ -634,16 +582,7 @@ final class AppModel {
                 rawValue: defaults.string(forKey: appearanceDefaultsKey(profile, "completedStaleThreshold"))
                     ?? defaults.string(forKey: legacyCompletedStaleThresholdDefaultsKey)
                     ?? ""
-            ) ?? .fiveMinutes,
-            // No legacy key and no migration: the island is new, so an upgrading
-            // user has nothing stored here and falls to `.off` — which is the
-            // whole of "off by default" for someone who already had the app.
-            scene: IslandSceneVisibility(
-                rawValue: defaults.string(forKey: appearanceDefaultsKey(profile, "scene")) ?? ""
-            ) ?? .off,
-            sceneHeight: IslandSceneHeight(
-                rawValue: defaults.string(forKey: appearanceDefaultsKey(profile, "sceneHeight")) ?? ""
-            ) ?? .standard
+            ) ?? .fiveMinutes
         )
     }
 

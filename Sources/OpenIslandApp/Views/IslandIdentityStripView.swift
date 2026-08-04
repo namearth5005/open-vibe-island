@@ -88,6 +88,15 @@ extension CreaturePose {
 /// the eye needs the correspondence; below it, honouring the pitch would strand
 /// a lone session's name in a 112pt column with 400pt of empty band beside it.
 struct IslandIdentityStripLayout: Equatable, Sendable {
+    /// How many sessions the strip names before it starts counting instead.
+    ///
+    /// Was `Self.cellCapacity`, where it was a *spacing* limit —
+    /// five plots at the 540pt band's 112pt pitch, below which a creature ran
+    /// into its neighbour. The scene is gone; the cap survives because the strip
+    /// and the detail row still cap on it, and it is now simply the number of
+    /// sessions worth naming rather than a geometry constraint.
+    static let cellCapacity = 5
+
     /// 540pt on notch Macs, 520 on external displays — the same band the scene
     /// is drawn into.
     let width: CGFloat
@@ -147,7 +156,7 @@ struct IslandIdentityStripLayout: Equatable, Sendable {
         self.width = width
         emptyMessage = lang.t(Self.emptyMessageKey)
 
-        cells = sessions.prefix(IslandSceneLayout.stationCapacity).map { session in
+        cells = sessions.prefix(Self.cellCapacity).map { session in
             let rawHost = session.jumpTarget?.terminalApp.trimmingCharacters(in: .whitespacesAndNewlines)
             let host = rawHost?.isEmpty == false ? rawHost : nil
             let rawWorkspace = session.spotlightWorkspaceName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -182,7 +191,7 @@ struct IslandIdentityStripLayout: Equatable, Sendable {
 
         // The ceiling is the scene's, not a second one: the strip captions what
         // was drawn, so both bands hide the same sessions.
-        overflow = max(0, sessions.count - IslandSceneLayout.stationCapacity)
+        overflow = max(0, sessions.count - Self.cellCapacity)
 
         overflowDescription = overflow > 0
             ? lang.t(overflow == 1 ? "island.overflow.spoken.one" : "island.overflow.spoken.many", overflow)

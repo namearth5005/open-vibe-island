@@ -79,7 +79,7 @@ struct IslandIdentityStripTests {
     func sessionsPastThePlotCeilingAreCountedNotDropped() {
         let twelve = (0..<12).map { session("s\($0)") }
         let band = strip(twelve)
-        #expect(band.cells.count == IslandSceneLayout.stationCapacity)
+        #expect(band.cells.count == IslandIdentityStripLayout.cellCapacity)
         #expect(band.overflow == 7)
         #expect(band.overflowBadge == "+7")
         #expect(band.overflowDescription?.contains("7") == true)
@@ -96,13 +96,17 @@ struct IslandIdentityStripTests {
     /// The two bands are built from the same sessions and the same ceiling, so
     /// cell *n* is always the creature at station *n*. If they ever disagreed
     /// the strip would be captioning the wrong creature.
+    /// Was `theStripAndTheSceneAgreeOnWhoIsVisible`. The scene is deleted, so
+    /// there is nothing left to disagree with — but the claim underneath it was
+    /// the strip's own: it names the first `cellCapacity` sessions in the order
+    /// it was given and counts the rest, and it must never silently drop one.
     @Test
-    func theStripAndTheSceneAgreeOnWhoIsVisible() {
+    func theStripNamesTheFirstFiveAndCountsTheRest() {
         let sessions = (0..<8).map { session("s\($0)") }
-        let scene = IslandSceneLayout(sessions: sessions, geode: geode(for: sessions), width: 540)
         let band = strip(sessions)
-        #expect(band.cells.map(\.id) == scene.stations.map(\.id))
-        #expect(band.overflow == scene.overflow)
+        #expect(band.cells.map(\.id) == sessions.prefix(IslandIdentityStripLayout.cellCapacity).map(\.id))
+        #expect(band.overflow == 3)
+        #expect(band.cells.count + band.overflow == sessions.count)
     }
 
     // MARK: - The four facts
@@ -191,11 +195,13 @@ struct IslandIdentityStripTests {
             session("answer", phase: .waitingForAnswer),
             session("done", phase: .completed),
         ]
-        let scene = IslandSceneLayout(sessions: sessions, geode: geode(for: sessions), width: 540)
+        let shared = geode(for: sessions)
         let band = strip(sessions)
 
-        for (cell, station) in zip(band.cells, scene.stations) {
-            #expect(cell.needsAttention == (station.pose == .waiting))
+        // The cell mirrors the pose rather than re-deciding it — one spelling of
+        // the attention rule, which is the whole reason `isAskingForYou` exists.
+        for cell in band.cells {
+            #expect(cell.needsAttention == shared.pose(for: cell.id).isAskingForYou)
         }
         #expect(band.cells.map(\.needsAttention) == [false, true, true, false])
     }
@@ -282,7 +288,7 @@ struct IslandIdentityStripTests {
     @Test
     func everyCellAndTheOverflowColumnFitInsideTheBand() {
         for width in [520.0, 540.0] as [CGFloat] {
-            for count in 1...IslandSceneLayout.stationCapacity {
+            for count in 1...IslandIdentityStripLayout.cellCapacity {
                 for overflow in [0, 4] {
                     let cellWidth = IslandIdentityStripLayout.cellWidth(
                         count: count, width: width, overflow: overflow
@@ -313,7 +319,7 @@ struct IslandIdentityStripTests {
     /// the elapsed badge half a panel away from the host it belongs to.
     @Test
     func aCellNeverGrowsWiderThanItsContentNeeds() {
-        for count in 1...IslandSceneLayout.stationCapacity {
+        for count in 1...IslandIdentityStripLayout.cellCapacity {
             let cellWidth = IslandIdentityStripLayout.cellWidth(count: count, width: 540, overflow: 0)
             #expect(cellWidth <= IslandIdentityStripLayout.maximumCellWidth + 0.001)
         }

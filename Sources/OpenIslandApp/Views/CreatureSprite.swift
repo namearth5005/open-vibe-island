@@ -15,13 +15,6 @@ enum CreatureSprite {
         "\(species.rawValue)-\(fileComponent(for: pose))"
     }
 
-    /// Resource basename for a structure, e.g. `struct-tower`. Prefixed rather
-    /// than bare because the bundle is flat (see `image(named:)`) and `terminal`
-    /// or `editor` alone would be a collision waiting to happen.
-    static func name(for structure: CreatureStructure) -> String {
-        "struct-\(structure.rawValue)"
-    }
-
     /// Resource basename for a reward object, e.g. `obj-lantern`. Prefixed for
     /// the same reason structures are — `key` or `shard` alone would collide in
     /// a flat bundle.

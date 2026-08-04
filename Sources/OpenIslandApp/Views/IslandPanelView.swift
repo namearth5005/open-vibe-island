@@ -418,14 +418,14 @@ struct IslandPanelView: View {
     /// the island band needs a definite width to lay its plots out against, and
     /// the caller already knows it — 540 on a notch Mac, 520 external.
     private func openedContent(width: CGFloat) -> some View {
+        // No companion here. It stood directly above `sessionPanelHeader`, whose
+        // overview chips already answer "does anything need me" numerically and
+        // whose `shippedTodayBadge` already prints the day's tally — two summary
+        // strips 8pt apart saying the same two things. That is the same
+        // duplication that sank the five-creature band, one level up. The
+        // companion lives in the pill and on its own surface; the panel is a
+        // tool and goes back to being one.
         VStack(spacing: 8) {
-            // The island, when the user has asked for it. Composed in
-            // `IslandBandView`, not here — this file is 2776 lines and the
-            // island is four bands' worth of layout. Off by default, and when
-            // off this branch produces nothing at all, so the panel below is
-            // byte-for-byte the panel that shipped before it existed.
-            islandBand(width: width)
-
             if !model.hasAnyInstalledAgent {
                 installHooksHint
                     .padding(.horizontal, 18)
@@ -445,40 +445,6 @@ struct IslandPanelView: View {
             }
         }
         .padding(.bottom, 0)
-    }
-
-    /// The island band, or nothing.
-    @ViewBuilder
-    private func islandBand(width: CGFloat) -> some View {
-        // The visibility test is out here, not inside the `TimelineView`, and
-        // that placement is load-bearing rather than stylistic. This is a child
-        // of a `VStack(spacing: 8)`: a `TimelineView` that was always built and
-        // merely drew nothing would still be a child, and the stack would still
-        // put 8pt of spacing beside it — pushing the whole panel down by 8pt for
-        // every user who has the island off. Producing a genuine `EmptyView`
-        // instead is what makes "off" mean the panel that shipped before this
-        // existed.
-        if model.islandScene.isVisible {
-            // A minute, not a second. The 1Hz tick was for the three bands the
-            // companion replaced: two printed live elapsed time and one counted
-            // how long a session had been kept waiting, all wrong the moment
-            // they stopped advancing. The companion row prints one figure —
-            // "worked today" — summed over *finished* log records, so it cannot
-            // change except when a session ends, and that already invalidates
-            // the view through `AppModel`. What is left for the timeline is the
-            // local-midnight rollover, which a minute catches. At 1Hz this was
-            // a full `SessionStats.summary` over the whole session log, every
-            // second, for a number that had not moved.
-            TimelineView(.periodic(from: .now, by: 60)) { context in
-                // Every other decision — which sessions, in what order, at what
-                // height — belongs to `AppModel.islandBandLayout`. This view
-                // renders what it is given, which is what keeps the island's
-                // wiring testable rather than sealed inside a view body.
-                if let layout = model.islandBandLayout(width: width, now: context.date) {
-                    IslandBandView(layout: layout)
-                }
-            }
-        }
     }
 
     /// Persistent hint at the top of the expanded island while no agent

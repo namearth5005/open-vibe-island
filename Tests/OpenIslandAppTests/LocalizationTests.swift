@@ -61,10 +61,7 @@ struct LocalizationTests {
         keys.formUnion(CreaturePose.allCases.map(\.spokenStateKey))
         keys.formUnion(ReceiptItem.allCases.map(\.labelKey))
         keys.formUnion(CreatureVoice.allLineKeys)
-        keys.formUnion(CompanionState.allCases.map(\.spokenStateKey))
         keys.formUnion([
-            "island.companion.worked",
-            "island.companion.spoken",
             IslandIdentityStripLayout.emptyMessageKey,
             IslandDetailBand.emptyMessageKey,
             Receipt.busyFooterKey,
@@ -101,16 +98,6 @@ struct LocalizationTests {
             "receipt.spoken.up",
             "receipt.spoken.down",
             "settings.stats.receipt",
-            "settings.appearance.islandPart.title",
-            "settings.appearance.islandScene.title",
-            "settings.appearance.islandScene.note",
-            "settings.appearance.islandScene.off",
-            "settings.appearance.islandScene.on",
-            "settings.appearance.sceneHeight.title",
-            "settings.appearance.sceneHeight.note",
-            "settings.appearance.sceneHeight.compact",
-            "settings.appearance.sceneHeight.standard",
-            "settings.appearance.sceneHeight.tall",
         ])
 
         for locale in Self.locales {
