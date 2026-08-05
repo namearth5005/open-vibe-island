@@ -81,7 +81,7 @@ Replace the 309pt band with a slim row: the companion, a timer, today's tally.
 
 ---
 
-## [todo] 3 — Remove the scene layer
+## [done] 3 — Remove the scene layer
 
 Delete what the companion replaces, now that nothing renders it.
 
@@ -108,7 +108,13 @@ Delete what the companion replaces, now that nothing renders it.
 
 ---
 
-## [todo] 4 — Choose your companion
+## [CUT] 4 — Choose your companion
+
+**Cut 2026-08-04.** Six selectable characters was dead weight for a user who runs one agent — the
+roster existed to serve the agent→species mapping, and that mapping is gone. The whole budget goes
+to making *one* character good. `CreatureSpecies` survives as the sprite namespace only.
+
+<details><summary>original criteria</summary>
 
 Six characters ship. Make them a choice instead of an agent taxonomy nobody could perceive.
 
@@ -126,6 +132,19 @@ Six characters ship. Make them a choice instead of an agent taxonomy nobody coul
 
 **Build with:** `swiftui-design`  **Review with:** `swiftui-pro`
 **Depends on:** 3
+</details>
+
+---
+
+## [in-progress] 9 — The companion's own place  ← NEXT
+
+Promoted to the front. With the companion out of the panel, this is the only place it exists at size,
+so nothing after it can be judged until it lands.
+
+**Build it with the existing painterly sprites, not the rig.** They are already Tier A art — the
+round-1 failure was never that they are bad, it was drawing them at 58pt inside a 211pt landscape. At
+proper size on their own surface they are the art that was approved. The rig replaces them once its
+character is settled; that is a separate conversation and it must not block this.
 
 ---
 
