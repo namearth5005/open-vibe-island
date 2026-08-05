@@ -120,6 +120,9 @@ func render(
         case .lid:
             ctx.setFillColor(color(body))
             ctx.setShadow(offset: .zero, blur: 0)
+        case .accent:
+            ctx.setFillColor(color(light))
+            ctx.setShadow(offset: .zero, blur: 0)
         }
         ctx.fillPath()
 
