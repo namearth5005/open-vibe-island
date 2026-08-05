@@ -46,6 +46,7 @@ This index is the repository map for humans and coding agents. Read these files 
 
 ## Design And Art
 
+- [docs/COMPANION-ART-BRIEF.md](./COMPANION-ART-BRIEF.md) for the corrected art brief — medium, palette and generation prompts measured from full-resolution reference, superseding STYLE-SPEC's art-direction sections
 - [docs/STYLE-SPEC.md](./STYLE-SPEC.md) for the visual style specification and illustrator brief — measured palette, two-tier style system, pill silhouette grammar, and the art acceptance gate
 - [docs/art-production-evaluation.md](./art-production-evaluation.md) for the art production decision document — ranked sourcing routes, the 28pt legibility problem, and licensing posture
 - [docs/ART-PROMPTS.md](./ART-PROMPTS.md) for the generation prompts derived from the style spec, and how generated sprites are judged by the render harness
