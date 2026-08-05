@@ -294,6 +294,38 @@
 "receipt.spoken.up" = "up %lld";
 "receipt.spoken.down" = "down %lld";
 "settings.stats.receipt" = "Today, printed";
+"settings.stats.receipt.moved" = "The day's receipt is printed on your companion's surface.";
+"settings.stats.receipt.open" = "Open Companion";
+
+/* Companion - the destination surface */
+"companion.window.title" = "Companion";
+"companion.state.waving" = "Something needs you";
+"companion.state.working" = "Hard at work";
+"companion.state.resting" = "Resting";
+"companion.state.asleep" = "Fast asleep";
+"companion.runtime.today" = "%@ of agent time today";
+"companion.collection.title" = "COLLECTION";
+"companion.collection.allTime" = "all time";
+"companion.collection.found" = "%1$lld of %2$lld found";
+"companion.collection.locked" = "not found yet";
+"companion.collection.scrap" = "Scrap, left behind by interrupted sessions.";
+"companion.collection.empty" = "Nothing found yet. Finish a session and something turns up.";
+"companion.tier.one" = "any clean finish";
+"companion.tier.two" = "every gate answered in time";
+"companion.tier.three" = "a long run, answered throughout";
+"reward.object.bell" = "Bell";
+"reward.object.bloom" = "Bloom";
+"reward.object.book" = "Book";
+"reward.object.coin" = "Coin";
+"reward.object.feather" = "Feather";
+"reward.object.geode" = "Geode";
+"reward.object.ingot" = "Ingot";
+"reward.object.key" = "Key";
+"reward.object.lantern" = "Lantern";
+"reward.object.scrap" = "Scrap";
+"reward.object.seed" = "Seed";
+"reward.object.shard" = "Shard";
+"reward.object.tool" = "Tool";
 
 /* Settings - Personalization - Island */
 

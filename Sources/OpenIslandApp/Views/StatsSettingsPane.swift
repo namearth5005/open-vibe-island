@@ -10,6 +10,13 @@ import OpenIslandCore
 struct StatsSettingsPane: View {
     @Bindable var model: AppModel
 
+    /// Opens the companion's window from here rather than relying on
+    /// `AppModel.openCompanionWindow`, which is only registered once that window
+    /// has rendered at least one time. A user who has never opened it — which is
+    /// every user on the day this ships — would otherwise press the button and
+    /// get nothing.
+    @Environment(\.openWindow) private var openWindow
+
     /// Reached through the model, matching every other settings pane.
     /// `LanguageManager` is not injected into the SwiftUI environment anywhere in
     /// this app, so `@Environment(LanguageManager.self)` traps at render time.
@@ -178,42 +185,40 @@ struct StatsSettingsPane: View {
 
     // MARK: - Receipt
 
-    /// The day, printed, above the same day's medians.
+    /// A forwarding address, not the document.
     ///
-    /// This pane is the only surface in the app whose whole job is
-    /// `SessionStats`, and `Receipt` is built from nothing else — same source,
-    /// same refresh, no new plumbing. It is a record rather than live state,
-    /// which is why it is here and not in the panel: the panel's vertical
-    /// budget belongs to the session list, and a document that changes a few
-    /// times a day has no claim on it.
+    /// The receipt used to be printed here, gated on `range == .today` because
+    /// `Receipt` is wired to `Receipt.range` and would otherwise have sat above
+    /// a seven-day grid contradicting it. That gate was the least bad option
+    /// available while this pane was the only surface built from `SessionStats`.
+    /// It is not any more: the receipt is a document you visit, and it now lives
+    /// on the companion's surface, which has no range control for it to
+    /// disagree with.
     ///
-    /// Shown only for `today`, because `Receipt` is hard-wired to
-    /// `StatsRange.today` — printing it beside a seven-day grid would put two
-    /// different days on one screen and let the paper contradict the numbers
-    /// directly beneath it.
-    @ViewBuilder
+    /// The link stays because the pane is where a user goes looking for it, and
+    /// because the app's menu bar is absent entirely when the dock icon is
+    /// turned off — leaving this out would make the window unreachable for
+    /// exactly the users who run it as a pure menu-bar utility.
     private var receiptBlock: some View {
-        if range == .today {
-            VStack(alignment: .leading, spacing: 10) {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(lang.t("settings.stats.receipt"))
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                    .tracking(1.2)
+                    .font(.system(size: 12, weight: .semibold))
+                Text(lang.t("settings.stats.receipt.moved"))
+                    .font(.system(size: 11))
                     .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
-                ReceiptView(
-                    receipt: Receipt(
-                        records: records,
-                        now: now,
-                        // The paper caps itself at 300pt; this is the band it
-                        // is centred in, matching the notch panel's width so
-                        // the slip is the same object in both places.
-                        width: 540,
-                        lang: lang
-                    )
-                )
-                .frame(maxWidth: .infinity, alignment: .center)
+            Spacer(minLength: 8)
+
+            Button(lang.t("settings.stats.receipt.open")) {
+                openWindow(id: CompanionWindow.id)
+                model.showCompanion()
             }
         }
+        .padding(14)
+        .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 10))
     }
 
     private var emptyState: some View {

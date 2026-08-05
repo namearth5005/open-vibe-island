@@ -114,7 +114,57 @@ struct OpenIslandApp: App {
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }
+
+            // The Window menu, not the app menu: this is a window you bring
+            // forward, and it is where macOS users look for one.
+            CommandGroup(before: .windowList) {
+                Button(appDelegate.model.lang.t(CompanionWindow.titleKey)) {
+                    openWindow(id: CompanionWindow.id)
+                    appDelegate.model.showCompanion()
+                }
+                .keyboardShortcut("0", modifiers: .command)
+            }
         }
+
+        Window(CompanionWindow.title, id: CompanionWindow.id) {
+            CompanionWindowContent(model: appDelegate.model)
+        }
+        .windowResizability(.contentMinSize)
+        .defaultSize(
+            width: CompanionSurfaceLayout.defaultSize.width,
+            height: CompanionSurfaceLayout.defaultSize.height
+        )
+    }
+}
+
+/// Identity of the companion's window, in one place.
+///
+/// The `title` is the native window title AppKit matches on when
+/// `AppModel.showCompanion` brings it forward, so it is deliberately *not*
+/// localized — `showSettings` matches its window the same way, and a title that
+/// changed with the app language would break the lookup the moment someone
+/// switched locale. What the user reads is `titleKey`, on the menu item.
+enum CompanionWindow {
+    static let id = "companion"
+    static let title = "Open Island Companion"
+    static let titleKey = "companion.window.title"
+}
+
+/// Mirrors `SettingsWindowContent`: re-registers the `openWindow` closure each
+/// time the window renders, so the model can reopen it after AppKit has torn
+/// the window down.
+private struct CompanionWindowContent: View {
+    var model: AppModel
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        CompanionSurfaceView(model: model)
+            .preferredColorScheme(.dark)
+            .onAppear {
+                model.openCompanionWindow = { [openWindow] in
+                    openWindow(id: CompanionWindow.id)
+                }
+            }
     }
 }
 

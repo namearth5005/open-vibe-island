@@ -294,6 +294,38 @@
 "receipt.spoken.up" = "淨增 %lld";
 "receipt.spoken.down" = "淨減 %lld";
 "settings.stats.receipt" = "今日收據";
+"settings.stats.receipt.moved" = "今天的收據改在夥伴頁面上列印。";
+"settings.stats.receipt.open" = "開啟夥伴";
+
+/* Companion - the destination surface */
+"companion.window.title" = "夥伴";
+"companion.state.waving" = "有事在等你";
+"companion.state.working" = "正在忙";
+"companion.state.resting" = "歇著呢";
+"companion.state.asleep" = "睡熟了";
+"companion.runtime.today" = "今天代理執行了 %@";
+"companion.collection.title" = "收藏";
+"companion.collection.allTime" = "全部時間";
+"companion.collection.found" = "已找到 %1$lld / %2$lld";
+"companion.collection.locked" = "尚未找到";
+"companion.collection.scrap" = "廢料，來自被中斷的工作階段。";
+"companion.collection.empty" = "還什麼都沒有。完成一次工作階段就會有收穫。";
+"companion.tier.one" = "任何一次乾淨收尾";
+"companion.tier.two" = "每個提問都及時回應";
+"companion.tier.three" = "長時間執行，且全程有回應";
+"reward.object.bell" = "鈴鐺";
+"reward.object.bloom" = "花朵";
+"reward.object.book" = "書本";
+"reward.object.coin" = "硬幣";
+"reward.object.feather" = "羽毛";
+"reward.object.geode" = "晶洞";
+"reward.object.ingot" = "金錠";
+"reward.object.key" = "鑰匙";
+"reward.object.lantern" = "提燈";
+"reward.object.scrap" = "廢料";
+"reward.object.seed" = "種子";
+"reward.object.shard" = "碎片";
+"reward.object.tool" = "工具";
 
 /* Settings - Personalization - Island */
 

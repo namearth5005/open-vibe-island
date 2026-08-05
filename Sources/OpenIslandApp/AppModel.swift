@@ -387,6 +387,9 @@ final class AppModel {
     var openSettingsWindow: (() -> Void)?
 
     @ObservationIgnored
+    var openCompanionWindow: (() -> Void)?
+
+    @ObservationIgnored
     private var hasFinishedInit = false
 
     func appearancePreferences(for profile: IslandAppearanceDisplayProfile) -> IslandAppearancePreferences {
@@ -1509,6 +1512,22 @@ final class AppModel {
             NSApp.sendAction(NSSelectorFromString("showSettingsWindow:"), to: nil, from: nil)
         }
         if let window = NSApp.windows.first(where: { $0.title == "Open Island Settings" }) {
+            window.orderFrontRegardless()
+            window.makeKey()
+        }
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    /// Brings the companion's window forward.
+    ///
+    /// Deliberately touches nothing else. The overlay panel observes no
+    /// application-activation notification and its collapse is driven by the
+    /// pointer, so activating the app to show a window leaves both the panel and
+    /// the pill exactly as they were — which is the same reason `showSettings`
+    /// has always been safe to call from inside the panel.
+    func showCompanion() {
+        openCompanionWindow?()
+        if let window = NSApp.windows.first(where: { $0.title == CompanionWindow.title }) {
             window.orderFrontRegardless()
             window.makeKey()
         }

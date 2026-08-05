@@ -294,6 +294,38 @@
 "receipt.spoken.up" = "净增 %lld";
 "receipt.spoken.down" = "净减 %lld";
 "settings.stats.receipt" = "今日小票";
+"settings.stats.receipt.moved" = "今天的小票已改在伙伴页面上打印。";
+"settings.stats.receipt.open" = "打开伙伴";
+
+/* Companion - the destination surface */
+"companion.window.title" = "伙伴";
+"companion.state.waving" = "有事在等你";
+"companion.state.working" = "正在忙";
+"companion.state.resting" = "歇着呢";
+"companion.state.asleep" = "睡熟了";
+"companion.runtime.today" = "今天代理运行了 %@";
+"companion.collection.title" = "收藏";
+"companion.collection.allTime" = "全部时间";
+"companion.collection.found" = "已找到 %1$lld / %2$lld";
+"companion.collection.locked" = "尚未找到";
+"companion.collection.scrap" = "废料，来自被中断的会话。";
+"companion.collection.empty" = "还什么都没有。完成一次会话就会有收获。";
+"companion.tier.one" = "任何一次干净收尾";
+"companion.tier.two" = "每个提问都及时回应";
+"companion.tier.three" = "长时间运行，且全程有回应";
+"reward.object.bell" = "铃铛";
+"reward.object.bloom" = "花朵";
+"reward.object.book" = "书本";
+"reward.object.coin" = "硬币";
+"reward.object.feather" = "羽毛";
+"reward.object.geode" = "晶洞";
+"reward.object.ingot" = "金锭";
+"reward.object.key" = "钥匙";
+"reward.object.lantern" = "提灯";
+"reward.object.scrap" = "废料";
+"reward.object.seed" = "种子";
+"reward.object.shard" = "碎片";
+"reward.object.tool" = "工具";
 
 /* Settings - Personalization - Island */
 

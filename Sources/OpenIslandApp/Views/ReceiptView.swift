@@ -98,6 +98,16 @@ struct Receipt: Equatable, Sendable {
     let memo: [ReceiptLine]
     let footer: String
 
+    /// The only range this document has ever described.
+    ///
+    /// Stated as a value rather than left inline in `init`, because it is a
+    /// constraint on every surface that prints one: a receipt placed beside a
+    /// seven-day figure contradicts it, and until now the only record of that
+    /// was a comment on the Stats pane's `range == .today` gate. The gate is
+    /// gone — the receipt lives on a surface that has no range control at all —
+    /// so this is what is left to check against.
+    static let range: StatsRange = .today
+
     /// The shop's name, and the one string on the paper that stays English in
     /// every locale — it is a trading name, and the app's own name is already
     /// left untranslated everywhere else in the catalogue.
@@ -178,7 +188,7 @@ struct Receipt: Equatable, Sendable {
     ) {
         self.width = width
 
-        let summary = SessionStats.summary(for: .today, records: records, now: now, calendar: calendar)
+        let summary = SessionStats.summary(for: Self.range, records: records, now: now, calendar: calendar)
         dateLine = Self.dateLine(for: now, calendar: calendar)
         footer = lang.t(summary.finished == 0 ? Self.emptyFooterKey : Self.busyFooterKey)
 

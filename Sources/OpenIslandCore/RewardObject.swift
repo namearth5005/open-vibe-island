@@ -18,6 +18,14 @@ public enum RewardRarity: Int, CaseIterable, Sendable {
     /// that line.
     case four = 4
 
+    /// The tiers that have objects of their own.
+    ///
+    /// `four` is absent because it borrows `three`'s pool: walking
+    /// `allCases` to lay out the collection would print the same four objects
+    /// twice under two different star counts, which would be the shelf claiming
+    /// a lantern can be found two ways when only one of them exists.
+    public static let distinctPools: [RewardRarity] = [.one, .two, .three]
+
     /// Answer inside this and the wait is unpenalised. Borrowed from Cat on
     /// Chair's cancel window via the design's "wait timer" section.
     public static let graceWindow: TimeInterval = 30
@@ -119,7 +127,13 @@ public enum RewardObject: String, CaseIterable, Sendable {
 
     /// Four objects per tier. Ordinary finds at ★, things that had to be
     /// answered for at ★★, things that had to be waited out at ★★★.
-    static func pool(for rarity: RewardRarity) -> [RewardObject] {
+    ///
+    /// Public because the collection is displayed by tier: a shelf that listed
+    /// twelve objects in enum order would say nothing about why a lantern is
+    /// rarer than a coin, and re-spelling the grouping in the view would give
+    /// the app two answers to "which pool is this in" — the exact split that
+    /// `RewardRarity`'s own doc comment argues against for stored ratings.
+    public static func pool(for rarity: RewardRarity) -> [RewardObject] {
         switch rarity {
         case .one:
             [.coin, .feather, .seed, .shard]
