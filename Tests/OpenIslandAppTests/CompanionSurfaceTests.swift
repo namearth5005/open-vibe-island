@@ -267,27 +267,71 @@ struct CompanionContrastTests {
         }
     }
 
-    /// Measured against the meadow, which is the darker of the stage's two
-    /// grounds — the sky is lighter everywhere, so clearing the meadow clears
-    /// the whole stage.
+    /// Measured against **every** ground the stage has, not just the one the
+    /// caption happens to sit on today. A mark that only clears the meadow is a
+    /// mark that fails the moment it is moved up the hill.
     @Test
-    func everyMarkOnTheStageClearsBodyTextContrast() {
+    func everyMarkOnTheStageClearsBodyTextContrastOnEveryGround() {
+        let grounds = [
+            ("meadow", CompanionPalette.Stage.ground),
+            ("skyLow", CompanionPalette.Stage.skyLow),
+            ("skyHigh", CompanionPalette.Stage.skyHigh),
+            ("hill", CompanionPalette.Stage.hill),
+        ]
         for ink in [CompanionPalette.Stage.ink, CompanionPalette.Stage.quietInk] {
-            let ratio = CreatureColor.contrastRatio(ink, CompanionPalette.Stage.ground)
-            #expect(ratio >= CompanionPalette.bodyTextContrast, "\(ink) measures \(ratio)")
+            for (name, ground) in grounds {
+                let ratio = CreatureColor.contrastRatio(ink, ground)
+                #expect(
+                    ratio >= CompanionPalette.bodyTextContrast,
+                    "\(ink) measures \(ratio) on \(name)"
+                )
+            }
         }
     }
 
+    /// The hill is the *darkest* ground on the stage, so it is the one that
+    /// binds — and the meadow, being the lightest, is the one that proves least.
+    ///
+    /// This test previously asserted the opposite of its own name and passed:
+    /// it checked that the sky is darker than the meadow, called that "the sky
+    /// is lighter", and concluded the meadow binds. For dark marks on light
+    /// grounds contrast is `(ground + 0.05) / (ink + 0.05)`, which *falls* as
+    /// the ground darkens. Under the wrong reading, `quietInk` was derived to
+    /// clear 4.5:1 on the meadow and measured 3.42:1 on the hill crest.
     @Test
-    func theSkyIsLighterThanTheMeadowSoTheMeadowIsTheBindingGround() {
-        #expect(
-            CompanionPalette.Stage.skyHigh.relativeLuminance
-                < CompanionPalette.Stage.ground.relativeLuminance
+    func theHillIsTheDarkestGroundSoTheHillIsTheBindingGround() {
+        let meadow = CompanionPalette.Stage.ground.relativeLuminance
+        for other in [
+            CompanionPalette.Stage.skyHigh,
+            CompanionPalette.Stage.skyLow,
+            CompanionPalette.Stage.hill,
+        ] {
+            #expect(other.relativeLuminance < meadow)
+        }
+
+        // The binding ground is the darkest one, and that is the hill.
+        let hill = CompanionPalette.Stage.hill.relativeLuminance
+        for other in [
+            CompanionPalette.Stage.ground,
+            CompanionPalette.Stage.skyHigh,
+            CompanionPalette.Stage.skyLow,
+        ] {
+            #expect(hill <= other.relativeLuminance)
+        }
+        #expect(CompanionPalette.Stage.bindingGround == CompanionPalette.Stage.hill)
+
+        // And the binding ground really is the worst case, not merely the
+        // darkest: the ratio it yields is the lowest of the four.
+        let worst = CreatureColor.contrastRatio(
+            CompanionPalette.Stage.quietInk, CompanionPalette.Stage.bindingGround
         )
-        #expect(
-            CompanionPalette.Stage.skyLow.relativeLuminance
-                < CompanionPalette.Stage.ground.relativeLuminance
-        )
+        for ground in [
+            CompanionPalette.Stage.ground,
+            CompanionPalette.Stage.skyHigh,
+            CompanionPalette.Stage.skyLow,
+        ] {
+            #expect(worst <= CreatureColor.contrastRatio(CompanionPalette.Stage.quietInk, ground))
+        }
     }
 
     /// The three weights have to be distinguishable from each other, or the

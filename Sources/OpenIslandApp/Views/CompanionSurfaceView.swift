@@ -165,16 +165,33 @@ enum CompanionPalette {
     enum Stage {
         static let skyHigh = CreatureColor(red: 0x7B, green: 0xC9, blue: 0xA4)
         static let skyLow = CreatureColor(red: 0xA6, green: 0xDB, blue: 0xB0)
+        /// The distant rise, and — measured — the *darkest* thing on this stage
+        /// at L 0.415. See `bindingGround`.
         static let hill = CreatureColor(red: 0x97, green: 0xB7, blue: 0x6A)
-        /// The meadow, and the ground every mark on the stage is measured
-        /// against. The sky is lighter than it everywhere, so clearing the
-        /// meadow clears the whole stage.
+        /// The meadow: the stage's largest ground, and its lightest at L 0.631.
         static let ground = CreatureColor(red: 0xB4, green: 0xDE, blue: 0x6F)
 
-        /// The spec's line work, unmodified: 10.8:1 on the meadow.
+        /// The ground a dark mark on this stage has to clear.
+        ///
+        /// Not the meadow. These are dark marks on light grounds, so contrast is
+        /// `(ground + 0.05) / (ink + 0.05)` and it falls as the *ground* darkens
+        /// — the lightest ground is the most forgiving one, not the strictest.
+        /// Measured, the stage runs meadow 0.631, skyLow 0.619, skyHigh 0.487,
+        /// hill 0.415, so the hill binds and the meadow is the ground that
+        /// proves the least.
+        ///
+        /// This was inverted here for one round, and it cost something real:
+        /// `quietInk` was derived to clear 4.5:1 on the meadow, which it did at
+        /// 5.01:1 while measuring 3.42:1 on the hill crest.
+        static let bindingGround = hill
+
+        /// The spec's line work, unmodified: 7.4:1 on the binding ground.
         static let ink = CreatureColor(red: 0x21, green: 0x1E, blue: 0x12)
-        /// The same ink lifted until it recedes without dropping under the bar.
-        static let quietInk = ink.scaledToLuminance(0.086)
+        /// The same ink lifted until it recedes, held at the luminance that
+        /// still clears 4.5:1 on the *hill* — 4.65:1 there, 6.81:1 on the
+        /// meadow. The ceiling is 0.0533; this sits under it with room for
+        /// 8-bit rounding.
+        static let quietInk = ink.scaledToLuminance(0.050)
 
         static var skyHighColor: Color { Color(skyHigh) }
         static var skyLowColor: Color { Color(skyLow) }

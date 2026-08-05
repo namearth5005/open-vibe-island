@@ -86,8 +86,20 @@ public struct CompanionLayer: @unchecked Sendable {
         /// Limbs and tail — the same hue as the body, a shade off it, so an arm
         /// crossing the chest reads as an arm instead of vanishing.
         case limb
-        /// The eyes and nose.
+        /// The nose, the mouth, the whiskers — the small dark marks that are
+        /// not eyes.
         case feature
+        /// The eye's dark mass, and only that.
+        ///
+        /// Split out from `feature` because the eyes are the one part of this
+        /// character a renderer has to treat differently from every other dark
+        /// mark, and a renderer handed an untyped path cannot know which mark
+        /// it is holding. Without the distinction the only available eye is a
+        /// stamped oval, which is the third of the three tells that make a
+        /// drawing read as clip art.
+        case eye
+        /// The catchlight in the eye.
+        case glint
         /// The eyelid, drawn in body colour over the eye.
         case lid
         /// The one bright note in the drawing — a glow, a highlight, an inner
@@ -355,7 +367,7 @@ public enum CompanionRig {
                     // Sits on the lower lid line, so closing drops the top edge
                     // and the eye shuts downward the way an eye does.
                     out.append(.init(
-                        role: .feature,
+                        role: .eye,
                         path: ellipse(
                             cx: eyeCX,
                             cy: eyeCY - (openH - visible) / 2,
@@ -367,7 +379,7 @@ public enum CompanionRig {
                     // Fully shut: a flat lash line, which reads as closed where
                     // an absent eye reads as a hole.
                     out.append(.init(
-                        role: .feature,
+                        role: .eye,
                         path: ellipse(
                             cx: eyeCX, cy: eyeCY - openH / 2,
                             w: 0.092, h: 0.020,
@@ -823,14 +835,14 @@ struct CatPlan {
             let ex = headCX + side * 0.120
             let ey = headCY + 0.038
             if h > 0.012 {
-                out.append(.init(role: .feature, path: c.ellipse(
+                out.append(.init(role: .eye, path: c.ellipse(
                     ex, ey - (openH - h) / 2, 0.130, h, t
                 )))
-                out.append(.init(role: .accent, path: c.circle(
+                out.append(.init(role: .glint, path: c.circle(
                     ex + side * 0.024, ey + h * 0.20, min(0.034, h * 0.42), t
                 )))
             } else {
-                out.append(.init(role: .feature, path: c.ellipse(
+                out.append(.init(role: .eye, path: c.ellipse(
                     ex, ey - openH / 2, 0.130, 0.022, t
                 )))
             }
@@ -965,12 +977,12 @@ struct OtterPlan {
             let ex = headCX + dx
             let ey = headCY + dy
             if h > 0.012 {
-                out.append(.init(role: .feature, path: c.ellipse(
+                out.append(.init(role: .eye, path: c.ellipse(
                     ex, ey - (openH - h) / 2, 0.062, h, t
                 )))
-                out.append(.init(role: .accent, path: c.circle(ex + 0.012, ey + h * 0.22, min(0.030, h * 0.40), t)))
+                out.append(.init(role: .glint, path: c.circle(ex + 0.012, ey + h * 0.22, min(0.030, h * 0.40), t)))
             } else {
-                out.append(.init(role: .feature, path: c.ellipse(ex, ey - openH / 2, 0.062, 0.020, t)))
+                out.append(.init(role: .eye, path: c.ellipse(ex, ey - openH / 2, 0.062, 0.020, t)))
             }
         }
         return out
@@ -1082,10 +1094,10 @@ struct GhostPlan {
             let ex = headCX + side * 0.145
             let ey = 0.755 + lift
             if h > 0.020 {
-                out.append(.init(role: .feature, path: c.ellipse(ex, ey - (openH - h) / 2, 0.155, h, t)))
-                out.append(.init(role: .accent, path: c.circle(ex + side * 0.030, ey + h * 0.22, min(0.055, h * 0.36), t)))
+                out.append(.init(role: .eye, path: c.ellipse(ex, ey - (openH - h) / 2, 0.155, h, t)))
+                out.append(.init(role: .glint, path: c.circle(ex + side * 0.030, ey + h * 0.22, min(0.055, h * 0.36), t)))
             } else {
-                out.append(.init(role: .feature, path: c.ellipse(ex, ey - openH / 2, 0.155, 0.028, t)))
+                out.append(.init(role: .eye, path: c.ellipse(ex, ey - openH / 2, 0.155, 0.028, t)))
             }
         }
         return out
@@ -1209,10 +1221,10 @@ struct EarlingPlan {
             let ex = headCX + side * 0.072
             let ey = headCY + 0.025
             if h > 0.014 {
-                out.append(.init(role: .feature, path: c.ellipse(ex, ey - (openH - h) / 2, 0.090, h, t)))
-                out.append(.init(role: .accent, path: c.circle(ex + side * 0.018, ey + h * 0.22, min(0.038, h * 0.40), t)))
+                out.append(.init(role: .eye, path: c.ellipse(ex, ey - (openH - h) / 2, 0.090, h, t)))
+                out.append(.init(role: .glint, path: c.circle(ex + side * 0.018, ey + h * 0.22, min(0.038, h * 0.40), t)))
             } else {
-                out.append(.init(role: .feature, path: c.ellipse(ex, ey - openH / 2, 0.090, 0.022, t)))
+                out.append(.init(role: .eye, path: c.ellipse(ex, ey - openH / 2, 0.090, 0.022, t)))
             }
         }
         return out
@@ -1324,10 +1336,10 @@ struct CoilPlan {
             let ex = headCX + dx
             let ey = headCY + dy
             if h > 0.012 {
-                out.append(.init(role: .feature, path: c.ellipse(ex, ey - (openH - h) / 2, 0.100, h, t)))
-                out.append(.init(role: .accent, path: c.circle(ex + 0.020, ey + h * 0.20, min(0.030, h * 0.42), t)))
+                out.append(.init(role: .eye, path: c.ellipse(ex, ey - (openH - h) / 2, 0.100, h, t)))
+                out.append(.init(role: .glint, path: c.circle(ex + 0.020, ey + h * 0.20, min(0.030, h * 0.42), t)))
             } else {
-                out.append(.init(role: .feature, path: c.ellipse(ex, ey - openH / 2, 0.100, 0.018, t)))
+                out.append(.init(role: .eye, path: c.ellipse(ex, ey - openH / 2, 0.100, 0.018, t)))
             }
         }
         return out
@@ -1436,9 +1448,9 @@ struct ShardPlan {
                     (cx + dx + side * 0.034 * k, cy + dy - h * 0.55 * k),
                 ], t)
             }
-            out.append(.init(role: .feature, path: slit(1.0, 0, 0)))
+            out.append(.init(role: .eye, path: slit(1.0, 0, 0)))
             if pose.open > 0.35 {
-                out.append(.init(role: .accent, path: slit(0.30, -side * 0.022, h * 0.20)))
+                out.append(.init(role: .glint, path: slit(0.30, -side * 0.022, h * 0.20)))
             }
         }
         return out

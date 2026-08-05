@@ -114,13 +114,13 @@ func render(
         case .light:
             ctx.setFillColor(color(light))
             ctx.setShadow(offset: .zero, blur: 0)
-        case .feature:
+        case .feature, .eye:
             ctx.setFillColor(color(skin.feature))
             ctx.setShadow(offset: .zero, blur: 0)
         case .lid:
             ctx.setFillColor(color(body))
             ctx.setShadow(offset: .zero, blur: 0)
-        case .accent:
+        case .accent, .glint:
             ctx.setFillColor(color(light))
             ctx.setShadow(offset: .zero, blur: 0)
         }
