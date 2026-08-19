@@ -215,6 +215,10 @@ struct V6ClosedPill: View {
     var layout: V6ClosedLayout
     var height: CGFloat = 32
 
+    /// Swaps the state glyph for the companion animal. Off by default so the
+    /// shipping pill is unchanged until the companion is wired to real state.
+    var showsCompanion: Bool = false
+
     /// MacBook mode only — width of the physical notch cutout to wrap.
     var physicalNotchWidth: CGFloat = 0
 
@@ -255,8 +259,13 @@ struct V6ClosedPill: View {
                 .fill(V6Palette.ink)
 
             HStack(spacing: 0) {
-                UnifiedBars(mode: mode, size: 24)
-                    .frame(width: glyphW, height: 24)
+                if showsCompanion {
+                    CompanionPillView(size: 24, isAnimating: mode != .idle)
+                        .frame(width: glyphW, height: 24)
+                } else {
+                    UnifiedBars(mode: mode, size: 24)
+                        .frame(width: glyphW, height: 24)
+                }
 
                 if let label {
                     V6CenterLabelView(text: label)
@@ -295,8 +304,13 @@ struct V6ClosedPill: View {
                 .fill(V6Palette.ink)
 
             HStack(spacing: 0) {
-                UnifiedBars(mode: mode, size: 24)
-                    .frame(width: 24, height: 24)
+                if showsCompanion {
+                    CompanionPillView(size: 24, isAnimating: mode != .idle)
+                        .frame(width: 24, height: 24)
+                } else {
+                    UnifiedBars(mode: mode, size: 24)
+                        .frame(width: 24, height: 24)
+                }
 
                 Spacer(minLength: 0)
 
