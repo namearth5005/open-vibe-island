@@ -70,16 +70,30 @@ struct CompanionPillView: View {
         Group {
             if CompanionMotion.shouldAnimate(reduceMotion: reduceMotion) {
                 TimelineView(ArrhythmicSchedule(range: 45...180)) { context in
-                    still
-                        .rotationEffect(.degrees(wagAngle(at: context.date)), anchor: .bottom)
-                        .animation(.easeInOut(duration: 0.45), value: context.date)
+                    // A wag has to go out AND come back. Animating the rotation
+                    // toward a target would leave the dog holding a 3.5 degree
+                    // tilt until the next fire -- up to three minutes of looking
+                    // broken. Keyframes return it to rest within half a second.
+                    still.keyframeAnimator(initialValue: 0.0, trigger: context.date) { content, angle in
+                        content.rotationEffect(.degrees(angle), anchor: .bottom)
+                    } keyframes: { _ in
+                        KeyframeTrack {
+                            CubicKeyframe(Self.wagDegrees, duration: 0.18)
+                            CubicKeyframe(-Self.wagDegrees * 0.6, duration: 0.22)
+                            CubicKeyframe(0, duration: 0.20)
+                        }
+                    }
                 }
             } else {
                 still
             }
         }
         .frame(width: size * 0.875, height: size)
-        .accessibilityLabel(Text("Companion"))
+        // Hidden from VoiceOver on purpose. The spec requires that turning the
+        // companion off loses no information, so everything it shows is already
+        // available elsewhere in the pill. Announcing it would add an element
+        // without adding information.
+        .accessibilityHidden(true)
         .scaleEffect(entryPulse ? pose.entryScale : 1.0, anchor: .bottom)
         .onChange(of: pose) { _, _ in
             guard CompanionMotion.shouldAnimate(reduceMotion: reduceMotion) else { return }
@@ -95,12 +109,6 @@ struct CompanionPillView: View {
             .aspectRatio(contentMode: .fit)
     }
 
-    /// Alternates the tip direction so successive wags do not all lean the same
-    /// way, which would read as a drift rather than a movement.
-    private func wagAngle(at date: Date) -> Double {
-        let tick = Int(date.timeIntervalSinceReferenceDate)
-        return tick.isMultiple(of: 2) ? Self.wagDegrees : -Self.wagDegrees
-    }
 }
 
 #Preview("Companion poses") {
