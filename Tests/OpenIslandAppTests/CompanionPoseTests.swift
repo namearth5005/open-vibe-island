@@ -70,6 +70,12 @@ struct CompanionPoseTests {
         #expect(one.companionPose == many.companionPose)
     }
 
+    @Test
+    func reduceMotionSuppressesAllAnimation() {
+        #expect(CompanionMotion.shouldAnimate(reduceMotion: true) == false)
+        #expect(CompanionMotion.shouldAnimate(reduceMotion: false) == true)
+    }
+
     // MARK: - helpers
 
     private func makeSession(id: String, phase: SessionPhase) -> AgentSession {

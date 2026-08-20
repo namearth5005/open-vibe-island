@@ -18,3 +18,10 @@ enum CompanionPose: String, CaseIterable, Sendable {
     /// Base name of the still image in the Companion resource directory.
     var assetName: String { "companion-\(rawValue)" }
 }
+
+/// Motion policy, separated from the view so it can be tested without SwiftUI.
+enum CompanionMotion {
+    /// Reduce-motion is honoured unconditionally -- it is an accessibility
+    /// setting, not a preference to weigh against aesthetics.
+    static func shouldAnimate(reduceMotion: Bool) -> Bool { !reduceMotion }
+}
