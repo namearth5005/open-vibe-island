@@ -217,6 +217,10 @@ struct GeneralSettingsPane: View {
                     get: { model.hapticFeedbackEnabled },
                     set: { model.hapticFeedbackEnabled = $0 }
                 ))
+                Toggle(lang.t("settings.general.showCompanion"), isOn: Binding(
+                    get: { model.showCompanion },
+                    set: { model.showCompanion = $0 }
+                ))
                 Toggle(lang.t("settings.general.completionReply"), isOn: Binding(
                     get: { model.completionReplyEnabled },
                     set: { model.completionReplyEnabled = $0 }

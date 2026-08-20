@@ -21,6 +21,7 @@ final class AppModel {
     private static let islandRightSlotDefaultsKey = "appearance.island.v6.rightSlot"
     private static let islandCenterLabelDefaultsKey = "appearance.island.v6.centerLabel"
     private static let showCodexUsageDefaultsKey = "app.showCodexUsage"
+    private static let showCompanionDefaultsKey = "app.showCompanion"
     private static let completionReplyEnabledDefaultsKey = "feature.completionReply.enabled"
     private static let suppressFrontmostNotificationsDefaultsKey = "app.suppressFrontmostNotifications"
     private static let legacyIslandSessionStateIndicatorDefaultsKey = "appearance.island.v8.stateIndicator"
@@ -250,6 +251,13 @@ final class AppModel {
         didSet {
             guard hasFinishedInit, showCodexUsage != oldValue else { return }
             UserDefaults.standard.set(showCodexUsage, forKey: Self.showCodexUsageDefaultsKey)
+        }
+    }
+    /// Swaps the closed pill's state glyph for the companion animal.
+    var showCompanion: Bool = false {
+        didSet {
+            guard hasFinishedInit, showCompanion != oldValue else { return }
+            UserDefaults.standard.set(showCompanion, forKey: Self.showCompanionDefaultsKey)
         }
     }
     var completionReplyEnabled: Bool = false {
@@ -595,11 +603,13 @@ final class AppModel {
             Self.hapticFeedbackEnabledDefaultsKey: false,
             Self.completionReplyEnabledDefaultsKey: false,
             Self.suppressFrontmostNotificationsDefaultsKey: true,
+            Self.showCompanionDefaultsKey: false,
         ])
         isSoundMuted = UserDefaults.standard.bool(forKey: Self.soundMutedDefaultsKey)
         selectedSoundName = NotificationSoundService.selectedSoundName
         showDockIcon = UserDefaults.standard.bool(forKey: Self.showDockIconDefaultsKey)
         hapticFeedbackEnabled = UserDefaults.standard.bool(forKey: Self.hapticFeedbackEnabledDefaultsKey)
+        showCompanion = UserDefaults.standard.bool(forKey: Self.showCompanionDefaultsKey)
         suppressFrontmostNotifications = UserDefaults.standard.bool(forKey: Self.suppressFrontmostNotificationsDefaultsKey)
         if UserDefaults.standard.object(forKey: Self.showCodexUsageDefaultsKey) != nil {
             showCodexUsage = UserDefaults.standard.bool(forKey: Self.showCodexUsageDefaultsKey)

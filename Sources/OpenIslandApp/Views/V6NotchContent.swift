@@ -215,9 +215,6 @@ struct V6ClosedPill: View {
     var layout: V6ClosedLayout
     var height: CGFloat = 32
 
-    /// Swaps the state glyph for the companion animal. Off by default so the
-    /// shipping pill is unchanged until the companion is wired to real state.
-    var showsCompanion: Bool = false
 
     /// MacBook mode only — width of the physical notch cutout to wrap.
     var physicalNotchWidth: CGFloat = 0
@@ -225,6 +222,10 @@ struct V6ClosedPill: View {
     /// External mode only — minimum pill width (locked). Defaults to the
     /// width that fits just the glyph.
     var minWidth: CGFloat = 70
+
+    /// Swaps the state glyph for the companion animal. Declared last so both
+    /// call sites can pass it as a trailing argument. Off by default.
+    var showsCompanion: Bool = false
 
     var body: some View {
         switch layout {
