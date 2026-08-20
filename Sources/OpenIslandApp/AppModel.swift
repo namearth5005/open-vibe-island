@@ -858,6 +858,17 @@ final class AppModel {
         return .idle
     }
 
+    /// The companion's resting pose. Mirrors `islandClosedMode`'s precedence --
+    /// attention first, then running -- but is deliberately indifferent to how
+    /// many sessions are in each state. Count is the right slot's job; a drawing
+    /// communicates quantity badly and would have to infer an aggregate mood.
+    var companionPose: CompanionPose {
+        let sessions = surfacedSessions
+        if sessions.contains(where: { $0.phase.requiresAttention }) { return .attending }
+        if sessions.contains(where: { $0.phase == .running })       { return .alert }
+        return .sleeping
+    }
+
     /// The spotlight session powering the center label (if any). Attention
     /// sessions first, then the most recent running one, then whatever's
     /// first.
