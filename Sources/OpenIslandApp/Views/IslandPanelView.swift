@@ -417,6 +417,22 @@ struct IslandPanelView: View {
     }
 
     private var openedContent: some View {
+        // The companion room replaces the whole list surface when enabled --
+        // it presents the same session information inside the scene rather
+        // than beside it. Falls back to the standard list when off.
+        Group {
+            // Shown on the empty state too. Nothing-running is when the room
+            // is most licensed and the companion most present -- hiding it
+            // there gets the whole point backwards.
+            if model.showCompanion, model.hasAnyInstalledAgent {
+                CompanionRoomView(sessions: model.islandListSessions)
+            } else {
+                standardOpenedContent
+            }
+        }
+    }
+
+    private var standardOpenedContent: some View {
         VStack(spacing: 8) {
             if !model.hasAnyInstalledAgent {
                 installHooksHint

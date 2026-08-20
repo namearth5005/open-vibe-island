@@ -32,8 +32,21 @@ private enum RoomArt {
 /// cannot compete in.
 struct CompanionRoomView: View {
     var sessions: [AgentSession]
-    /// Fraction of the panel height given to the wall.
-    private let horizon: CGFloat = 0.60
+
+    /// The panel's height is content-driven -- roughly 145pt with one session,
+    /// 550pt with twelve -- and the view cannot widen or lengthen it from here.
+    /// So the room scales with whatever it is given rather than demanding a
+    /// minimum: a fixed floor height simply pushes the scene below the clip.
+    /// The companion shrinks with the floor so it is never cropped.
+    /// Below this the panel cannot hold a scene AND a readable row -- at 145pt
+    /// the floor takes 49, the headline 26, and the single remaining row gets
+    /// clipped mid-height by the horizon. Under it the room drops the floor
+    /// entirely and becomes a warm wall, which still reads and never crops text.
+    private static let minRoomHeight: CGFloat = 260
+
+    private func floorHeight(for size: CGSize) -> CGFloat {
+        size.height >= Self.minRoomHeight ? size.height * 0.34 : 0
+    }
 
     var body: some View {
         GeometryReader { geo in
@@ -48,8 +61,8 @@ struct CompanionRoomView: View {
                     .padding(.horizontal, 22)
                     .padding(.top, 16)
                     .frame(
-                        maxWidth: geo.size.width * 0.66,
-                        maxHeight: geo.size.height * horizon - 20,
+                        maxWidth: geo.size.width * 0.82,
+                        maxHeight: geo.size.height - floorHeight(for: geo.size) - 20,
                         alignment: .topLeading
                     )
                     .clipped()
@@ -60,21 +73,21 @@ struct CompanionRoomView: View {
     // MARK: Room
 
     private func room(size: CGSize) -> some View {
-        let floorH = size.height * (1 - horizon)
+        let floorH = floorHeight(for: size)
         return ZStack(alignment: .bottomTrailing) {
             VStack(spacing: 0) {
-                plate(RoomArt.wall).frame(height: size.height * horizon)
+                plate(RoomArt.wall).frame(height: max(0, size.height - floorH))
                 plate(RoomArt.floor).frame(height: floorH)
             }
 
             // No rug. At panel size it renders as a sliver behind the chair
             // legs and reads as debris rather than grounding.
-            if let dog = RoomArt.companion {
+            if floorH > 0, let dog = RoomArt.companion {
                 Image(nsImage: dog)
                     .resizable().interpolation(.high).aspectRatio(contentMode: .fit)
-                    .frame(height: min(floorH * 1.55, size.height * 0.46))
-                    .offset(y: -floorH * 0.12)
-                    .padding(.trailing, size.width * 0.06)
+                    .frame(height: floorH * 1.30)
+                    .offset(y: -floorH * 0.04)
+                    .padding(.trailing, size.width * 0.05)
             }
         }
         .clipped()
@@ -95,17 +108,23 @@ struct CompanionRoomView: View {
     /// Roughly how many rows the wall can hold, from the measured row height
     /// plus spacing, after the headline has taken its share.
     private func rowsThatFit(in size: CGSize) -> Int {
-        let available = size.height * horizon - 20 - 16 - 26
-        return max(1, Int(available / 44))
+        let available = size.height - floorHeight(for: size) - 20 - 16 - 26
+        return max(1, Int(available / 52))
     }
 
     private func sessionList(rowLimit: Int) -> some View {
         let shown = Array(sessions.prefix(rowLimit))
         let hidden = sessions.count - shown.count
-        return VStack(alignment: .leading, spacing: 10) {
+        return VStack(alignment: .leading, spacing: 14) {
             Text(headline)
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(RoomPalette.ink)
+
+            if sessions.isEmpty {
+                Text("Start a coding agent in your terminal")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(RoomPalette.inkSoft)
+            }
 
             ForEach(shown, id: \.id) { session in
                 row(for: session)
@@ -120,14 +139,19 @@ struct CompanionRoomView: View {
     }
 
     private var headline: String {
+        if sessions.isEmpty { return "Nothing running" }
         let running = sessions.filter { $0.phase == .running }.count
-        return running == 1 ? "1 agent working" : "\(running) agents working"
+        switch running {
+        case 0:  return "All done"
+        case 1:  return "1 agent working"
+        default: return "\(running) agents working"
+        }
     }
 
     @ViewBuilder
     private func row(for session: AgentSession) -> some View {
         let urgent = session.phase.requiresAttention
-        VStack(alignment: .leading, spacing: 1) {
+        VStack(alignment: .leading, spacing: 3) {
             Text(session.jumpTarget?.workspaceName ?? session.title)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(urgent ? RoomPalette.paper : RoomPalette.ink)
