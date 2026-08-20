@@ -227,6 +227,9 @@ struct V6ClosedPill: View {
     /// call sites can pass it as a trailing argument. Off by default.
     var showsCompanion: Bool = false
 
+    /// The companion's pose. Ignored when `showsCompanion` is false.
+    var companionPose: CompanionPose = .sleeping
+
     var body: some View {
         switch layout {
         case .external: externalBody
@@ -261,7 +264,7 @@ struct V6ClosedPill: View {
 
             HStack(spacing: 0) {
                 if showsCompanion {
-                    CompanionPillView(size: 24, isAnimating: mode != .idle)
+                    CompanionPillView(pose: companionPose, size: 24)
                         .frame(width: glyphW, height: 24)
                 } else {
                     UnifiedBars(mode: mode, size: 24)
@@ -306,7 +309,7 @@ struct V6ClosedPill: View {
 
             HStack(spacing: 0) {
                 if showsCompanion {
-                    CompanionPillView(size: 24, isAnimating: mode != .idle)
+                    CompanionPillView(pose: companionPose, size: 24)
                         .frame(width: 24, height: 24)
                 } else {
                     UnifiedBars(mode: mode, size: 24)

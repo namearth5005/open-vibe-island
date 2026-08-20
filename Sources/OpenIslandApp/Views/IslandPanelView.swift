@@ -281,7 +281,8 @@ struct IslandPanelView: View {
             height: closedNotchHeight,
             physicalNotchWidth: layout == .macbook ? physicalNotchWidth : 0,
             minWidth: 70,
-            showsCompanion: model.showCompanion
+            showsCompanion: model.showCompanion,
+            companionPose: model.companionPose
         )
         .scaleEffect(isPopping ? 1.04 : 1, anchor: .top)
         .animation(popAnimation, value: isPopping)
