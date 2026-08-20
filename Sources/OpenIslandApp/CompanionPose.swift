@@ -17,6 +17,16 @@ enum CompanionPose: String, CaseIterable, Sendable {
 
     /// Base name of the still image in the Companion resource directory.
     var assetName: String { "companion-\(rawValue)" }
+
+    /// How much a transition INTO this pose should be noticed. Needing the
+    /// developer earns the largest movement; settling down earns the least.
+    var entryScale: Double {
+        switch self {
+        case .attending: 1.18
+        case .alert:     1.08
+        case .sleeping:  1.0
+        }
+    }
 }
 
 /// Motion policy, separated from the view so it can be tested without SwiftUI.

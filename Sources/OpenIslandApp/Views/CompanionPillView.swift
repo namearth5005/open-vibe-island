@@ -64,6 +64,7 @@ struct CompanionPillView: View {
     private static let wagDegrees: Double = 3.5
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var entryPulse = false
 
     var body: some View {
         Group {
@@ -79,6 +80,12 @@ struct CompanionPillView: View {
         }
         .frame(width: size * 0.875, height: size)
         .accessibilityLabel(Text("Companion"))
+        .scaleEffect(entryPulse ? pose.entryScale : 1.0, anchor: .bottom)
+        .onChange(of: pose) { _, _ in
+            guard CompanionMotion.shouldAnimate(reduceMotion: reduceMotion) else { return }
+            withAnimation(.spring(response: 0.28, dampingFraction: 0.55)) { entryPulse = true }
+            withAnimation(.spring(response: 0.34, dampingFraction: 0.8).delay(0.16)) { entryPulse = false }
+        }
     }
 
     private var still: some View {
