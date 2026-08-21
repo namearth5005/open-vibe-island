@@ -23,12 +23,21 @@ struct AgentFeedView: View {
     private let refresh = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            Divider().overlay(FeedPalette.hairline)
-            body(for: feed)
-            Divider().overlay(FeedPalette.hairline)
-            footer
+        // Measured rather than "maxWidth: .infinity". A row containing a Spacer
+        // and a Text with an ideal width can size ITSELF wider than the parent,
+        // and SwiftUI then centres the overflow -- which clipped both edges at
+        // once and cut "Opus 5" and "running" in half on the real panel.
+        // Pinning every band to the measured width removes the ambiguity.
+        GeometryReader { geo in
+            VStack(spacing: 0) {
+                header.frame(width: geo.size.width, alignment: .leading)
+                Divider().overlay(FeedPalette.hairline)
+                body(for: feed).frame(width: geo.size.width, alignment: .leading)
+                Divider().overlay(FeedPalette.hairline)
+                footer.frame(width: geo.size.width, alignment: .leading)
+            }
+            .frame(width: geo.size.width, height: geo.size.height, alignment: .top)
+            .clipped()
         }
         .background(V6Palette.ink)
         .onAppear(perform: reload)
@@ -50,6 +59,8 @@ struct AgentFeedView: View {
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(FeedPalette.text)
                     .lineLimit(1)
+                    .truncationMode(.tail)
+                    .layoutPriority(1)
                 if let branch = session.jumpTarget?.workingDirectory.flatMap(
                     WorkspaceNameResolver.worktreeBranch(for:)
                 ) {
@@ -87,6 +98,7 @@ struct AgentFeedView: View {
         }
         .padding(.horizontal, 13)
         .padding(.vertical, 9)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: Body
@@ -126,11 +138,12 @@ struct AgentFeedView: View {
         case .said(let text):
             HStack(alignment: .top, spacing: 8) {
                 stamp(entry.timestamp)
-                Text(text)
+                Text(FeedText.plain(text))
                     .font(.system(size: 11.5))
                     .foregroundStyle(FeedPalette.text.opacity(0.92))
-                    .lineLimit(4)
+                    .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
 
         case .ran(let tool, let argument):
@@ -245,6 +258,7 @@ struct AgentFeedView: View {
             .padding(.vertical, 1.5)
             .background(FeedPalette.text.opacity(0.08), in: RoundedRectangle(cornerRadius: 3))
             .lineLimit(1)
+            .truncationMode(.middle)
     }
 
     private func stat(_ text: String) -> some View {
@@ -313,6 +327,32 @@ struct AgentMark: View {
             context.stroke(path, with: .color(tint), lineWidth: 1.6)
         }
         .frame(width: size, height: size)
+    }
+}
+
+/// Agent prose is markdown. The transcript stores it verbatim, so raw
+/// asterisks and backticks show up as literal characters unless they are taken
+/// out — which is exactly how the first live run looked.
+///
+/// Deliberately a strip, not a renderer: the feed wants one readable line, not
+/// formatted rich text. Lives outside the view because it is pure text work and
+/// a MainActor-isolated helper cannot be called from a plain test.
+enum FeedText {
+    static func plain(_ text: String) -> String {
+        var out = text
+        for token in ["**", "`", "__"] {
+            out = out.replacingOccurrences(of: token, with: "")
+        }
+        out = out.split(separator: "\n", omittingEmptySubsequences: false)
+            .map { line -> String in
+                var l = String(line)
+                while l.hasPrefix("#") { l.removeFirst() }
+                if l.hasPrefix("- ") { l.removeFirst(2) }
+                return l.trimmingCharacters(in: .whitespaces)
+            }
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+        return out.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
