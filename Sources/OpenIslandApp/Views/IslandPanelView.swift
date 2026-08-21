@@ -421,10 +421,15 @@ struct IslandPanelView: View {
         // it presents the same session information inside the scene rather
         // than beside it. Falls back to the standard list when off.
         Group {
-            // Shown on the empty state too. Nothing-running is when the room
-            // is most licensed and the companion most present -- hiding it
-            // there gets the whole point backwards.
-            if model.showCompanion, model.hasAnyInstalledAgent {
+            // With a feed-capable session in focus, show what the agent is
+            // actually saying and doing. Falls back to the room when nothing is
+            // running, and to the standard list when the companion is off.
+            if model.showCompanion, let focus = model.feedFocusSession {
+                AgentFeedView(
+                    session: focus,
+                    others: model.islandListSessions.filter { $0.id != focus.id }
+                )
+            } else if model.showCompanion, model.hasAnyInstalledAgent {
                 CompanionRoomView(sessions: model.islandListSessions)
             } else {
                 standardOpenedContent

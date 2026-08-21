@@ -858,6 +858,17 @@ final class AppModel {
         return .idle
     }
 
+    /// The session whose transcript the feed should show: whichever one wants
+    /// the user first, then the most recent running one. Only Claude Code
+    /// writes a transcript we can parse today, so sessions without one fall
+    /// through and the panel shows the room instead.
+    var feedFocusSession: AgentSession? {
+        let candidates = surfacedSessions.filter(\.supportsFeed)
+        return candidates.first(where: { $0.phase.requiresAttention })
+            ?? candidates.first(where: { $0.phase == .running })
+            ?? candidates.first
+    }
+
     /// The companion's resting pose. Mirrors `islandClosedMode`'s precedence --
     /// attention first, then running -- but is deliberately indifferent to how
     /// many sessions are in each state. Count is the right slot's job; a drawing
