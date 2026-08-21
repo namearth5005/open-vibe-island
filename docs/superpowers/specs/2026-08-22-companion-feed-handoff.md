@@ -3,6 +3,10 @@
 Date: 2026-08-22
 Branch: `worktree-feat+companion-pill` (worktree at `.claude/worktrees/feat+companion-pill`)
 
+> **Status: §2's four defects are closed.** D1's cause was not the one guessed
+> below — see §2.1. §3, §4 and §6 still stand and are still the right way to
+> work on this view; §6 has one more trap in it now.
+
 You are picking up a feature that **works but does not yet look right**. The
 data layer is sound and tested; the layout has defects that are visible only in
 the running app. Your job is to close them, and to *prove* you closed them with
@@ -86,6 +90,38 @@ with truncation.
 **D4 — The feed reads as a wall.** No visual separation between turns. Prose,
 its tool calls, and the next prose block run together. Grouping a turn (prose +
 the tools it triggered) with spacing or a subtle container would fix it.
+
+## 2.1 How they were closed
+
+**D1 was the clip mask, not the content.** `OpenedIslandSurfaceShape` in notch
+mode is a `NotchShape`, and that path does not span its rect: below the concave
+top curve its straight sides sit at `rect.minX + topR` and `rect.maxX - topR`,
+with `topR = 22`. `IslandPanelView.openedSurface` frames content at the full
+`openedWidth` and then clips it to that path, so 22pt is masked off each side —
+symmetrically, which is exactly what the screenshot showed. Nothing was ever
+overflowing, which is why `.frame(maxWidth: .infinity)` and the `GeometryReader`
+both changed nothing.
+
+Every other surface in the panel already compensates: `sessionListSideInset` is
+46 in notch mode (22 clip + 24 visual) and `notchHeaderHorizontalPadding` is 46
+too. The feed had a hardcoded 13 and lost nine points of glyphs per side. It now
+takes `sideInset` from the panel like everything else. The `GeometryReader`
+wrapper is gone with it — it was load-bearing for a diagnosis that was wrong.
+
+**D2** — `FeedClock.stamp` pins a 24-hour `%02d:%02d`. There is no room for a
+meridiem marker at 9pt and no reading of the feed needs one.
+
+**D3** — action rows carry `.lineLimit(1)`, and the tool-name column widened to
+52 so `todowrite` is not truncated to initials.
+
+**D4** — `FeedTurns.grouped` splits the flat feed into turns (prose, plus the
+tools it triggered). Within a turn rows sit 3–4pt apart under one continuous
+spine; between turns the gap is 16pt. The clock prints **once per turn**, on its
+first row — repeating it made every row look like a separate event, and printed
+once it turns the left gutter into a turn counter you can read at a glance.
+
+Both new helpers are pure and live outside the view, next to `FeedText`, for the
+reason §6 gives. Tests in `Tests/OpenIslandAppTests/FeedTurnsTests.swift`.
 
 ---
 
@@ -197,6 +233,12 @@ already been wrong in this feature.
   with signal 5**, which looks like a build failure rather than an isolation
   error. Pure helpers belong outside the view — `FeedText` is out there for
   exactly this reason.
+- **Move the pointer off the notch before running `swift test`.** The screenshot
+  recipe parks it there, and `OverlayUICoordinator.updateNotificationAutoCollapse`
+  reads `NSEvent.mouseLocation`: with the pointer inside the expanded area it
+  takes the "pointer is already here" branch and schedules no timer, so
+  `completionNotificationHoverCancelsPendingTimedCollapse` fails and you count 6
+  issues instead of 5. `cliclick m:400,900` first, and the sixth goes away.
 
 ---
 

@@ -427,7 +427,8 @@ struct IslandPanelView: View {
             if model.showCompanion, let focus = model.feedFocusSession {
                 AgentFeedView(
                     session: focus,
-                    others: model.islandListSessions.filter { $0.id != focus.id }
+                    others: model.islandListSessions.filter { $0.id != focus.id },
+                    sideInset: sessionListSideInset
                 )
             } else if model.showCompanion, model.hasAnyInstalledAgent {
                 CompanionRoomView(sessions: model.islandListSessions)

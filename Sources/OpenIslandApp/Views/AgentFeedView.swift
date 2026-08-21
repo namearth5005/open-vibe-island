@@ -16,29 +16,41 @@ struct AgentFeedView: View {
     let session: AgentSession
     let others: [AgentSession]
 
+    /// Distance from the opened surface's own edge to the first glyph.
+    ///
+    /// This is not a style choice. `OpenedIslandSurfaceShape` in notch mode is
+    /// a `NotchShape`, whose straight sides sit at `rect.minX + topR` and
+    /// `rect.maxX - topR` — 22pt inside the rect on each side. The panel clips
+    /// its content to that path while framing it at the full opened width, so
+    /// anything closer than 22pt to the edge is masked away. Every other
+    /// surface in the panel already passes the same notch-aware inset; the feed
+    /// had a hardcoded 13 and lost nine points of glyphs off *both* sides,
+    /// which is what rendered `Opus 5` as `us 5` and `running` as `runnir`.
+    let sideInset: CGFloat
+
     @State private var feed = AgentFeed()
 
     /// Transcripts are appended to constantly; this is a cheap tail-and-parse,
     /// not a file watcher. Two seconds is well inside the rate a person reads.
     private let refresh = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
 
+    /// Where the turn spine hangs, and where an action row's text begins.
+    private let spineIndent: CGFloat = 12
+    private let actionIndent: CGFloat = 21
+    /// Wide enough for the long tool names Claude Code actually emits
+    /// (`todowrite`, `webfetch`) without truncating them to initials.
+    private let labelWidth: CGFloat = 52
+    private let stampWidth: CGFloat = 30
+
     var body: some View {
-        // Measured rather than "maxWidth: .infinity". A row containing a Spacer
-        // and a Text with an ideal width can size ITSELF wider than the parent,
-        // and SwiftUI then centres the overflow -- which clipped both edges at
-        // once and cut "Opus 5" and "running" in half on the real panel.
-        // Pinning every band to the measured width removes the ambiguity.
-        GeometryReader { geo in
-            VStack(spacing: 0) {
-                header.frame(width: geo.size.width, alignment: .leading)
-                Divider().overlay(FeedPalette.hairline)
-                body(for: feed).frame(width: geo.size.width, alignment: .leading)
-                Divider().overlay(FeedPalette.hairline)
-                footer.frame(width: geo.size.width, alignment: .leading)
-            }
-            .frame(width: geo.size.width, height: geo.size.height, alignment: .top)
-            .clipped()
+        VStack(spacing: 0) {
+            header
+            Divider().overlay(FeedPalette.hairline)
+            body(for: feed)
+            Divider().overlay(FeedPalette.hairline)
+            footer
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(V6Palette.ink)
         .onAppear(perform: reload)
         .onReceive(refresh) { _ in reload() }
@@ -74,6 +86,8 @@ struct AgentFeedView: View {
                     Text(session.phase.displayName.lowercased())
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(IslandDesignPalette.Status.tint(for: session.phase))
+                        .lineLimit(1)
+                        .fixedSize()
                 }
             }
 
@@ -92,11 +106,11 @@ struct AgentFeedView: View {
                     Text("−\(feed.summary.linesRemoved)")
                         .font(.system(size: 10, weight: .semibold, design: .monospaced))
                         .foregroundStyle(IslandDesignPalette.Status.waitingForApproval)
-                    stat("\(feed.summary.filesTouched) files")
+                    stat("\(feed.summary.filesTouched) file\(feed.summary.filesTouched == 1 ? "" : "s")")
                 }
             }
         }
-        .padding(.horizontal, 13)
+        .padding(.horizontal, sideInset)
         .padding(.vertical, 9)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -119,25 +133,58 @@ struct AgentFeedView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ScrollView(.vertical) {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(feed.entries) { entry in
-                        row(for: entry)
+                // Turns are the unit of separation. Inside one, rows sit close
+                // together under a shared spine; between two, the gap is wide
+                // enough to read as a break without needing a box.
+                VStack(alignment: .leading, spacing: 16) {
+                    ForEach(FeedTurns.grouped(feed.entries)) { turn in
+                        turnView(turn)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 13)
+                .padding(.horizontal, sideInset)
                 .padding(.vertical, 10)
             }
             .defaultScrollAnchor(.bottom)
         }
     }
 
+    /// One turn: the prose the agent wrote, and the tool calls it triggered
+    /// hanging off a single continuous rule beneath it.
+    ///
+    /// The clock prints once, on the turn's first row. Repeating it made every
+    /// row look like a separate event; printed once it marks where each turn
+    /// starts, so the gutter alone tells the reader how many turns are on
+    /// screen.
+    private func turnView(_ turn: FeedTurn) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            ForEach(Array(turn.lead.enumerated()), id: \.element.id) { index, entry in
+                row(for: entry, showsStamp: index == 0)
+            }
+
+            if !turn.actions.isEmpty {
+                VStack(alignment: .leading, spacing: 3) {
+                    ForEach(turn.actions) { row(for: $0) }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, actionIndent)
+                .padding(.top, turn.lead.isEmpty ? 0 : 2)
+                .overlay(alignment: .leading) {
+                    Rectangle()
+                        .fill(FeedPalette.hairline)
+                        .frame(width: 1)
+                        .padding(.leading, spineIndent)
+                }
+            }
+        }
+    }
+
     @ViewBuilder
-    private func row(for entry: AgentFeedEntry) -> some View {
+    private func row(for entry: AgentFeedEntry, showsStamp: Bool = false) -> some View {
         switch entry.kind {
         case .said(let text):
             HStack(alignment: .top, spacing: 8) {
-                stamp(entry.timestamp)
+                stamp(entry.timestamp, visible: showsStamp)
                 Text(FeedText.plain(text))
                     .font(.system(size: 11.5))
                     .foregroundStyle(FeedPalette.text.opacity(0.92))
@@ -147,62 +194,56 @@ struct AgentFeedView: View {
             }
 
         case .ran(let tool, let argument):
-            indented {
-                Text(tool.lowercased())
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(toolTint(tool))
-                    .frame(width: 34, alignment: .leading)
+            actionRow {
+                label(tool.lowercased(), tint: toolTint(tool))
                 Text(argument)
                     .font(.system(size: 10.5, design: .monospaced))
                     .foregroundStyle(FeedPalette.dim)
                     .lineLimit(1)
                     .truncationMode(.middle)
+                Spacer(minLength: 0)
             }
 
         case .edited(let file, let added, let removed):
-            indented {
-                Text("edit")
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(IslandDesignPalette.Status.completed)
-                    .frame(width: 34, alignment: .leading)
+            actionRow {
+                label("edit", tint: IslandDesignPalette.Status.completed)
                 Text(file)
                     .font(.system(size: 10.5, design: .monospaced))
                     .foregroundStyle(FeedPalette.dim)
                     .lineLimit(1)
                     .truncationMode(.middle)
+                Spacer(minLength: 0)
                 if added > 0 {
                     Text("+\(added)")
                         .font(.system(size: 9.5, weight: .semibold, design: .monospaced))
                         .foregroundStyle(IslandDesignPalette.Status.completed)
+                        .fixedSize()
                 }
                 if removed > 0 {
                     Text("−\(removed)")
                         .font(.system(size: 9.5, weight: .semibold, design: .monospaced))
                         .foregroundStyle(IslandDesignPalette.Status.waitingForApproval)
+                        .fixedSize()
                 }
             }
 
         case .thought:
             HStack(alignment: .top, spacing: 8) {
-                stamp(entry.timestamp)
+                stamp(entry.timestamp, visible: showsStamp)
                 Text("thinking")
                     .font(.system(size: 11))
                     .foregroundStyle(FeedPalette.faint)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
             }
         }
     }
 
-    /// Tool rows hang off a rule under the prose that prompted them, so a turn
-    /// reads as one block rather than a flat list of unrelated lines.
-    private func indented<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+    /// Every action row is exactly one line. A tool name long enough to wrap
+    /// used to break mid-word and cost the row a second line.
+    private func actionRow<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 6, content: content)
-            .padding(.leading, 42)
-            .overlay(alignment: .leading) {
-                Rectangle()
-                    .fill(FeedPalette.hairline)
-                    .frame(width: 1)
-                    .padding(.leading, 34)
-            }
+            .lineLimit(1)
     }
 
     // MARK: Footer
@@ -217,6 +258,7 @@ struct AgentFeedView: View {
                 Text("\(others.count) other\(others.count == 1 ? "" : "s")")
                     .font(.system(size: 10.5, weight: .semibold))
                     .foregroundStyle(FeedPalette.dim)
+                    .fixedSize()
                 ForEach(others.prefix(3), id: \.id) { other in
                     let attention = other.phase.requiresAttention
                     Text(other.jumpTarget?.workspaceName ?? other.title)
@@ -233,21 +275,32 @@ struct AgentFeedView: View {
                             in: RoundedRectangle(cornerRadius: 3)
                         )
                         .lineLimit(1)
+                        .truncationMode(.tail)
                 }
             }
             Spacer(minLength: 4)
         }
-        .padding(.horizontal, 13)
+        .padding(.horizontal, sideInset)
         .padding(.vertical, 8)
     }
 
     // MARK: Bits
 
-    private func stamp(_ date: Date) -> some View {
-        Text(date, format: .dateTime.hour().minute())
+    private func stamp(_ date: Date, visible: Bool) -> some View {
+        Text(FeedClock.stamp(date))
             .font(.system(size: 9, design: .monospaced))
             .foregroundStyle(FeedPalette.faint)
-            .frame(width: 34, alignment: .leading)
+            .opacity(visible ? 1 : 0)
+            .frame(width: stampWidth, alignment: .leading)
+    }
+
+    private func label(_ text: String, tint: Color) -> some View {
+        Text(text)
+            .font(.system(size: 9, weight: .bold))
+            .foregroundStyle(tint)
+            .lineLimit(1)
+            .truncationMode(.tail)
+            .frame(width: labelWidth, alignment: .leading)
     }
 
     private func tag(_ text: String) -> some View {
@@ -265,6 +318,8 @@ struct AgentFeedView: View {
         Text(text)
             .font(.system(size: 9.5, weight: .medium, design: .monospaced))
             .foregroundStyle(FeedPalette.faint)
+            .lineLimit(1)
+            .fixedSize()
     }
 
     /// Bash and Read dominate a feed, so they get the quietest treatment and
@@ -353,6 +408,67 @@ enum FeedText {
             .filter { !$0.isEmpty }
             .joined(separator: " ")
         return out.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+/// A fixed-width 24-hour stamp.
+///
+/// `.dateTime.hour().minute()` respects the locale's hour cycle, so a 12-hour
+/// locale renders `12:57 AM` — eight characters into a column sized for five,
+/// which truncated every timestamp in the feed. There is no room for a meridiem
+/// marker at this size and no reading of the feed needs one, so the cycle is
+/// pinned rather than the column widened.
+enum FeedClock {
+    static func stamp(_ date: Date, in timeZone: TimeZone = .current) -> String {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        let parts = calendar.dateComponents([.hour, .minute], from: date)
+        return String(format: "%02d:%02d", parts.hour ?? 0, parts.minute ?? 0)
+    }
+}
+
+/// Prose the agent wrote, plus the tool calls it triggered.
+///
+/// A turn is what the reader is actually scanning for — "it said this, so it
+/// did that". Without it the feed is one undifferentiated column of lines.
+struct FeedTurn: Identifiable, Equatable {
+    let id: String
+    var lead: [AgentFeedEntry]
+    var actions: [AgentFeedEntry]
+}
+
+/// Groups a flat feed into turns.
+///
+/// Pure, and outside the view, for the same reason `FeedText` is: a
+/// MainActor-isolated helper cannot be called from a plain test.
+enum FeedTurns {
+    static func grouped(_ entries: [AgentFeedEntry]) -> [FeedTurn] {
+        var turns: [FeedTurn] = []
+
+        for entry in entries {
+            let isProse = isProse(entry.kind)
+            // A turn breaks when prose arrives after work has been done — that
+            // is the agent starting a new thought. Consecutive prose rows
+            // (thinking, then text, as one record writes them) stay together.
+            let breaksTurn = turns.isEmpty || (isProse && !turns[turns.count - 1].actions.isEmpty)
+            if breaksTurn {
+                turns.append(FeedTurn(id: entry.id, lead: [], actions: []))
+            }
+            if isProse {
+                turns[turns.count - 1].lead.append(entry)
+            } else {
+                turns[turns.count - 1].actions.append(entry)
+            }
+        }
+
+        return turns
+    }
+
+    private static func isProse(_ kind: AgentFeedEntry.Kind) -> Bool {
+        switch kind {
+        case .said, .thought: true
+        case .ran, .edited: false
+        }
     }
 }
 
