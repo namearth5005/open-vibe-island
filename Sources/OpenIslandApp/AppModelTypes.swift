@@ -125,3 +125,19 @@ struct IslandSessionSection: Identifiable {
     let title: String
     let sessions: [AgentSession]
 }
+
+/// What the island is made of.
+///
+/// `CaseIterable` is load-bearing rather than incidental: `allCases` *is* the
+/// theme catalogue, so a future unlock layer filters this sequence before the
+/// picker renders it and touches nothing in the render path.
+enum IslandTheme: String, CaseIterable, Identifiable, Sendable {
+    case inkPaper
+    case creamCard
+    case fullCream
+
+    var id: String { rawValue }
+
+    /// Localisation key for the picker. Matches `settings.general.showCompanion`'s pattern.
+    var displayNameKey: String { "settings.appearance.theme.\(rawValue)" }
+}

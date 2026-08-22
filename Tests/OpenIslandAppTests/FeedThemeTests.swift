@@ -1,4 +1,5 @@
 import Foundation
+import OpenIslandCore
 import Testing
 @testable import OpenIslandApp
 
@@ -40,5 +41,78 @@ struct FeedInkTests {
 
         let half = FeedInk.blend(paper, over: ink, alpha: 0.5)
         #expect(half.red > ink.red && half.red < paper.red)
+    }
+}
+
+/// Spec §7.5. Every text token on every skin clears WCAG AA for small text;
+/// the status dot is a non-text graphic and clears 3:1. If a future tweak
+/// drops one below its bar, this fails instead of shipping.
+struct FeedThemeContrastTests {
+    private let textBar = 4.5
+    private let graphicBar = 3.0
+
+    @Test(arguments: IslandTheme.allCases)
+    func everyTextTokenClearsAA(theme: IslandTheme) {
+        let t = FeedTheme.resolve(theme)
+        let reading = t.surface ?? t.ground
+
+        #expect(t.text.contrast(against: reading) >= textBar)
+        #expect(t.dim.contrast(against: reading) >= textBar)
+        #expect(t.faint.contrast(against: reading) >= textBar)
+    }
+
+    @Test(arguments: IslandTheme.allCases)
+    func everyStatusTintClearsAA(theme: IslandTheme) {
+        let t = FeedTheme.resolve(theme)
+        let reading = t.surface ?? t.ground
+
+        for phase in SessionPhase.allCases {
+            let tint = t.ink(for: phase)
+            #expect(
+                tint.contrast(against: reading) >= textBar,
+                "\(theme.rawValue)/\(phase) = \(tint.contrast(against: reading))"
+            )
+        }
+    }
+
+    /// The header's status dot sits on the panel ground, not the reading
+    /// surface -- on Cream card those are different colours.
+    @Test(arguments: IslandTheme.allCases)
+    func statusDotClearsGraphicBarOnTheGround(theme: IslandTheme) {
+        let t = FeedTheme.resolve(theme)
+        for phase in SessionPhase.allCases {
+            #expect(t.headerInk(for: phase).contrast(against: t.ground) >= graphicBar)
+        }
+    }
+
+    /// Regression guard for the defect this round fixes: the shipped `faint`
+    /// tier measured 2.74:1.
+    @Test
+    func faintTierIsNoLongerBelowAA() {
+        let t = FeedTheme.resolve(.inkPaper)
+        #expect(t.faint.contrast(against: t.ground) > 4.5)
+    }
+}
+
+struct FeedThemeResolutionTests {
+    /// Cream card is the only skin with an inner reading surface. The other two
+    /// read directly on their ground.
+    @Test
+    func onlyCreamCardHasASeparateSurface() {
+        #expect(FeedTheme.resolve(.inkPaper).surface == nil)
+        #expect(FeedTheme.resolve(.fullCream).surface == nil)
+        #expect(FeedTheme.resolve(.creamCard).surface != nil)
+    }
+
+    @Test
+    func inkSkinsKeepTheExistingStatusTints() {
+        let t = FeedTheme.resolve(.inkPaper)
+        #expect(t.ink(for: .running) == FeedInk(hex: 0x6e_a7_ff))
+    }
+
+    @Test
+    func paperSkinsUseTheirOwnTints() {
+        let t = FeedTheme.resolve(.fullCream)
+        #expect(t.ink(for: .running) != FeedInk(hex: 0x6e_a7_ff))
     }
 }
