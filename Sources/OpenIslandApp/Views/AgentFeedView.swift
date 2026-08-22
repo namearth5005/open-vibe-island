@@ -32,6 +32,11 @@ struct AgentFeedView: View {
     /// from one value rather than reaching for globals.
     let theme: FeedTheme
 
+    /// Sample data for the settings preview. Set only there: the skin picker
+    /// shows the real feed at each skin rather than a picture of one, and
+    /// Settings has no transcript to tail.
+    var previewFeed: AgentFeed?
+
     @State private var feed = AgentFeed()
 
     /// Which turns the reader has opened or shut. Held on the view rather than
@@ -60,10 +65,17 @@ struct AgentFeedView: View {
         .background(theme.ground.color)
         .feedGrain(tint: theme.grainTint, opacity: theme.grainOpacity)
         .onAppear(perform: reload)
-        .onReceive(refresh) { _ in reload() }
+        .onReceive(refresh) { _ in
+            guard previewFeed == nil else { return }
+            reload()
+        }
     }
 
     private func reload() {
+        if let previewFeed {
+            feed = previewFeed
+            return
+        }
         guard let url = session.feedTranscriptURL else { return }
         feed = ClaudeTranscriptFeedReader.read(contentsOf: url, limit: 24)
     }

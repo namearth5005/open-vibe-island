@@ -67,6 +67,12 @@
 "settings.appearance.centerLabel.off" = "Off";
 "settings.appearance.notchPart.title" = "Notch";
 "settings.appearance.sessionListPart.title" = "Session list";
+"settings.appearance.themePart.title" = "Feed";
+"settings.appearance.theme.title" = "01 · Skin";
+"settings.appearance.theme.note" = "What the feed is made of. Applies to every display.";
+"settings.appearance.theme.inkPaper" = "Ink paper";
+"settings.appearance.theme.creamCard" = "Cream card";
+"settings.appearance.theme.fullCream" = "Full cream";
 "settings.appearance.sessionPreview" = "Preview";
 "settings.appearance.profile.title" = "Display profile";
 "settings.appearance.profile.note" = "Choose which screen type you are configuring. Open Island applies the matching profile automatically when the overlay moves.";

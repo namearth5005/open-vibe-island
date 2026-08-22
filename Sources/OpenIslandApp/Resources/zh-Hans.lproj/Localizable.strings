@@ -67,6 +67,12 @@
 "settings.appearance.centerLabel.off" = "关闭";
 "settings.appearance.notchPart.title" = "刘海";
 "settings.appearance.sessionListPart.title" = "会话列表";
+"settings.appearance.themePart.title" = "动态流";
+"settings.appearance.theme.title" = "01 · 皮肤";
+"settings.appearance.theme.note" = "动态流的材质。对所有显示器生效。";
+"settings.appearance.theme.inkPaper" = "墨纸";
+"settings.appearance.theme.creamCard" = "奶油卡片";
+"settings.appearance.theme.fullCream" = "全奶油";
 "settings.appearance.sessionPreview" = "预览";
 "settings.appearance.profile.title" = "显示器配置";
 "settings.appearance.profile.note" = "选择正在配置的屏幕类型。Open Island 会在悬浮窗切换屏幕时自动应用对应配置。";

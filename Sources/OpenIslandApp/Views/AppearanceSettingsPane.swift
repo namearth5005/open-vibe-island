@@ -32,6 +32,7 @@ struct AppearanceSettingsPane: View {
                 displayProfilePart
                 notchPersonalizationPart
                 sessionListPersonalizationPart
+                feedThemePart
             }
             .padding(24)
             .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -141,6 +142,103 @@ struct AppearanceSettingsPane: View {
             sessionSortSection
             staleThresholdSection
         }
+    }
+
+    // MARK: - Feed theme part
+
+    /// The skin is a *global* preference, not a per-display one: every other
+    /// control on this pane answers "how should the island lay itself out on
+    /// this screen", while the skin answers what the island is made of. It
+    /// therefore gets its own part, outside the display-profile scope the two
+    /// parts above share, and says so in its note.
+    private var feedThemePart: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            partHeader(title: lang.t("settings.appearance.themePart.title"))
+            themePreviewSection
+            themeSection
+        }
+    }
+
+    // MARK: - Feed preview
+
+    @ViewBuilder
+    private var themePreviewSection: some View {
+        sectionHeader(title: lang.t("settings.appearance.preview"), note: nil)
+
+        SettingsPreviewStage(contentTopPadding: 18, contentBottomPadding: 22) {
+            AgentFeedView(
+                session: Self.themePreviewSession,
+                others: Self.themePreviewOthers,
+                // Nothing clips this preview, so it takes the plain inset
+                // rather than the notch-aware 46 the real panel passes.
+                sideInset: 16,
+                theme: FeedTheme.resolve(model.islandTheme),
+                previewFeed: Self.themePreviewFeed
+            )
+            .frame(height: 236)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .padding(.horizontal, 18)
+        }
+        .padding(.top, 8)
+    }
+
+    // MARK: - 01 · Skin
+
+    @ViewBuilder
+    private var themeSection: some View {
+        sectionHeader(
+            title: lang.t("settings.appearance.theme.title"),
+            note: lang.t("settings.appearance.theme.note")
+        )
+
+        HStack(spacing: 12) {
+            // `allCases` is the inventory. If skins are ever earned rather than
+            // simply chosen, an unlock layer filters this one sequence and the
+            // render path never learns about it.
+            ForEach(IslandTheme.allCases) { theme in
+                optionCard(
+                    selected: model.islandTheme == theme,
+                    title: lang.t(theme.displayNameKey),
+                    action: { model.islandTheme = theme }
+                ) {
+                    themeSwatch(FeedTheme.resolve(theme))
+                }
+            }
+        }
+    }
+
+    /// A miniature of the feed drawn from the same resolved tokens the feed
+    /// renders from, so the card labelled Cream card is showing the actual
+    /// cream card rather than an approximation of it.
+    private func themeSwatch(_ resolved: FeedTheme) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(resolved.ground.color)
+
+            // The inner card is the entire difference between Cream card and
+            // Full cream. Without it drawn, two of the three swatches are the
+            // same picture.
+            if let surface = resolved.surface {
+                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .fill(surface.color)
+                    .padding(5)
+            }
+
+            VStack(alignment: .leading, spacing: 3.5) {
+                swatchLine(resolved.text, width: 32)
+                swatchLine(resolved.dim, width: 24)
+                swatchLine(resolved.faint, width: 28)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 12)
+        }
+        .frame(width: 78, height: 44)
+    }
+
+    private func swatchLine(_ ink: FeedInk, width: CGFloat) -> some View {
+        Capsule()
+            .fill(ink.color)
+            .frame(width: width, height: 2.5)
     }
 
     // MARK: - Notch preview
@@ -493,6 +591,91 @@ struct AppearanceSettingsPane: View {
             }
         }
     }
+
+    // MARK: - Feed preview fixture
+
+    /// A short feed of the shape the skin actually has to carry: prose, a
+    /// finished turn collapsed behind its summary with the diff still showing,
+    /// and a newest turn open. Fixed rather than live — Settings has no
+    /// transcript to tail, and reading whichever agent happens to be running
+    /// would make the picker's preview different every time it is opened.
+    private static let themePreviewFeed: AgentFeed = {
+        let base = Date(timeIntervalSince1970: 1_756_000_000)
+        func at(_ offset: TimeInterval) -> Date { base.addingTimeInterval(offset) }
+
+        return AgentFeed(
+            entries: [
+                AgentFeedEntry(
+                    id: "preview-1",
+                    timestamp: at(0),
+                    kind: .said("Reading the panel's clip path to find where the glyphs go.")
+                ),
+                AgentFeedEntry(id: "preview-2", timestamp: at(4), kind: .ran(tool: "Read", argument: "IslandPanelView.swift")),
+                AgentFeedEntry(id: "preview-3", timestamp: at(11), kind: .ran(tool: "Grep", argument: "sessionListSideInset")),
+                AgentFeedEntry(id: "preview-4", timestamp: at(19), kind: .edited(file: "AgentFeedView.swift", added: 52, removed: 19)),
+                AgentFeedEntry(
+                    id: "preview-5",
+                    timestamp: at(96),
+                    kind: .said("The notch shape masks 22pt off each side, so the feed takes its inset from the panel now.")
+                ),
+                AgentFeedEntry(id: "preview-6", timestamp: at(101), kind: .thought(tokens: 480)),
+                AgentFeedEntry(id: "preview-7", timestamp: at(140), kind: .ran(tool: "Bash", argument: "swift build")),
+                AgentFeedEntry(id: "preview-8", timestamp: at(188), kind: .edited(file: "FeedTheme.swift", added: 31, removed: 4)),
+            ],
+            summary: AgentFeedSummary(
+                model: "claude-opus-5",
+                outputTokens: 3_480,
+                cacheReadTokens: 128_400,
+                filesTouched: 2,
+                linesAdded: 83,
+                linesRemoved: 23
+            )
+        )
+    }()
+
+    private static let themePreviewSession = AgentSession(
+        id: "theme-preview",
+        title: "Claude · open-island",
+        tool: .claudeCode,
+        origin: .demo,
+        attachmentState: .attached,
+        phase: .running,
+        summary: "Taking the feed's inset from the panel",
+        updatedAt: Date(timeIntervalSince1970: 1_756_000_188),
+        jumpTarget: JumpTarget(
+            terminalApp: "Ghostty",
+            workspaceName: "open-island",
+            paneTitle: "claude ~/open-island"
+        )
+    )
+
+    /// Two, so the footer renders its stroked pills rather than the
+    /// "No other agents" line — the outline is one of the four moves the skin
+    /// is being judged on.
+    private static let themePreviewOthers: [AgentSession] = [
+        AgentSession(
+            id: "theme-preview-other-1",
+            title: "Codex · vibe-island",
+            tool: .codex,
+            origin: .demo,
+            attachmentState: .attached,
+            phase: .waitingForApproval,
+            summary: "Waiting on approval",
+            updatedAt: Date(timeIntervalSince1970: 1_756_000_120),
+            jumpTarget: JumpTarget(terminalApp: "Ghostty", workspaceName: "vibe-island", paneTitle: "codex")
+        ),
+        AgentSession(
+            id: "theme-preview-other-2",
+            title: "Gemini · scratch",
+            tool: .geminiCLI,
+            origin: .demo,
+            attachmentState: .stale,
+            phase: .completed,
+            summary: "Finished",
+            updatedAt: Date(timeIntervalSince1970: 1_755_999_400),
+            jumpTarget: JumpTarget(terminalApp: "Terminal", workspaceName: "scratch", paneTitle: "gemini")
+        ),
+    ]
 
     // MARK: - Helpers
 
