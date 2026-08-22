@@ -116,3 +116,31 @@ struct FeedThemeResolutionTests {
         #expect(t.ink(for: .running) != FeedInk(hex: 0x6e_a7_ff))
     }
 }
+
+@MainActor
+struct IslandThemePreferenceTests {
+    @Test
+    func defaultsToInkPaper() {
+        UserDefaults.standard.removeObject(forKey: "app.islandTheme")
+        #expect(AppModel().islandTheme == .inkPaper)
+    }
+
+    @Test
+    func roundTripsThroughUserDefaults() {
+        let model = AppModel()
+        model.islandTheme = .creamCard
+        #expect(UserDefaults.standard.string(forKey: "app.islandTheme") == "creamCard")
+
+        UserDefaults.standard.removeObject(forKey: "app.islandTheme")
+    }
+
+    /// An unknown or corrupted value must not strand the panel on a skin that
+    /// does not exist.
+    @Test
+    func unknownStoredValueFallsBackToTheDefault() {
+        UserDefaults.standard.set("chartreuse", forKey: "app.islandTheme")
+        #expect(AppModel().islandTheme == .inkPaper)
+
+        UserDefaults.standard.removeObject(forKey: "app.islandTheme")
+    }
+}

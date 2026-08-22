@@ -22,6 +22,7 @@ final class AppModel {
     private static let islandCenterLabelDefaultsKey = "appearance.island.v6.centerLabel"
     private static let showCodexUsageDefaultsKey = "app.showCodexUsage"
     private static let showCompanionDefaultsKey = "app.showCompanion"
+    private static let islandThemeDefaultsKey = "app.islandTheme"
     private static let completionReplyEnabledDefaultsKey = "feature.completionReply.enabled"
     private static let suppressFrontmostNotificationsDefaultsKey = "app.suppressFrontmostNotifications"
     private static let legacyIslandSessionStateIndicatorDefaultsKey = "appearance.island.v8.stateIndicator"
@@ -258,6 +259,15 @@ final class AppModel {
         didSet {
             guard hasFinishedInit, showCompanion != oldValue else { return }
             UserDefaults.standard.set(showCompanion, forKey: Self.showCompanionDefaultsKey)
+        }
+    }
+    /// What the island is made of. Global rather than per-display-profile:
+    /// every member of `IslandAppearancePreferences` answers "how should this
+    /// screen lay out", while a theme answers "what is this made of".
+    var islandTheme: IslandTheme = .inkPaper {
+        didSet {
+            guard hasFinishedInit, islandTheme != oldValue else { return }
+            UserDefaults.standard.set(islandTheme.rawValue, forKey: Self.islandThemeDefaultsKey)
         }
     }
     var completionReplyEnabled: Bool = false {
@@ -604,12 +614,15 @@ final class AppModel {
             Self.completionReplyEnabledDefaultsKey: false,
             Self.suppressFrontmostNotificationsDefaultsKey: true,
             Self.showCompanionDefaultsKey: false,
+            Self.islandThemeDefaultsKey: IslandTheme.inkPaper.rawValue,
         ])
         isSoundMuted = UserDefaults.standard.bool(forKey: Self.soundMutedDefaultsKey)
         selectedSoundName = NotificationSoundService.selectedSoundName
         showDockIcon = UserDefaults.standard.bool(forKey: Self.showDockIconDefaultsKey)
         hapticFeedbackEnabled = UserDefaults.standard.bool(forKey: Self.hapticFeedbackEnabledDefaultsKey)
         showCompanion = UserDefaults.standard.bool(forKey: Self.showCompanionDefaultsKey)
+        islandTheme = UserDefaults.standard.string(forKey: Self.islandThemeDefaultsKey)
+            .flatMap(IslandTheme.init(rawValue:)) ?? .inkPaper
         suppressFrontmostNotifications = UserDefaults.standard.bool(forKey: Self.suppressFrontmostNotificationsDefaultsKey)
         if UserDefaults.standard.object(forKey: Self.showCodexUsageDefaultsKey) != nil {
             showCodexUsage = UserDefaults.standard.bool(forKey: Self.showCodexUsageDefaultsKey)
