@@ -34,6 +34,10 @@ struct AgentFeedView: View {
 
     @State private var feed = AgentFeed()
 
+    /// Which turns the reader has opened or shut. Held on the view rather than
+    /// derived from the feed so it survives the two-second transcript reload.
+    @State private var expansion = FeedExpansion()
+
     /// Transcripts are appended to constantly; this is a cheap tail-and-parse,
     /// not a file watcher. Two seconds is well inside the rate a person reads.
     private let refresh = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
@@ -140,8 +144,9 @@ struct AgentFeedView: View {
                 // together under a shared spine; between two, the gap is wide
                 // enough to read as a break without needing a box.
                 VStack(alignment: .leading, spacing: 16) {
-                    ForEach(FeedTurns.grouped(feed.entries)) { turn in
-                        turnView(turn)
+                    let turns = FeedTurns.grouped(feed.entries)
+                    ForEach(Array(turns.enumerated()), id: \.element.id) { index, turn in
+                        turnView(turn, isNewest: index == turns.count - 1)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -159,15 +164,20 @@ struct AgentFeedView: View {
     /// row look like a separate event; printed once it marks where each turn
     /// starts, so the gutter alone tells the reader how many turns are on
     /// screen.
-    private func turnView(_ turn: FeedTurn) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+    private func turnView(_ turn: FeedTurn, isNewest: Bool) -> some View {
+        let expanded = expansion.isExpanded(turnID: turn.id, isNewest: isNewest)
+
+        return VStack(alignment: .leading, spacing: 4) {
             ForEach(Array(turn.lead.enumerated()), id: \.element.id) { index, entry in
                 row(for: entry, showsStamp: index == 0)
             }
 
             if !turn.actions.isEmpty {
                 VStack(alignment: .leading, spacing: 3) {
-                    ForEach(turn.actions) { row(for: $0) }
+                    summaryRow(turn, isNewest: isNewest, expanded: expanded)
+                    if expanded {
+                        ForEach(turn.actions) { row(for: $0) }
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, actionIndent)
@@ -180,6 +190,52 @@ struct AgentFeedView: View {
                 }
             }
         }
+    }
+
+    /// The whole row is the target, not the chevron -- a 9pt glyph is not a
+    /// hit area.
+    private func summaryRow(_ turn: FeedTurn, isNewest: Bool, expanded: Bool) -> some View {
+        Button {
+            expansion.toggle(turnID: turn.id, isNewest: isNewest)
+        } label: {
+            HStack(alignment: .firstTextBaseline, spacing: 7) {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 7, weight: .bold))
+                    .foregroundStyle(theme.faint.color)
+                    .rotationEffect(.degrees(expanded ? 90 : 0))
+                    .frame(width: 9, alignment: .leading)
+
+                Text(FeedTurnSummary.label(actionCount: turn.actionCount))
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(theme.faint.color)
+                    .lineLimit(1)
+
+                Spacer(minLength: 4)
+
+                // Kept visible while shut: "what changed" is the one signal
+                // worth seeing without expanding.
+                if turn.hasDiff {
+                    if turn.linesAdded > 0 {
+                        Text("+\(turn.linesAdded)")
+                            .font(.system(size: 9.5, weight: .semibold, design: .monospaced))
+                            .foregroundStyle(theme.color(for: .completed))
+                            .fixedSize()
+                    }
+                    if turn.linesRemoved > 0 {
+                        Text("−\(turn.linesRemoved)")
+                            .font(.system(size: 9.5, weight: .semibold, design: .monospaced))
+                            .foregroundStyle(theme.color(for: .waitingForApproval))
+                            .fixedSize()
+                    }
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(
+            "\(FeedTurnSummary.label(actionCount: turn.actionCount)), \(expanded ? "expanded" : "collapsed")"
+        )
+        .animation(.easeOut(duration: 0.16), value: expanded)
     }
 
     @ViewBuilder
