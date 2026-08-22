@@ -483,3 +483,48 @@ enum FeedTurns {
         }
     }
 }
+
+extension FeedTurn {
+    var actionCount: Int { actions.count }
+
+    var linesAdded: Int {
+        actions.reduce(0) { total, entry in
+            if case .edited(_, let added, _) = entry.kind { return total + added }
+            return total
+        }
+    }
+
+    var linesRemoved: Int {
+        actions.reduce(0) { total, entry in
+            if case .edited(_, _, let removed) = entry.kind { return total + removed }
+            return total
+        }
+    }
+
+    var hasDiff: Bool { linesAdded > 0 || linesRemoved > 0 }
+}
+
+/// The one place the feed pluralises. The header shipped "1 files" for want of
+/// exactly this.
+enum FeedTurnSummary {
+    static func label(actionCount: Int) -> String {
+        "\(actionCount) action\(actionCount == 1 ? "" : "s")"
+    }
+}
+
+/// Which turns are open.
+///
+/// A dictionary of *explicit choices*, not a set of flips. With a flip-set, a
+/// newest turn the user collapsed would spring back open the moment a newer
+/// turn arrived and its default changed underneath it.
+struct FeedExpansion: Equatable, Sendable {
+    private var explicit: [String: Bool] = [:]
+
+    func isExpanded(turnID: String, isNewest: Bool) -> Bool {
+        explicit[turnID] ?? isNewest
+    }
+
+    mutating func toggle(turnID: String, isNewest: Bool) {
+        explicit[turnID] = !isExpanded(turnID: turnID, isNewest: isNewest)
+    }
+}

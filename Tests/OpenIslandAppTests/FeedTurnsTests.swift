@@ -106,3 +106,84 @@ struct FeedClockTests {
         #expect(FeedClock.stamp(afternoon, in: utc) == "13:05")
     }
 }
+
+/// Spec §6. The summary row is what a reader sees instead of the block, so its
+/// text and its diff totals are pinned here.
+struct FeedTurnSummaryTests {
+    private func entry(_ id: String, _ kind: AgentFeedEntry.Kind) -> AgentFeedEntry {
+        AgentFeedEntry(id: id, timestamp: Date(timeIntervalSince1970: 0), kind: kind)
+    }
+
+    /// The header shipped "1 files"; pluralisation lives in one testable place now.
+    @Test
+    func labelPluralisesOnlyWhenItShould() {
+        #expect(FeedTurnSummary.label(actionCount: 1) == "1 action")
+        #expect(FeedTurnSummary.label(actionCount: 4) == "4 actions")
+        #expect(FeedTurnSummary.label(actionCount: 0) == "0 actions")
+    }
+
+    @Test
+    func diffTotalsSumOnlyTheEdits() {
+        let turns = FeedTurns.grouped([
+            entry("1", .said("working")),
+            entry("2", .edited(file: "a.swift", added: 10, removed: 3)),
+            entry("3", .edited(file: "b.swift", added: 5, removed: 1)),
+            entry("4", .ran(tool: "Bash", argument: "swift build")),
+        ])
+
+        #expect(turns.count == 1)
+        #expect(turns[0].actionCount == 3)
+        #expect(turns[0].linesAdded == 15)
+        #expect(turns[0].linesRemoved == 4)
+        #expect(turns[0].hasDiff)
+    }
+
+    @Test
+    func aTurnWithNoEditsHasNoDiff() {
+        let turns = FeedTurns.grouped([
+            entry("1", .said("looking")),
+            entry("2", .ran(tool: "Read", argument: "a.swift")),
+        ])
+        #expect(turns[0].hasDiff == false)
+    }
+}
+
+/// Spec §6.2. The newest turn is open by default; a turn the user touched keeps
+/// their choice permanently. The distinction matters -- with a set of flips
+/// rather than absolute values, a newest turn the user collapsed would spring
+/// back open the moment a newer turn arrived and its default changed.
+struct FeedExpansionTests {
+    @Test
+    func newestIsOpenAndOlderAreShutByDefault() {
+        let state = FeedExpansion()
+        #expect(state.isExpanded(turnID: "new", isNewest: true))
+        #expect(state.isExpanded(turnID: "old", isNewest: false) == false)
+    }
+
+    @Test
+    func anExplicitChoiceWins() {
+        var state = FeedExpansion()
+        state.toggle(turnID: "old", isNewest: false)
+        #expect(state.isExpanded(turnID: "old", isNewest: false))
+
+        state.toggle(turnID: "new", isNewest: true)
+        #expect(state.isExpanded(turnID: "new", isNewest: true) == false)
+    }
+
+    /// The regression the dictionary exists to prevent.
+    @Test
+    func aCollapsedNewestTurnStaysShutAsItAges() {
+        var state = FeedExpansion()
+        state.toggle(turnID: "t", isNewest: true)      // user collapses the live turn
+        #expect(state.isExpanded(turnID: "t", isNewest: true) == false)
+        // a newer turn arrives; "t" is no longer newest
+        #expect(state.isExpanded(turnID: "t", isNewest: false) == false)
+    }
+
+    @Test
+    func anUntouchedTurnCollapsesOnItsOwnAsItAges() {
+        let state = FeedExpansion()
+        #expect(state.isExpanded(turnID: "t", isNewest: true))
+        #expect(state.isExpanded(turnID: "t", isNewest: false) == false)
+    }
+}
