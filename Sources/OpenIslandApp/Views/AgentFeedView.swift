@@ -28,6 +28,10 @@ struct AgentFeedView: View {
     /// which is what rendered `Opus 5` as `us 5` and `running` as `runnir`.
     let sideInset: CGFloat
 
+    /// Resolved once by the panel and passed down, so the whole feed renders
+    /// from one value rather than reaching for globals.
+    let theme: FeedTheme
+
     @State private var feed = AgentFeed()
 
     /// Transcripts are appended to constantly; this is a cheap tail-and-parse,
@@ -45,13 +49,13 @@ struct AgentFeedView: View {
     var body: some View {
         VStack(spacing: 0) {
             header
-            Divider().overlay(FeedPalette.hairline)
+            Divider().overlay(theme.hairline.color)
             body(for: feed)
-            Divider().overlay(FeedPalette.hairline)
+            Divider().overlay(theme.hairline.color)
             footer
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(V6Palette.ink)
+        .background(theme.ground.color)
         .onAppear(perform: reload)
         .onReceive(refresh) { _ in reload() }
     }
@@ -69,7 +73,7 @@ struct AgentFeedView: View {
                 AgentMark(tool: session.tool, size: 13)
                 Text(session.jumpTarget?.workspaceName ?? session.title)
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(FeedPalette.text)
+                    .foregroundStyle(theme.text.color)
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .layoutPriority(1)
@@ -81,11 +85,11 @@ struct AgentFeedView: View {
                 Spacer(minLength: 6)
                 HStack(spacing: 4) {
                     Circle()
-                        .fill(IslandDesignPalette.Status.tint(for: session.phase))
+                        .fill(theme.headerColor(for: session.phase))
                         .frame(width: 5, height: 5)
                     Text(session.phase.displayName.lowercased())
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(IslandDesignPalette.Status.tint(for: session.phase))
+                        .foregroundStyle(theme.headerColor(for: session.phase))
                         .lineLimit(1)
                         .fixedSize()
                 }
@@ -102,10 +106,10 @@ struct AgentFeedView: View {
                 if feed.summary.linesAdded > 0 || feed.summary.linesRemoved > 0 {
                     Text("+\(feed.summary.linesAdded)")
                         .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(IslandDesignPalette.Status.completed)
+                        .foregroundStyle(theme.color(for: .completed))
                     Text("−\(feed.summary.linesRemoved)")
                         .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(IslandDesignPalette.Status.waitingForApproval)
+                        .foregroundStyle(theme.color(for: .waitingForApproval))
                     stat("\(feed.summary.filesTouched) file\(feed.summary.filesTouched == 1 ? "" : "s")")
                 }
             }
@@ -123,11 +127,11 @@ struct AgentFeedView: View {
             VStack(spacing: 5) {
                 Text(session.supportsFeed ? "Waiting for output" : "No transcript for this agent")
                     .font(.system(size: 11.5, weight: .medium))
-                    .foregroundStyle(FeedPalette.dim)
+                    .foregroundStyle(theme.dim.color)
                 if !session.supportsFeed {
                     Text("Only Claude Code transcripts are read so far")
                         .font(.system(size: 10))
-                        .foregroundStyle(FeedPalette.faint)
+                        .foregroundStyle(theme.faint.color)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -171,7 +175,7 @@ struct AgentFeedView: View {
                 .padding(.top, turn.lead.isEmpty ? 0 : 2)
                 .overlay(alignment: .leading) {
                     Rectangle()
-                        .fill(FeedPalette.hairline)
+                        .fill(theme.hairline.color)
                         .frame(width: 1)
                         .padding(.leading, spineIndent)
                 }
@@ -187,7 +191,7 @@ struct AgentFeedView: View {
                 stamp(entry.timestamp, visible: showsStamp)
                 Text(FeedText.plain(text))
                     .font(.system(size: 11.5))
-                    .foregroundStyle(FeedPalette.text.opacity(0.92))
+                    .foregroundStyle(theme.text.color)
                     .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -198,7 +202,7 @@ struct AgentFeedView: View {
                 label(tool.lowercased(), tint: toolTint(tool))
                 Text(argument)
                     .font(.system(size: 10.5, design: .monospaced))
-                    .foregroundStyle(FeedPalette.dim)
+                    .foregroundStyle(theme.dim.color)
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Spacer(minLength: 0)
@@ -206,23 +210,23 @@ struct AgentFeedView: View {
 
         case .edited(let file, let added, let removed):
             actionRow {
-                label("edit", tint: IslandDesignPalette.Status.completed)
+                label("edit", tint: theme.color(for: .completed))
                 Text(file)
                     .font(.system(size: 10.5, design: .monospaced))
-                    .foregroundStyle(FeedPalette.dim)
+                    .foregroundStyle(theme.dim.color)
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Spacer(minLength: 0)
                 if added > 0 {
                     Text("+\(added)")
                         .font(.system(size: 9.5, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(IslandDesignPalette.Status.completed)
+                        .foregroundStyle(theme.color(for: .completed))
                         .fixedSize()
                 }
                 if removed > 0 {
                     Text("−\(removed)")
                         .font(.system(size: 9.5, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(IslandDesignPalette.Status.waitingForApproval)
+                        .foregroundStyle(theme.color(for: .waitingForApproval))
                         .fixedSize()
                 }
             }
@@ -232,7 +236,7 @@ struct AgentFeedView: View {
                 stamp(entry.timestamp, visible: showsStamp)
                 Text("thinking")
                     .font(.system(size: 11))
-                    .foregroundStyle(FeedPalette.faint)
+                    .foregroundStyle(theme.faint.color)
                     .lineLimit(1)
                 Spacer(minLength: 0)
             }
@@ -253,25 +257,25 @@ struct AgentFeedView: View {
             if others.isEmpty {
                 Text("No other agents")
                     .font(.system(size: 10.5, weight: .medium))
-                    .foregroundStyle(FeedPalette.faint)
+                    .foregroundStyle(theme.faint.color)
             } else {
                 Text("\(others.count) other\(others.count == 1 ? "" : "s")")
                     .font(.system(size: 10.5, weight: .semibold))
-                    .foregroundStyle(FeedPalette.dim)
+                    .foregroundStyle(theme.dim.color)
                     .fixedSize()
                 ForEach(others.prefix(3), id: \.id) { other in
                     let attention = other.phase.requiresAttention
                     Text(other.jumpTarget?.workspaceName ?? other.title)
                         .font(.system(size: 9, weight: .semibold))
                         .foregroundStyle(attention
-                            ? IslandDesignPalette.Status.waitingForApproval
-                            : FeedPalette.dim)
+                            ? theme.color(for: .waitingForApproval)
+                            : theme.dim.color)
                         .padding(.horizontal, 5)
                         .padding(.vertical, 1.5)
                         .background(
                             (attention
-                                ? IslandDesignPalette.Status.waitingForApproval.opacity(0.14)
-                                : FeedPalette.text.opacity(0.08)),
+                                ? theme.color(for: .waitingForApproval).opacity(0.14)
+                                : theme.text.color.opacity(0.08)),
                             in: RoundedRectangle(cornerRadius: 3)
                         )
                         .lineLimit(1)
@@ -289,7 +293,7 @@ struct AgentFeedView: View {
     private func stamp(_ date: Date, visible: Bool) -> some View {
         Text(FeedClock.stamp(date))
             .font(.system(size: 9, design: .monospaced))
-            .foregroundStyle(FeedPalette.faint)
+            .foregroundStyle(theme.faint.color)
             .opacity(visible ? 1 : 0)
             .frame(width: stampWidth, alignment: .leading)
     }
@@ -306,10 +310,10 @@ struct AgentFeedView: View {
     private func tag(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 9, weight: .semibold))
-            .foregroundStyle(FeedPalette.dim)
+            .foregroundStyle(theme.dim.color)
             .padding(.horizontal, 5)
             .padding(.vertical, 1.5)
-            .background(FeedPalette.text.opacity(0.08), in: RoundedRectangle(cornerRadius: 3))
+            .background(theme.text.color.opacity(0.08), in: RoundedRectangle(cornerRadius: 3))
             .lineLimit(1)
             .truncationMode(.middle)
     }
@@ -317,7 +321,7 @@ struct AgentFeedView: View {
     private func stat(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 9.5, weight: .medium, design: .monospaced))
-            .foregroundStyle(FeedPalette.faint)
+            .foregroundStyle(theme.faint.color)
             .lineLimit(1)
             .fixedSize()
     }
@@ -326,10 +330,10 @@ struct AgentFeedView: View {
     /// the rarer tools stand out.
     private func toolTint(_ tool: String) -> Color {
         switch tool {
-        case "Bash": IslandDesignPalette.Status.running
-        case "Read", "Glob", "Grep": FeedPalette.dim
+        case "Bash": theme.color(for: .running)
+        case "Read", "Glob", "Grep": theme.dim.color
         case "Task", "Agent": Color(red: 0.5, green: 0.83, blue: 0.83)
-        default: IslandDesignPalette.Status.waitingForAnswer
+        default: theme.color(for: .waitingForAnswer)
         }
     }
 
@@ -470,11 +474,4 @@ enum FeedTurns {
         case .ran, .edited: false
         }
     }
-}
-
-enum FeedPalette {
-    static let text = V6Palette.paper
-    static let dim = V6Palette.paper.opacity(0.58)
-    static let faint = V6Palette.paper.opacity(0.34)
-    static let hairline = V6Palette.paper.opacity(0.07)
 }
