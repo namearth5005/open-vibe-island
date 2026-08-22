@@ -190,11 +190,24 @@ struct FeedTheme: Equatable, Sendable {
 /// a seeded generator, not `Double.random`, so the texture does not crawl
 /// between renders.
 ///
+/// The noise lives in the tile's **alpha**, not its colour: the tile is white
+/// throughout and varies only in coverage. That is what lets one tile serve
+/// both grounds -- rendered as a template it takes whatever tint the theme
+/// gives it, so grain lifts on ink and deepens on cream.
+///
+/// The first attempt varied the tile's *colour* and composited it with
+/// `.blendMode(.overlay)`. Measured on device that produced a standard
+/// deviation of roughly 1 unit in 255 -- mathematically present, perceptually
+/// nothing. Overlay is `2 x base x blend` below mid-grey, so on a #12110f
+/// ground the entire output range collapses to 0...0.14 and the noise has
+/// nowhere to go. It is a midtone mode; this panel has no midtones.
+///
 /// MainActor-isolated because it is only ever used from views, and that keeps
 /// the cached image out of Swift 6's global-mutable-state rules.
 @MainActor
 enum FeedGrain {
     static let tile: Image = Image(decorative: make(), scale: 1)
+        .renderingMode(.template)
 
     private static let side = 128
 
@@ -221,24 +234,48 @@ enum FeedGrain {
         )!
         let pixels = context.data!.bindMemory(to: UInt8.self, capacity: side * side * 4)
         for index in stride(from: 0, to: side * side * 4, by: 4) {
-            let value = UInt8(120 + next() * 135)
-            pixels[index] = value
-            pixels[index + 1] = value
-            pixels[index + 2] = value
-            pixels[index + 3] = 255
+            // Premultiplied: white at `alpha` means every channel equals alpha.
+            let alpha = UInt8(next() * 255)
+            pixels[index] = alpha
+            pixels[index + 1] = alpha
+            pixels[index + 2] = alpha
+            pixels[index + 3] = alpha
         }
         return context.makeImage()!
     }
 }
 
+extension FeedTheme {
+    /// Paper fibre reads as flecks of light on a dark ground and flecks of
+    /// shadow on a pale one, so the tint follows **whatever it is drawn over**.
+    ///
+    /// Taken per-surface rather than per-theme on purpose: on Cream card the
+    /// panel ground is ink while `text` is dark, so keying the tint off the
+    /// theme's text colour would paint dark grain onto a dark header and lose
+    /// it entirely. The card gets its own call with its own ground.
+    static func grainTint(over ground: FeedInk) -> Color {
+        ground.luminance < 0.2
+            ? FeedInk(hex: 0xf1_ea_d9).color
+            : FeedInk(hex: 0x24_1f_1a).color
+    }
+
+    /// Deliberately low. Grain sits under legibility; anything strong enough to
+    /// notice on its own is already muddying the prose.
+    static func grainOpacity(over ground: FeedInk) -> Double {
+        ground.luminance < 0.2 ? 0.10 : 0.13
+    }
+
+    var grainTint: Color { Self.grainTint(over: ground) }
+    var grainOpacity: Double { Self.grainOpacity(over: ground) }
+}
+
 extension View {
-    /// Lays paper grain over a surface. Overlay blend keeps it a texture rather
-    /// than a fog -- it darkens and lightens the ground instead of veiling it.
-    func feedGrain(opacity: Double = 0.30) -> some View {
+    /// Lays paper grain over a surface, tinted for that surface.
+    func feedGrain(tint: Color, opacity: Double) -> some View {
         overlay {
             FeedGrain.tile
                 .resizable(resizingMode: .tile)
-                .blendMode(.overlay)
+                .foregroundStyle(tint)
                 .opacity(opacity)
                 .allowsHitTesting(false)
         }

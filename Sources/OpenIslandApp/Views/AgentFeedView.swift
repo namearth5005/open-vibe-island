@@ -54,7 +54,7 @@ struct AgentFeedView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(theme.ground.color)
-        .feedGrain()
+        .feedGrain(tint: theme.grainTint, opacity: theme.grainOpacity)
         .onAppear(perform: reload)
         .onReceive(refresh) { _ in reload() }
     }
