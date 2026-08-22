@@ -234,16 +234,67 @@ Strings land in all three bundles — `en`, `zh-Hans`, `zh-Hant` — matching
 
 ---
 
+## 7.5 Measured colour — computed 2026-08-22
+
+Computed, not asserted. Method: WCAG 2.x relative luminance, sRGB, ratio
+`(L₁+0.05)/(L₂+0.05)`. Alpha tiers are composited against their ground first,
+so the figure is the colour that actually renders.
+
+### Two findings that changed the design
+
+**The `faint` tier shipped below AA.** `V6Palette.paper.opacity(0.34)` on
+`#0d0d0f` measures **2.74:1** — the timestamp column, the stats line and the
+empty-state subtitle are all under the 4.5:1 bar for small text. The handoff
+measured the status *tints* and nobody measured the alpha tiers beneath them.
+This round fixes it: `faint` becomes 0.50 on ink.
+
+**An automated tint search produces the wrong palette.** Maximising lightness
+subject to ≥4.5:1 returns `#d10f0f` and `#005ded` — fully saturated, and the
+opposite of the reference's muted world. The paper tints below are hand-picked
+from Cat On Chair's own palette and clear the bar anyway.
+
+### Ink skins — ground warmed `#0d0d0f` → `#12110f`
+
+Warming costs about 3% contrast; everything still clears comfortably.
+
+| Token | Value | Ratio |
+|---|---|---|
+| text | `paper` @ 0.94 → `#e4ddcd` | 13.95:1 |
+| dim | `paper` @ 0.66 → `#a5a094` | 7.24:1 |
+| faint | `paper` @ 0.50 → `#827e74` | 4.66:1 |
+| approval | `#f4a4a4` unchanged | 9.61:1 |
+| answer | `#ffd58a` unchanged | 13.60:1 |
+| running | `#6ea7ff` unchanged | 7.76:1 |
+| completed | `#6fb982` unchanged | 8.03:1 |
+
+### Paper skins — ground `#efe7d6`
+
+| Token | Value | Ratio |
+|---|---|---|
+| text | `#241f1a` | 13.28:1 |
+| dim | `#241f1a` @ 0.80 → `#4d4740` | 7.45:1 |
+| faint | `#241f1a` @ 0.66 → `#69635a` | 4.83:1 |
+| approval | `#a8432f` brick | 4.87:1 |
+| answer | `#8a5a12` deep amber | 4.81:1 |
+| running | `#24608f` dusty blue | 5.43:1 |
+| completed | `#3d6b3d` sage | 5.07:1 |
+
+Hairlines are non-text and carry no bar: ink spine `paper` @ 0.14 (1.41:1),
+paper spine `#241f1a` @ 0.20 (1.49:1). Both are meant to be barely there.
+
+---
+
 ## 8. Verification
 
-The ink contrast figures in §2 were measured. **The cream ones do not exist
-yet.** They get computed before anything ships, not asserted.
+The figures in §7.5 are computed. They are also **asserted in tests** —
+`FeedInk.contrast(against:)` is real code, not a comment, so a future tweak
+that drops a token below its bar fails the suite rather than shipping.
 
 | Check | Method | Bar |
 |---|---|---|
-| Cream status tints | WCAG relative-luminance ratio vs `#efe7d6` | ≥ 4.5:1 for text |
-| Status dot on cream | Same, as a non-text graphic | ≥ 3:1 |
-| `FeedTheme.resolve` | Plain unit tests, all three skins | Every token non-nil, `surface` nil iff not `creamCard` |
+| Every text token, every skin | `FeedInk.contrast(against:)` in a unit test | ≥ 4.5:1 |
+| Status dot | Same, as a non-text graphic | ≥ 3:1 |
+| `FeedTheme.resolve` | Plain unit tests, all three skins | Every token set, `surface` nil iff not `creamCard` |
 | Turn summary + diff totals | Plain unit tests | 0 / 1 / n actions, with and without edits |
 | `isExpanded` defaulting | Plain unit tests | Newest open; touched turn keeps its choice as it ages |
 | Each skin on device | Launch, hover, screenshot, **look** | One capture per skin, per the handoff's §4 loop |
