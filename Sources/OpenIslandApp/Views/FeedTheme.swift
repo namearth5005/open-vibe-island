@@ -182,3 +182,65 @@ struct FeedTheme: Equatable, Sendable {
         )
     }
 }
+
+/// The paper grain, built once.
+///
+/// A 128x128 tile of value noise, generated into a `CGImage` at first use and
+/// tiled across the surface. No asset ships and the result is deterministic --
+/// a seeded generator, not `Double.random`, so the texture does not crawl
+/// between renders.
+///
+/// MainActor-isolated because it is only ever used from views, and that keeps
+/// the cached image out of Swift 6's global-mutable-state rules.
+@MainActor
+enum FeedGrain {
+    static let tile: Image = Image(decorative: make(), scale: 1)
+
+    private static let side = 128
+
+    private static func make() -> CGImage {
+        var seed: UInt64 = 0x5f3a_c91e
+        func next() -> Double {
+            seed ^= seed << 13
+            seed ^= seed >> 7
+            seed ^= seed << 17
+            return Double(seed % 1000) / 1000.0
+        }
+
+        // The context owns its buffer: passing `&pixels` for `data:` hands
+        // CoreGraphics a pointer that dies at the end of the call, which the
+        // compiler warns about and this project treats as a defect.
+        let context = CGContext(
+            data: nil,
+            width: side,
+            height: side,
+            bitsPerComponent: 8,
+            bytesPerRow: side * 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )!
+        let pixels = context.data!.bindMemory(to: UInt8.self, capacity: side * side * 4)
+        for index in stride(from: 0, to: side * side * 4, by: 4) {
+            let value = UInt8(120 + next() * 135)
+            pixels[index] = value
+            pixels[index + 1] = value
+            pixels[index + 2] = value
+            pixels[index + 3] = 255
+        }
+        return context.makeImage()!
+    }
+}
+
+extension View {
+    /// Lays paper grain over a surface. Overlay blend keeps it a texture rather
+    /// than a fog -- it darkens and lightens the ground instead of veiling it.
+    func feedGrain(opacity: Double = 0.30) -> some View {
+        overlay {
+            FeedGrain.tile
+                .resizable(resizingMode: .tile)
+                .blendMode(.overlay)
+                .opacity(opacity)
+                .allowsHitTesting(false)
+        }
+    }
+}
