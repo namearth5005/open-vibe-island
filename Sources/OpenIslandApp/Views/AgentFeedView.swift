@@ -49,9 +49,7 @@ struct AgentFeedView: View {
     var body: some View {
         VStack(spacing: 0) {
             header
-            Divider().overlay(theme.hairline.color)
             body(for: feed)
-            Divider().overlay(theme.hairline.color)
             footer
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -73,7 +71,7 @@ struct AgentFeedView: View {
             HStack(spacing: 7) {
                 AgentMark(tool: session.tool, size: 13)
                 Text(session.jumpTarget?.workspaceName ?? session.title)
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundStyle(theme.text.color)
                     .lineLimit(1)
                     .truncationMode(.tail)
@@ -89,7 +87,7 @@ struct AgentFeedView: View {
                         .fill(theme.headerColor(for: session.phase))
                         .frame(width: 5, height: 5)
                     Text(session.phase.displayName.lowercased())
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
                         .foregroundStyle(theme.headerColor(for: session.phase))
                         .lineLimit(1)
                         .fixedSize()
@@ -127,11 +125,11 @@ struct AgentFeedView: View {
         if feed.entries.isEmpty {
             VStack(spacing: 5) {
                 Text(session.supportsFeed ? "Waiting for output" : "No transcript for this agent")
-                    .font(.system(size: 11.5, weight: .medium))
+                    .font(.system(size: 11.5, weight: .medium, design: .rounded))
                     .foregroundStyle(theme.dim.color)
                 if !session.supportsFeed {
                     Text("Only Claude Code transcripts are read so far")
-                        .font(.system(size: 10))
+                        .font(.system(size: 10, design: .rounded))
                         .foregroundStyle(theme.faint.color)
                 }
             }
@@ -191,7 +189,7 @@ struct AgentFeedView: View {
             HStack(alignment: .top, spacing: 8) {
                 stamp(entry.timestamp, visible: showsStamp)
                 Text(FeedText.plain(text))
-                    .font(.system(size: 11.5))
+                    .font(.system(size: 11.5, design: .rounded))
                     .foregroundStyle(theme.text.color)
                     .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
@@ -236,7 +234,7 @@ struct AgentFeedView: View {
             HStack(alignment: .top, spacing: 8) {
                 stamp(entry.timestamp, visible: showsStamp)
                 Text("thinking")
-                    .font(.system(size: 11))
+                    .font(.system(size: 11, design: .rounded))
                     .foregroundStyle(theme.faint.color)
                     .lineLimit(1)
                 Spacer(minLength: 0)
@@ -261,24 +259,27 @@ struct AgentFeedView: View {
                     .foregroundStyle(theme.faint.color)
             } else {
                 Text("\(others.count) other\(others.count == 1 ? "" : "s")")
-                    .font(.system(size: 10.5, weight: .semibold))
+                    .font(.system(size: 10.5, weight: .semibold, design: .rounded))
                     .foregroundStyle(theme.dim.color)
                     .fixedSize()
                 ForEach(others.prefix(3), id: \.id) { other in
                     let attention = other.phase.requiresAttention
                     Text(other.jumpTarget?.workspaceName ?? other.title)
-                        .font(.system(size: 9, weight: .semibold))
+                        .font(.system(size: 9, weight: .semibold, design: .rounded))
                         .foregroundStyle(attention
                             ? theme.color(for: .waitingForApproval)
                             : theme.dim.color)
-                        .padding(.horizontal, 5)
+                        .padding(.horizontal, 6)
                         .padding(.vertical, 1.5)
-                        .background(
-                            (attention
-                                ? theme.color(for: .waitingForApproval).opacity(0.14)
-                                : theme.text.color.opacity(0.08)),
-                            in: RoundedRectangle(cornerRadius: 3)
-                        )
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 9)
+                                .stroke(
+                                    (attention
+                                        ? theme.color(for: .waitingForApproval)
+                                        : theme.dim.color).opacity(0.45),
+                                    lineWidth: 1
+                                )
+                        }
                         .lineLimit(1)
                         .truncationMode(.tail)
                 }
@@ -301,20 +302,26 @@ struct AgentFeedView: View {
 
     private func label(_ text: String, tint: Color) -> some View {
         Text(text)
-            .font(.system(size: 9, weight: .bold))
+            .font(.system(size: 9, weight: .bold, design: .rounded))
             .foregroundStyle(tint)
             .lineLimit(1)
             .truncationMode(.tail)
             .frame(width: labelWidth, alignment: .leading)
     }
 
+    /// Drawn, not filled. A stroked contour is the reference's own way of
+    /// bounding a label — a filled chip reads as a UI control, an outline reads
+    /// as something someone drew around the word.
     private func tag(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 9, weight: .semibold))
+            .font(.system(size: 9, weight: .semibold, design: .rounded))
             .foregroundStyle(theme.dim.color)
-            .padding(.horizontal, 5)
+            .padding(.horizontal, 6)
             .padding(.vertical, 1.5)
-            .background(theme.text.color.opacity(0.08), in: RoundedRectangle(cornerRadius: 3))
+            .overlay {
+                RoundedRectangle(cornerRadius: 9)
+                    .stroke(theme.dim.color.opacity(0.45), lineWidth: 1)
+            }
             .lineLimit(1)
             .truncationMode(.middle)
     }
