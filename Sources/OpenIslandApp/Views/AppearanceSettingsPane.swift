@@ -176,6 +176,11 @@ struct AppearanceSettingsPane: View {
                 previewFeed: Self.themePreviewFeed
             )
             .frame(height: 236)
+            .background(FeedTheme.resolve(model.islandTheme).ground.color)
+            .feedGrain(
+                tint: FeedTheme.resolve(model.islandTheme).grainTint,
+                opacity: FeedTheme.resolve(model.islandTheme).grainOpacity
+            )
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .padding(.horizontal, 18)
         }

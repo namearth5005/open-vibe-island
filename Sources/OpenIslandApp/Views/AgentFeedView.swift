@@ -62,8 +62,6 @@ struct AgentFeedView: View {
             footer
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(theme.ground.color)
-        .feedGrain(tint: theme.grainTint, opacity: theme.grainOpacity)
         .onAppear(perform: reload)
         .onReceive(refresh) { _ in
             guard previewFeed == nil else { return }

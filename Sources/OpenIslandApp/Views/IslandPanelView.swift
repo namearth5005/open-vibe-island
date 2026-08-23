@@ -302,8 +302,10 @@ struct IslandPanelView: View {
 
         ZStack(alignment: .top) {
             surfaceShape
-                .fill(V6Palette.ink)
+                .fill(feedTheme.ground.color)
                 .frame(width: surfaceWidth, height: surfaceHeight)
+                .feedGrain(tint: feedTheme.grainTint, opacity: feedTheme.grainOpacity)
+                .clipShape(surfaceShape)
 
             VStack(spacing: 0) {
                 openedHeaderContent
@@ -544,6 +546,13 @@ struct IslandPanelView: View {
 
     private static let maxSessionListHeight: CGFloat = 560
 
+    /// The skin, resolved once for the whole panel. Both the feed and the
+    /// session list read from this, so the two surfaces are the same material
+    /// rather than two apps sharing a window.
+    private var feedTheme: FeedTheme {
+        FeedTheme.resolve(model.islandTheme)
+    }
+
     private var sessionListSideInset: CGFloat {
         usesNotchAwareOpenedHeader ? 46 : 16
     }
@@ -604,6 +613,7 @@ struct IslandPanelView: View {
                 IslandSessionRow(
                     session: session,
                     referenceDate: referenceDate,
+                    theme: feedTheme,
                     stateIndicator: model.islandSessionStateIndicator,
                     completedStaleThreshold: model.completedStaleThreshold.seconds,
                     isActionable: true,
@@ -646,6 +656,7 @@ struct IslandPanelView: View {
                             IslandSessionRow(
                                 session: session,
                                 referenceDate: referenceDate,
+                                theme: feedTheme,
                                 stateIndicator: model.islandSessionStateIndicator,
                                 completedStaleThreshold: model.completedStaleThreshold.seconds,
                                 isActionable: session.phase.requiresAttention || session.id == actionableSessionID,
@@ -696,6 +707,7 @@ struct IslandPanelView: View {
                     IslandSessionRow(
                         session: session,
                         referenceDate: referenceDate,
+                        theme: feedTheme,
                         stateIndicator: model.islandSessionStateIndicator,
                         completedStaleThreshold: model.completedStaleThreshold.seconds,
                         isActionable: session.phase.requiresAttention || session.id == actionableSessionID,
@@ -722,7 +734,7 @@ struct IslandPanelView: View {
             Text(lang.t("island.sessionList.title").uppercased())
                 .font(.system(size: 10.5, weight: .semibold, design: .monospaced))
                 .tracking(1.4)
-                .foregroundStyle(V6Palette.paper.opacity(0.55))
+                .foregroundStyle(feedTheme.faint.color)
 
             ViewThatFits(in: .horizontal) {
                 sessionOverviewView(overview, compact: false)
@@ -736,8 +748,8 @@ struct IslandPanelView: View {
         .frame(height: 36)
         .overlay(alignment: .bottom) {
             Rectangle()
-                .fill(.white.opacity(0.055))
-                .frame(height: 1)
+                .fill(Color.clear)
+                .frame(height: 0)
         }
     }
 
@@ -1206,6 +1218,12 @@ private enum IslandSessionRowPresentation {
 private struct IslandSessionRow: View {
     let session: AgentSession
     let referenceDate: Date
+    /// The panel's skin. The row used to carry its own hand-tuned whites; they
+    /// were never measured, and `summaryAgeColor`'s 0.32 sat below the 2.74:1
+    /// the feed round already found and fixed. Reading the same tokens the feed
+    /// reads makes the two surfaces one material and puts the row's text on the
+    /// contrast bars `FeedThemeContrastTests` already enforces.
+    let theme: FeedTheme
     var stateIndicator: IslandSessionStateIndicator = .animatedDot
     var completedStaleThreshold: TimeInterval = AgentSession.staleCompletedDisplayThreshold
     var isActionable: Bool = false
@@ -1254,11 +1272,6 @@ private struct IslandSessionRow: View {
             }
         }
         .background(rowFillColor(for: presence))
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(.white.opacity(0.045))
-                .frame(height: 1)
-        }
         .overlay(alignment: .leading) {
             if showsLeadingStatusBar {
                 RoundedRectangle(cornerRadius: 999, style: .continuous)
@@ -1540,23 +1553,23 @@ private struct IslandSessionRow: View {
     }
 
     private var summaryTitleFont: Font {
-        .system(size: presentation == .notification ? 13.2 : (isActionable ? 13.8 : 13.2), weight: .semibold)
+        .system(
+            size: presentation == .notification ? 13.2 : (isActionable ? 13.8 : 13.2),
+            weight: .semibold,
+            design: .rounded
+        )
     }
 
     private func summaryPromptColor(for presence: IslandSessionPresence) -> Color {
         if presentation == .notification {
-            return V6Palette.paper.opacity(session.phase == .completed ? 0.38 : 0.46)
+            return theme.faint.color
         }
 
-        return V6Palette.paper.opacity(presence == .inactive ? 0.34 : 0.52)
+        return presence == .inactive ? theme.faint.color : theme.dim.color
     }
 
     private func summaryAgeColor(for presence: IslandSessionPresence) -> Color {
-        if presentation == .notification {
-            return V6Palette.paper.opacity(0.36)
-        }
-
-        return V6Palette.paper.opacity(presence == .inactive ? 0.32 : 0.45)
+        theme.faint.color
     }
 
     private var notificationChromeOpacity: Double {
@@ -1577,7 +1590,7 @@ private struct IslandSessionRow: View {
         }
 
         if presentation == .notification, session.phase == .completed {
-            return .white.opacity(0.78)
+            return theme.dim.color
         }
 
         return headlineColor(for: presence)
@@ -1591,7 +1604,7 @@ private struct IslandSessionRow: View {
     }
 
     private var actionableStatusTint: Color {
-        IslandDesignPalette.Status.tint(for: session.phase)
+        theme.color(for: session.phase)
     }
 
     @ViewBuilder
@@ -1637,21 +1650,12 @@ private struct IslandSessionRow: View {
         VStack(alignment: .leading, spacing: 0) {
             if let runningDetailText {
                 Text(runningDetailText)
-                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.82))
+                    .font(.system(size: 11.5, design: .monospaced))
+                    .foregroundStyle(theme.dim.color)
                     .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
+                    .padding(.vertical, 2)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        RoundedRectangle(cornerRadius: 7, style: .continuous)
-                            .fill(Color.white.opacity(0.045))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 7, style: .continuous)
-                            .strokeBorder(.white.opacity(0.06))
-                    )
             }
         }
         .padding(.vertical, 2)
@@ -2000,12 +2004,8 @@ private struct IslandSessionRow: View {
         } label: {
             Image(systemName: "chevron.down")
                 .font(.system(size: 10, weight: .bold))
-                .foregroundStyle(isOpen || isHighlighted ? .white.opacity(0.68) : .white.opacity(0.42))
+                .foregroundStyle(isOpen || isHighlighted ? theme.dim.color : theme.faint.color)
                 .frame(width: 28, height: 28)
-                .background(
-                    Circle()
-                        .fill(.white.opacity(detailToggleFillOpacity(isOpen: isOpen)))
-                )
                 .rotationEffect(.degrees(isOpen ? 180 : 0))
                 .contentShape(Rectangle())
         }
@@ -2037,31 +2037,33 @@ private struct IslandSessionRow: View {
         .foregroundStyle(badgeTextColor(for: presence))
         .padding(.horizontal, 7)
         .padding(.vertical, 3.5)
-        .background(Color(red: 0.14, green: 0.14, blue: 0.15), in: Capsule())
+        .overlay(Capsule().stroke(badgeTextColor(for: presence).opacity(0.45), lineWidth: 1))
     }
 
     private func headlineColor(for presence: IslandSessionPresence) -> Color {
-        presence == .inactive ? .white.opacity(0.78) : .white
+        presence == .inactive ? theme.dim.color : theme.text.color
     }
 
     private func badgeTextColor(for presence: IslandSessionPresence) -> Color {
-        presence == .inactive ? .white.opacity(0.42) : .white.opacity(0.56)
+        presence == .inactive ? theme.faint.color : theme.dim.color
     }
 
+    /// Inactive rows dim the tint rather than switching to a separate colour,
+    /// so a phase reads as the same phase whether or not the session is live.
     private func statusTint(for presence: IslandSessionPresence) -> Color {
-        IslandDesignPalette.Status.tint(for: session.phase, presence: presence)
+        theme.color(for: session.phase).opacity(presence == .inactive ? 0.62 : 1)
     }
 
     private func activityColor(for presence: IslandSessionPresence) -> Color {
         switch session.spotlightActivityTone {
         case .attention:
-            IslandDesignPalette.Status.tint(for: session.phase)
+            theme.color(for: session.phase)
         case .live:
             statusTint(for: presence)
         case .idle:
-            .white.opacity(0.46)
+            theme.faint.color
         case .ready:
-            presence == .inactive ? .white.opacity(0.46) : statusTint(for: presence)
+            presence == .inactive ? theme.faint.color : statusTint(for: presence)
         }
     }
 }
