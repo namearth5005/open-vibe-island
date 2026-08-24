@@ -164,6 +164,17 @@ struct AgentFeedView: View {
                 .padding(.vertical, 10)
             }
             .defaultScrollAnchor(.bottom)
+            .mask {
+                LinearGradient(
+                    stops: [
+                        .init(color: .clear, location: 0),
+                        .init(color: .black, location: 0.055),
+                        .init(color: .black, location: 1),
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
         }
     }
 
@@ -179,7 +190,10 @@ struct AgentFeedView: View {
 
         return VStack(alignment: .leading, spacing: 4) {
             ForEach(Array(turn.lead.enumerated()), id: \.element.id) { index, entry in
-                row(for: entry, showsStamp: index == 0)
+                // The newest turn is what the reader opened the panel for, so
+                // it is allowed to finish its sentence; older ones stay clipped
+                // to keep the feed dense.
+                row(for: entry, showsStamp: index == 0, proseLineLimit: isNewest ? 5 : 3)
             }
 
             if !turn.actions.isEmpty {
@@ -215,10 +229,11 @@ struct AgentFeedView: View {
                     .rotationEffect(.degrees(expanded ? 90 : 0))
                     .frame(width: 9, alignment: .leading)
 
-                Text(FeedTurnSummary.label(actionCount: turn.actionCount))
+                Text(FeedTurnSummary.work(in: turn.actions))
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(theme.faint.color)
                     .lineLimit(1)
+                    .truncationMode(.tail)
 
                 Spacer(minLength: 4)
 
@@ -243,13 +258,21 @@ struct AgentFeedView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(
-            "\(FeedTurnSummary.label(actionCount: turn.actionCount)), \(expanded ? "expanded" : "collapsed")"
+            """
+            \(FeedTurnSummary.work(in: turn.actions)), \
+            \(FeedTurnSummary.label(actionCount: turn.actionCount)), \
+            \(expanded ? "expanded" : "collapsed")
+            """
         )
         .animation(.easeOut(duration: 0.16), value: expanded)
     }
 
     @ViewBuilder
-    private func row(for entry: AgentFeedEntry, showsStamp: Bool = false) -> some View {
+    private func row(
+        for entry: AgentFeedEntry,
+        showsStamp: Bool = false,
+        proseLineLimit: Int = 3
+    ) -> some View {
         switch entry.kind {
         case .said(let text):
             HStack(alignment: .top, spacing: 8) {
@@ -257,7 +280,7 @@ struct AgentFeedView: View {
                 Text(FeedText.plain(text))
                     .font(.system(size: 11.5, design: .rounded))
                     .foregroundStyle(theme.text.color)
-                    .lineLimit(3)
+                    .lineLimit(proseLineLimit)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -296,15 +319,11 @@ struct AgentFeedView: View {
                 }
             }
 
+        // `FeedTurns.grouped` drops thoughts before a turn is ever built, so
+        // this is unreachable; the case stays for exhaustiveness over the
+        // model, which still carries thinking for the summary's token counts.
         case .thought:
-            HStack(alignment: .top, spacing: 8) {
-                stamp(entry.timestamp, visible: showsStamp)
-                Text("thinking")
-                    .font(.system(size: 11, design: .rounded))
-                    .foregroundStyle(theme.faint.color)
-                    .lineLimit(1)
-                Spacer(minLength: 0)
-            }
+            EmptyView()
         }
     }
 
@@ -520,10 +539,18 @@ struct FeedTurn: Identifiable, Equatable {
 /// Pure, and outside the view, for the same reason `FeedText` is: a
 /// MainActor-isolated helper cannot be called from a plain test.
 enum FeedTurns {
+    /// Thinking is dropped rather than rendered.
+    ///
+    /// A `.thought` carries no text, so the view could only ever print the
+    /// word "thinking". On a live feed with extended thinking on -- the normal
+    /// case -- that was seven of every eight rows, each one saying nothing the
+    /// header's status dot does not already say. Dropping it also merges turns
+    /// that were split only by a thinking block, so what survives is denser
+    /// and every row of it carries something.
     static func grouped(_ entries: [AgentFeedEntry]) -> [FeedTurn] {
         var turns: [FeedTurn] = []
 
-        for entry in entries {
+        for entry in entries where !isThought(entry.kind) {
             let isProse = isProse(entry.kind)
             // A turn breaks when prose arrives after work has been done — that
             // is the agent starting a new thought. Consecutive prose rows
@@ -547,6 +574,11 @@ enum FeedTurns {
         case .said, .thought: true
         case .ran, .edited: false
         }
+    }
+
+    private static func isThought(_ kind: AgentFeedEntry.Kind) -> Bool {
+        if case .thought = kind { return true }
+        return false
     }
 }
 
@@ -575,6 +607,50 @@ extension FeedTurn {
 enum FeedTurnSummary {
     static func label(actionCount: Int) -> String {
         "\(actionCount) action\(actionCount == 1 ? "" : "s")"
+    }
+
+    /// What the turn did, named.
+    ///
+    /// Replaces the bare count. "3 actions" was very nearly the same string on
+    /// every turn in the feed, so a column of them told the reader only that
+    /// work had happened -- never what kind. The tools and the files are what
+    /// someone glancing at the panel is actually scanning for, and they fit on
+    /// one line because repeats collapse to a multiplier and several edited
+    /// files collapse to a count.
+    ///
+    /// Order follows first appearance, so the line reads chronologically.
+    static func work(in actions: [AgentFeedEntry]) -> String {
+        var toolOrder: [String] = []
+        var toolRuns: [String: Int] = [:]
+        var editedFiles: [String] = []
+
+        for action in actions {
+            switch action.kind {
+            case .ran(let tool, _):
+                let name = tool.lowercased()
+                if toolRuns[name] == nil { toolOrder.append(name) }
+                toolRuns[name, default: 0] += 1
+            case .edited(let file, _, _):
+                let name = file.split(separator: "/").last.map(String.init) ?? file
+                if !editedFiles.contains(name) { editedFiles.append(name) }
+            case .said, .thought:
+                continue
+            }
+        }
+
+        var parts = toolOrder.map { name in
+            let runs = toolRuns[name] ?? 0
+            return runs > 1 ? "\(name) ×\(runs)" : name
+        }
+
+        if editedFiles.count == 1 {
+            parts.append("edit \(editedFiles[0])")
+        } else if editedFiles.count > 1 {
+            parts.append("edit \(editedFiles.count) files")
+        }
+
+        // Nothing nameable is still possible on a tail that begins mid-record.
+        return parts.isEmpty ? label(actionCount: actions.count) : parts.joined(separator: " · ")
     }
 }
 

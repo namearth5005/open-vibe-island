@@ -41,8 +41,10 @@ struct FeedTurnsTests {
 
     /// A record is thinking, then text, then tools. Thinking must not split off
     /// into a turn of its own containing one grey word.
+    /// Thinking is dropped. It has no text to show, and on a live feed it was
+    /// seven of every eight rows.
     @Test
-    func thinkingStaysWithTheProseItPrecedes() {
+    func thinkingIsDroppedEntirely() {
         let turns = FeedTurns.grouped([
             entry("1", .thought(tokens: nil)),
             entry("2", .said("Found it")),
@@ -50,8 +52,24 @@ struct FeedTurnsTests {
         ])
 
         #expect(turns.count == 1)
-        #expect(turns[0].lead.count == 2)
+        #expect(turns[0].lead.map(\.id) == ["2"])
         #expect(turns[0].actions.count == 1)
+    }
+
+    /// A turn that was only ever a thinking block leaves nothing behind, and
+    /// the tools that followed it join the turn above rather than orphaning.
+    @Test
+    func aThinkingOnlyTurnDisappearsAndItsToolsMergeUpward() {
+        let turns = FeedTurns.grouped([
+            entry("1", .said("Starting")),
+            entry("2", .ran(tool: "Read", argument: "a.swift")),
+            entry("3", .thought(tokens: 400)),
+            entry("4", .ran(tool: "Bash", argument: "swift build")),
+        ])
+
+        #expect(turns.count == 1)
+        #expect(turns[0].lead.map(\.id) == ["1"])
+        #expect(turns[0].actions.map(\.id) == ["2", "4"])
     }
 
     /// A tail can begin mid-turn, so the first entry is often a tool call with
@@ -69,8 +87,10 @@ struct FeedTurnsTests {
         #expect(turns[1].lead.count == 1)
     }
 
+    /// Everything except thinking survives, in order. Nothing that carries
+    /// text or a change may be dropped.
     @Test
-    func everyEntrySurvivesGrouping() {
+    func everyEntryButThinkingSurvivesGrouping() {
         let entries = [
             entry("1", .said("a")),
             entry("2", .ran(tool: "Read", argument: "a.swift")),
@@ -80,7 +100,7 @@ struct FeedTurnsTests {
         ]
         let grouped = FeedTurns.grouped(entries).flatMap { $0.lead + $0.actions }
 
-        #expect(grouped.map(\.id) == ["1", "2", "3", "4", "5"])
+        #expect(grouped.map(\.id) == ["1", "2", "4", "5"])
     }
 
     @Test
@@ -120,6 +140,53 @@ struct FeedTurnSummaryTests {
         #expect(FeedTurnSummary.label(actionCount: 1) == "1 action")
         #expect(FeedTurnSummary.label(actionCount: 4) == "4 actions")
         #expect(FeedTurnSummary.label(actionCount: 0) == "0 actions")
+    }
+
+    @Test
+    func repeatedToolsCollapseToAMultiplier() {
+        let work = FeedTurnSummary.work(in: [
+            entry("1", .ran(tool: "Read", argument: "a.swift")),
+            entry("2", .ran(tool: "Read", argument: "b.swift")),
+            entry("3", .ran(tool: "Read", argument: "c.swift")),
+            entry("4", .ran(tool: "Grep", argument: "sideInset")),
+        ])
+
+        #expect(work == "read ×3 · grep")
+    }
+
+    /// One edited file is worth naming; several are not worth the width.
+    @Test
+    func editsNameTheFileUntilThereAreSeveral() {
+        let one = FeedTurnSummary.work(in: [
+            entry("1", .ran(tool: "Bash", argument: "swift build")),
+            entry("2", .edited(file: "Sources/App/FeedTheme.swift", added: 31, removed: 4)),
+        ])
+        #expect(one == "bash · edit FeedTheme.swift")
+
+        let several = FeedTurnSummary.work(in: [
+            entry("1", .edited(file: "a.swift", added: 1, removed: 0)),
+            entry("2", .edited(file: "b.swift", added: 2, removed: 1)),
+        ])
+        #expect(several == "edit 2 files")
+    }
+
+    /// First appearance sets the order, so the line reads chronologically.
+    @Test
+    func orderFollowsFirstAppearance() {
+        let work = FeedTurnSummary.work(in: [
+            entry("1", .ran(tool: "Grep", argument: "x")),
+            entry("2", .ran(tool: "Read", argument: "a.swift")),
+            entry("3", .ran(tool: "Grep", argument: "y")),
+        ])
+
+        #expect(work == "grep ×2 · read")
+    }
+
+    /// A tail can begin mid-record and leave a turn with nothing nameable in
+    /// it; the count is the fallback, not the default.
+    @Test
+    func anUnnameableTurnFallsBackToTheCount() {
+        #expect(FeedTurnSummary.work(in: []) == "0 actions")
     }
 
     @Test
