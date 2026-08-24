@@ -1297,6 +1297,11 @@ private struct IslandSessionRow: View {
             }
         }
         .background(rowFillColor(for: presence))
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(theme.hairline.color)
+                .frame(height: 1)
+        }
         .overlay(alignment: .leading) {
             if showsLeadingStatusBar {
                 RoundedRectangle(cornerRadius: 999, style: .continuous)
@@ -1780,9 +1785,9 @@ private struct IslandSessionRow: View {
 
             HStack(spacing: 8) {
                 Button(session.permissionRequest?.secondaryActionTitle ?? lang.t("approval.deny")) { onApprove?(.deny) }
-                    .buttonStyle(IslandActionButtonStyle(kind: .secondary, expands: true))
+                    .buttonStyle(IslandActionButtonStyle(kind: .secondary, theme: theme, expands: true))
                 Button(session.permissionRequest?.primaryActionTitle ?? lang.t("approval.allowOnce")) { onApprove?(.allowOnce) }
-                    .buttonStyle(IslandActionButtonStyle(kind: .warning, expands: true))
+                    .buttonStyle(IslandActionButtonStyle(kind: .warning, theme: theme, expands: true))
                 if let toolName = session.permissionRequest?.toolName {
                     Button(lang.t("approval.alwaysAllow", toolName)) {
                         let rule = ClaudePermissionRuleValue(toolName: toolName)
@@ -1793,7 +1798,7 @@ private struct IslandSessionRow: View {
                         )
                         onApprove?(.allowWithUpdates([update]))
                     }
-                    .buttonStyle(IslandActionButtonStyle(kind: .primary, expands: true))
+                    .buttonStyle(IslandActionButtonStyle(kind: .primary, theme: theme, expands: true))
                 }
             }
         }
@@ -1804,6 +1809,7 @@ private struct IslandSessionRow: View {
     private var questionActionBody: some View {
         StructuredQuestionPromptView(
             prompt: session.questionPrompt,
+            theme: theme,
             lang: lang,
             onAnswer: { onAnswer?($0) }
         )
@@ -2155,6 +2161,9 @@ private struct IslandSessionRow: View {
 
 private struct StructuredQuestionPromptView: View {
     let prompt: QuestionPrompt?
+    /// Answering from the notch happens on whatever the panel is made of, so
+    /// the buttons and the field resolve against the same skin as the row.
+    let theme: FeedTheme
     var lang: LanguageManager = .shared
     let onAnswer: (QuestionPromptResponse) -> Void
 
@@ -2168,7 +2177,7 @@ private struct StructuredQuestionPromptView: View {
             if showsPromptTitle {
                 Text(promptTitle)
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(IslandDesignPalette.Status.waitingForAnswer)
+                    .foregroundStyle(theme.color(for: .waitingForAnswer))
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -2186,7 +2195,7 @@ private struct StructuredQuestionPromptView: View {
                 Button(submitButtonTitle) {
                     submitAnswer()
                 }
-                .buttonStyle(IslandActionButtonStyle(kind: canSubmit ? .primary : .secondary, expands: true))
+                .buttonStyle(IslandActionButtonStyle(kind: canSubmit ? .primary : .secondary, theme: theme, expands: true))
                 .disabled(!canSubmit)
             }
         }
@@ -2333,7 +2342,7 @@ private struct StructuredQuestionPromptView: View {
             Button(lang.t("question.submit")) {
                 submitAnswer()
             }
-            .buttonStyle(IslandActionButtonStyle(kind: canSubmit ? .primary : .secondary, expands: true))
+            .buttonStyle(IslandActionButtonStyle(kind: canSubmit ? .primary : .secondary, theme: theme, expands: true))
             .disabled(!canSubmit)
         }
     }
@@ -2660,6 +2669,10 @@ private struct IslandActionButtonStyle: ButtonStyle {
     }
 
     let kind: Kind
+    /// The panel's skin. The style used to hard-code an ink ground -- a
+    /// near-white `secondary` label, a black `primary` label -- which is
+    /// invisible or unreadable the moment the panel is paper.
+    let theme: FeedTheme
     var expands = false
 
     @Environment(\.isEnabled) private var isEnabled
@@ -2670,43 +2683,40 @@ private struct IslandActionButtonStyle: ButtonStyle {
             .foregroundStyle(foregroundColor)
             .lineLimit(1)
             .frame(maxWidth: expands ? .infinity : nil)
-            .padding(.horizontal, 13)
+            .padding(.horizontal, 15)
             .padding(.vertical, 8)
-            .background(backgroundColor(configuration.isPressed), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(strokeColor, lineWidth: 1)
-            )
+            // A full pill, as the reference draws its one primary action.
+            .background(backgroundColor(configuration.isPressed), in: Capsule())
+            .overlay(Capsule().strokeBorder(strokeColor, lineWidth: 1))
             .opacity(configuration.isPressed ? 0.82 : 1)
     }
 
     private var foregroundColor: Color {
         guard isEnabled else {
-            return V6Palette.paper.opacity(0.42)
+            return theme.faint.color
         }
 
+        // A filled action reads its label out of the ground it is punched from,
+        // so the pair inverts correctly on ink and on paper alike.
         switch kind {
-        case .primary:
-            return .black.opacity(0.88)
-        case .warning:
-            return .white
+        case .primary, .warning:
+            return theme.ground.color
         case .secondary:
-            return V6Palette.paper.opacity(0.78)
+            return theme.dim.color
         }
     }
 
     private var strokeColor: Color {
         guard isEnabled else {
-            return .white.opacity(0.07)
+            return theme.hairline.color
         }
 
+        // Only the quiet one is drawn rather than filled.
         switch kind {
-        case .primary:
-            return V6Palette.paper.opacity(0.86)
-        case .warning:
-            return Color(red: 0.85, green: 0.55, blue: 0.15).opacity(0.42)
+        case .primary, .warning:
+            return .clear
         case .secondary:
-            return .white.opacity(0.07)
+            return theme.dim.color.opacity(0.45)
         }
     }
 

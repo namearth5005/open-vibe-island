@@ -264,7 +264,17 @@ final class AppModel {
     /// What the island is made of. Global rather than per-display-profile:
     /// every member of `IslandAppearancePreferences` answers "how should this
     /// screen lay out", while a theme answers "what is this made of".
-    var islandTheme: IslandTheme = .inkPaper {
+    /// Paper is the default because the reference's own utility panels are
+    /// paper -- its Todo List, Ambient Sounds and reward card are all warm
+    /// cream, and the green is marketing ground, not app ground.
+    ///
+    /// The skins spec kept ink as the default for one reason: a cream panel
+    /// would make the *closed pill* visible against the hardware notch. That
+    /// no longer follows. The pill fills with `V6Palette.ink` directly in
+    /// `V6NotchContent` and never reads this value, and the ground now lives on
+    /// `IslandPanelView.openedSurface`, so the closed pill stays black in the
+    /// notch whatever the opened panel is made of.
+    var islandTheme: IslandTheme = .fullCream {
         didSet {
             guard hasFinishedInit, islandTheme != oldValue else { return }
             UserDefaults.standard.set(islandTheme.rawValue, forKey: Self.islandThemeDefaultsKey)
@@ -614,7 +624,7 @@ final class AppModel {
             Self.completionReplyEnabledDefaultsKey: false,
             Self.suppressFrontmostNotificationsDefaultsKey: true,
             Self.showCompanionDefaultsKey: false,
-            Self.islandThemeDefaultsKey: IslandTheme.inkPaper.rawValue,
+            Self.islandThemeDefaultsKey: IslandTheme.fullCream.rawValue,
         ])
         isSoundMuted = UserDefaults.standard.bool(forKey: Self.soundMutedDefaultsKey)
         selectedSoundName = NotificationSoundService.selectedSoundName

@@ -119,10 +119,15 @@ struct FeedThemeResolutionTests {
 
 @MainActor
 struct IslandThemePreferenceTests {
+    /// Paper is the default because the reference's own utility panels are
+    /// paper. The spec originally defaulted to ink so the closed pill would
+    /// stay hidden against the hardware notch; that reason no longer holds,
+    /// because the pill fills with `V6Palette.ink` directly in `V6NotchContent`
+    /// and never reads the theme.
     @Test
-    func defaultsToInkPaper() {
+    func defaultsToFullCream() {
         UserDefaults.standard.removeObject(forKey: "app.islandTheme")
-        #expect(AppModel().islandTheme == .inkPaper)
+        #expect(AppModel().islandTheme == .fullCream)
     }
 
     @Test
