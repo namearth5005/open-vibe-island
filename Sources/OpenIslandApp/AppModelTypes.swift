@@ -58,7 +58,7 @@ struct IslandAppearancePreferences: Equatable, Sendable {
     var centerLabel: IslandCenterLabel = .agentAction
     var usageDisplay: IslandUsageDisplay = .compact
     var sessionStateIndicator: IslandSessionStateIndicator = .animatedDot
-    var sessionGroup: IslandSessionGroup = .none
+    var sessionGroup: IslandSessionGroup = .state
     var sessionSort: IslandSessionSort = .attention
     var completedStaleThreshold: IslandCompletedStaleThreshold = .fiveMinutes
 }

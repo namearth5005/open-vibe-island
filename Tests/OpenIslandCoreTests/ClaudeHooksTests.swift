@@ -4,6 +4,49 @@ import Testing
 @testable import OpenIslandCore
 
 struct ClaudeHooksTests {
+    /// The panel's busiest line is the running activity, and it comes from
+    /// here. Agents write `description` as a short active-voice sentence for a
+    /// human; `command` is written for the shell. With `command` first every
+    /// Bash call reached the island as a clipped shell string.
+    @Test
+    func toolInputPreviewPrefersTheHumanDescriptionOverTheRawCommand() {
+        let payload = ClaudeHookPayload(
+            cwd: "/tmp/demo",
+            hookEventName: .preToolUse,
+            sessionID: "s1",
+            toolName: "Bash",
+            toolInput: .object([
+                "command": .string("cd ~/.claude/skills && python3 - <<'PY' from pathlib import Path"),
+                "description": .string("Mine the nine most recent sessions"),
+            ])
+        )
+
+        #expect(payload.toolInputPreview == "Mine the nine most recent sessions")
+    }
+
+    /// Tools that carry no description still fall through to their own most
+    /// relevant field, in the order they always used.
+    @Test
+    func toolInputPreviewFallsThroughWhenThereIsNoDescription() {
+        let read = ClaudeHookPayload(
+            cwd: "/tmp/demo",
+            hookEventName: .preToolUse,
+            sessionID: "s1",
+            toolName: "Read",
+            toolInput: .object(["file_path": .string("/tmp/demo/AgentFeedView.swift")])
+        )
+        #expect(read.toolInputPreview == "/tmp/demo/AgentFeedView.swift")
+
+        let bash = ClaudeHookPayload(
+            cwd: "/tmp/demo",
+            hookEventName: .preToolUse,
+            sessionID: "s1",
+            toolName: "Bash",
+            toolInput: .object(["command": .string("swift build")])
+        )
+        #expect(bash.toolInputPreview == "swift build")
+    }
+
     @Test
     func claudeHookOutputEncoderEncodesPermissionDecision() throws {
         let output = try ClaudeHookOutputEncoder.standardOutput(

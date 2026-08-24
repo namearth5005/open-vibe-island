@@ -781,7 +781,15 @@ public extension ClaudeHookPayload {
         // For object-type tool inputs, extract the most relevant field
         // instead of serializing the entire JSON structure.
         if case let .object(obj) = toolInput {
-            let keyPriority = ["command", "file_path", "pattern", "query", "prompt", "description", "skill", "url"]
+            // `description` leads deliberately. Agents are required to write it
+            // as a short active-voice sentence for a human -- "Tighten CTA copy
+            // and re-render" -- while `command` is written for the shell. With
+            // `command` first, every Bash call surfaced as a clipped shell
+            // string, which is the least readable thing in the payload and the
+            // one the panel was showing. The rest of the order is unchanged, so
+            // tools without a description still fall through to their own
+            // most-relevant field.
+            let keyPriority = ["description", "command", "file_path", "pattern", "query", "prompt", "skill", "url"]
             for key in keyPriority {
                 if let val = obj[key]?.stringValue, !val.isEmpty {
                     return clipped(val)

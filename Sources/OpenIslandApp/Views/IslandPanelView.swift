@@ -546,6 +546,22 @@ struct IslandPanelView: View {
 
     private static let maxSessionListHeight: CGFloat = 560
 
+    /// The workspaces where the branch is worth printing.
+    ///
+    /// Computed across the visible list rather than per row: a branch pill
+    /// earns its place only when two sessions share a workspace and differ by
+    /// branch. Anyone running several agents in one worktree otherwise gets the
+    /// same pill on every row, in the loudest band of the panel, telling them
+    /// nothing. Built once per pass over a list that is a handful of entries.
+    private var workspacesWhereBranchDiscriminates: Set<String> {
+        var branchesByWorkspace: [String: Set<String>] = [:]
+        for session in model.islandListSessions {
+            branchesByWorkspace[session.spotlightWorkspaceName, default: []]
+                .insert(session.spotlightWorktreeBranch ?? "")
+        }
+        return Set(branchesByWorkspace.filter { $0.value.count > 1 }.keys)
+    }
+
     /// The skin, resolved once for the whole panel. Both the feed and the
     /// session list read from this, so the two surfaces are the same material
     /// rather than two apps sharing a window.
@@ -646,6 +662,7 @@ struct IslandPanelView: View {
                     .buttonStyle(.plain)
                 }
             } else {
+                let branchDiscriminates = workspacesWhereBranchDiscriminates
                 ForEach(model.islandSessionSections) { section in
                     VStack(alignment: .leading, spacing: 0) {
                         if model.islandSessionGroup != .none {
@@ -662,6 +679,7 @@ struct IslandPanelView: View {
                                 isActionable: session.phase.requiresAttention || session.id == actionableSessionID,
                                 useDrawingGroup: model.notchStatus == .opened,
                                 isInteractive: model.notchStatus == .opened,
+                                showsBranch: branchDiscriminates.contains(session.spotlightWorkspaceName),
                                 sideInset: sessionListSideInset,
                                 lang: model.lang,
                                 onApprove: { model.approvePermission(for: session.id, action: $0) },
@@ -697,6 +715,7 @@ struct IslandPanelView: View {
 
     @ViewBuilder
     private func sessionRowsContent(referenceDate: Date) -> some View {
+        let branchDiscriminates = workspacesWhereBranchDiscriminates
         ForEach(model.islandSessionSections) { section in
             VStack(alignment: .leading, spacing: 0) {
                 if model.islandSessionGroup != .none {
@@ -713,6 +732,7 @@ struct IslandPanelView: View {
                         isActionable: session.phase.requiresAttention || session.id == actionableSessionID,
                         useDrawingGroup: model.notchStatus == .opened,
                         isInteractive: model.notchStatus == .opened,
+                        showsBranch: branchDiscriminates.contains(session.spotlightWorkspaceName),
                         sideInset: sessionListSideInset,
                         lang: model.lang,
                         onApprove: { model.approvePermission(for: session.id, action: $0) },
@@ -1230,6 +1250,11 @@ private struct IslandSessionRow: View {
     var useDrawingGroup: Bool = true
     var isInteractive: Bool = true
     var presentation: IslandSessionRowPresentation = .list
+    /// Whether this row's branch tells it apart from its siblings. Five rows
+    /// reading `feat/app-store-screenshots` discriminate nothing and were
+    /// taking the loudest horizontal band on the panel; the panel works out
+    /// once whether the pill has a job here.
+    var showsBranch: Bool = true
     var sideInset: CGFloat = 16
     var lang: LanguageManager = .shared
     var onApprove: ((ApprovalAction) -> Void)?
@@ -1305,19 +1330,37 @@ private struct IslandSessionRow: View {
             }
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(summaryHeadlineText)
-                    .font(summaryTitleFont)
-                    .foregroundStyle(titleColor(for: presence))
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+                if presentation == .list, let activity = listPrimaryText {
+                    // What the agent is doing leads; the name of the place it
+                    // is doing it follows. With several sessions in one
+                    // workspace -- the normal case for anyone running more than
+                    // a couple of agents -- the name is the same on every row
+                    // and the activity is the only thing that tells them apart.
+                    // Leading with the name put the identical thing in the loud
+                    // position and the distinguishing thing in the quiet one.
+                    Text(activity)
+                        .font(listPrimaryFont)
+                        .foregroundStyle(titleColor(for: presence))
+                        .lineLimit(2)
+                        .truncationMode(.tail)
+                        .fixedSize(horizontal: false, vertical: true)
 
-                if showsDetail,
-                   let promptLine = summaryPromptLineText {
-                    Text(promptLine)
-                        .font(.system(size: 11.2, weight: .medium))
-                        .foregroundStyle(summaryPromptColor(for: presence))
+                    listMetaLine(presence: presence)
+                } else {
+                    Text(summaryHeadlineText)
+                        .font(summaryTitleFont)
+                        .foregroundStyle(titleColor(for: presence))
                         .lineLimit(1)
                         .truncationMode(.tail)
+
+                    if showsDetail,
+                       let promptLine = summaryPromptLineText {
+                        Text(promptLine)
+                            .font(.system(size: 11.2, weight: .medium))
+                            .foregroundStyle(summaryPromptColor(for: presence))
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                    }
                 }
             }
 
@@ -1349,7 +1392,9 @@ private struct IslandSessionRow: View {
 
     @ViewBuilder
     private func rowAuxiliaryDetails(presence: IslandSessionPresence) -> some View {
-        if !shouldShowEmbeddedDetailBody,
+        // A list row has already printed the activity as its headline.
+        if presentation != .list,
+           !shouldShowEmbeddedDetailBody,
            let activityLine = session.spotlightActivityLineText ?? expandedActivityLineText {
             Text(activityLine)
                 .font(.system(size: 11, weight: .medium))
@@ -1550,6 +1595,46 @@ private struct IslandSessionRow: View {
 
     private var showsLeadingStatusBar: Bool {
         presentation == .list && stateIndicator == .bar
+    }
+
+    /// The line a list row leads with. Falls back to the old headline when a
+    /// session has nothing to report yet.
+    private var listPrimaryText: String? {
+        session.spotlightActivityLineText ?? session.spotlightPromptLineText
+    }
+
+    /// A live row is set in the mono tier and a settled one in the display
+    /// tier, so "happening" and "finished" are legible without reading the
+    /// group header or relying on the dot's colour alone.
+    private var listPrimaryFont: Font {
+        session.spotlightActivityTone == .live
+            ? .system(size: 11.5, design: .monospaced)
+            : .system(size: 12, weight: .medium, design: .rounded)
+    }
+
+    @ViewBuilder
+    private func listMetaLine(presence: IslandSessionPresence) -> some View {
+        HStack(spacing: 6) {
+            Text(session.spotlightWorkspaceName)
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .foregroundStyle(summaryPromptColor(for: presence))
+                .lineLimit(1)
+                .truncationMode(.tail)
+
+            if showsBranch, let branch = session.spotlightWorktreeBranch {
+                Text(branch)
+                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                    .foregroundStyle(summaryAgeColor(for: presence))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 1.5)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 9)
+                            .stroke(summaryAgeColor(for: presence).opacity(0.45), lineWidth: 1)
+                    }
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+        }
     }
 
     private var summaryTitleFont: Font {
