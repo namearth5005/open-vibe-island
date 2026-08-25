@@ -51,6 +51,9 @@ struct FeedThemeContrastTests {
     private let textBar = 4.5
     private let graphicBar = 3.0
 
+    /// The reading surface only. `everyChromeTokenClearsAAOnTheGround` covers
+    /// the rest of the panel -- this one measures against `surface ?? ground`,
+    /// so on Cream card it can only ever see the card body.
     @Test(arguments: IslandTheme.allCases)
     func everyTextTokenClearsAA(theme: IslandTheme) {
         let t = FeedTheme.resolve(theme)
@@ -59,6 +62,57 @@ struct FeedThemeContrastTests {
         #expect(t.text.contrast(against: reading) >= textBar)
         #expect(t.dim.contrast(against: reading) >= textBar)
         #expect(t.faint.contrast(against: reading) >= textBar)
+    }
+
+    /// The header and footer sit on `ground`, not on the reading surface.
+    ///
+    /// This is the assertion that was missing: with only the reading-surface
+    /// test above, Cream card's chrome rendered in the card's own ink at
+    /// 1.16:1 and the suite stayed green through a clean build, a passing run
+    /// and a screenshot nobody had taken yet.
+    @Test(arguments: IslandTheme.allCases)
+    func everyChromeTokenClearsAAOnTheGround(theme: IslandTheme) {
+        let t = FeedTheme.resolve(theme)
+
+        #expect(
+            t.chromeText.contrast(against: t.ground) >= textBar,
+            "\(theme.rawValue)/chromeText = \(t.chromeText.contrast(against: t.ground))"
+        )
+        #expect(
+            t.chromeDim.contrast(against: t.ground) >= textBar,
+            "\(theme.rawValue)/chromeDim = \(t.chromeDim.contrast(against: t.ground))"
+        )
+        #expect(
+            t.chromeFaint.contrast(against: t.ground) >= textBar,
+            "\(theme.rawValue)/chromeFaint = \(t.chromeFaint.contrast(against: t.ground))"
+        )
+    }
+
+    /// The status tints reach the chrome as text, not only as the dot: the
+    /// header prints the phase word and the turn's diff totals, and the footer
+    /// tints a pill per waiting agent. They carry the text bar there.
+    @Test(arguments: IslandTheme.allCases)
+    func everyChromeStatusTintClearsAAOnTheGround(theme: IslandTheme) {
+        let t = FeedTheme.resolve(theme)
+
+        for phase in SessionPhase.allCases {
+            let tint = t.chromeInk(for: phase)
+            #expect(
+                tint.contrast(against: t.ground) >= textBar,
+                "\(theme.rawValue)/\(phase) = \(tint.contrast(against: t.ground))"
+            )
+        }
+    }
+
+    /// Regression guard for the defect this round fixes: Cream card drew its
+    /// header in `creamText` on the ink panel -- ink on ink, 1.16:1.
+    @Test
+    func creamCardChromeIsNoLongerTheCardsOwnInk() {
+        let t = FeedTheme.resolve(.creamCard)
+
+        #expect(t.chromeText != t.text)
+        #expect(t.text.contrast(against: t.ground) < 1.5)
+        #expect(t.chromeText.contrast(against: t.ground) > 10)
     }
 
     @Test(arguments: IslandTheme.allCases)
@@ -81,7 +135,7 @@ struct FeedThemeContrastTests {
     func statusDotClearsGraphicBarOnTheGround(theme: IslandTheme) {
         let t = FeedTheme.resolve(theme)
         for phase in SessionPhase.allCases {
-            #expect(t.headerInk(for: phase).contrast(against: t.ground) >= graphicBar)
+            #expect(t.chromeInk(for: phase).contrast(against: t.ground) >= graphicBar)
         }
     }
 
@@ -91,6 +145,32 @@ struct FeedThemeContrastTests {
     func faintTierIsNoLongerBelowAA() {
         let t = FeedTheme.resolve(.inkPaper)
         #expect(t.faint.contrast(against: t.ground) > 4.5)
+    }
+}
+
+struct FeedThemeChromeResolutionTests {
+    /// Only Cream card has two grounds. On the other two the chrome tier is
+    /// the reading tier, so introducing it moved nothing there.
+    @Test(arguments: [IslandTheme.inkPaper, IslandTheme.fullCream])
+    func skinsWithoutACardShareOneTextTier(theme: IslandTheme) {
+        let t = FeedTheme.resolve(theme)
+
+        #expect(t.chromeText == t.text)
+        #expect(t.chromeDim == t.dim)
+        #expect(t.chromeFaint == t.faint)
+    }
+
+    @Test
+    func creamCardResolvesADistinctChromeTier() {
+        let t = FeedTheme.resolve(.creamCard)
+
+        #expect(t.chromeText != t.text)
+        #expect(t.chromeDim != t.dim)
+        #expect(t.chromeFaint != t.faint)
+        // The chrome is the ink skin's own tier, not a third invention.
+        #expect(t.chromeText == FeedTheme.resolve(.inkPaper).text)
+        #expect(t.chromeDim == FeedTheme.resolve(.inkPaper).dim)
+        #expect(t.chromeFaint == FeedTheme.resolve(.inkPaper).faint)
     }
 }
 

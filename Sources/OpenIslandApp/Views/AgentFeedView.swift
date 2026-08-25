@@ -86,7 +86,7 @@ struct AgentFeedView: View {
                 AgentMark(tool: session.tool, size: 13)
                 Text(session.jumpTarget?.workspaceName ?? session.title)
                     .font(.system(size: 13, weight: .bold, design: .rounded))
-                    .foregroundStyle(theme.text.color)
+                    .foregroundStyle(theme.chromeText.color)
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .layoutPriority(1)
@@ -98,11 +98,11 @@ struct AgentFeedView: View {
                 Spacer(minLength: 6)
                 HStack(spacing: 4) {
                     Circle()
-                        .fill(theme.headerColor(for: session.phase))
+                        .fill(theme.chromeColor(for: session.phase))
                         .frame(width: 5, height: 5)
                     Text(session.phase.displayName.lowercased())
                         .font(.system(size: 10, weight: .semibold, design: .rounded))
-                        .foregroundStyle(theme.headerColor(for: session.phase))
+                        .foregroundStyle(theme.chromeColor(for: session.phase))
                         .lineLimit(1)
                         .fixedSize()
                 }
@@ -119,10 +119,10 @@ struct AgentFeedView: View {
                 if feed.summary.linesAdded > 0 || feed.summary.linesRemoved > 0 {
                     Text("+\(feed.summary.linesAdded)")
                         .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(theme.color(for: .completed))
+                        .foregroundStyle(theme.chromeColor(for: .completed))
                     Text("−\(feed.summary.linesRemoved)")
                         .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(theme.color(for: .waitingForApproval))
+                        .foregroundStyle(theme.chromeColor(for: .waitingForApproval))
                     stat("\(feed.summary.filesTouched) file\(feed.summary.filesTouched == 1 ? "" : "s")")
                 }
             }
@@ -137,31 +137,33 @@ struct AgentFeedView: View {
     @ViewBuilder
     private func body(for feed: AgentFeed) -> some View {
         if feed.entries.isEmpty {
-            VStack(spacing: 5) {
-                Text(session.supportsFeed ? "Waiting for output" : "No transcript for this agent")
-                    .font(.system(size: 11.5, weight: .medium, design: .rounded))
-                    .foregroundStyle(theme.dim.color)
-                if !session.supportsFeed {
-                    Text("Only Claude Code transcripts are read so far")
-                        .font(.system(size: 10, design: .rounded))
-                        .foregroundStyle(theme.faint.color)
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
-            ScrollView(.vertical) {
-                // Turns are the unit of separation. Inside one, rows sit close
-                // together under a shared spine; between two, the gap is wide
-                // enough to read as a break without needing a box.
-                VStack(alignment: .leading, spacing: 16) {
-                    let turns = FeedTurns.grouped(feed.entries)
-                    ForEach(Array(turns.enumerated()), id: \.element.id) { index, turn in
-                        turnView(turn, isNewest: index == turns.count - 1)
+            readingSurface {
+                VStack(spacing: 5) {
+                    Text(session.supportsFeed ? "Waiting for output" : "No transcript for this agent")
+                        .font(.system(size: 11.5, weight: .medium, design: .rounded))
+                        .foregroundStyle(theme.dim.color)
+                    if !session.supportsFeed {
+                        Text("Only Claude Code transcripts are read so far")
+                            .font(.system(size: 10, design: .rounded))
+                            .foregroundStyle(theme.faint.color)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, sideInset)
-                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        } else {
+            ScrollView(.vertical) {
+                readingSurface {
+                    // Turns are the unit of separation. Inside one, rows sit
+                    // close together under a shared spine; between two, the gap
+                    // is wide enough to read as a break without needing a box.
+                    VStack(alignment: .leading, spacing: 16) {
+                        let turns = FeedTurns.grouped(feed.entries)
+                        ForEach(Array(turns.enumerated()), id: \.element.id) { index, turn in
+                            turnView(turn, isNewest: index == turns.count - 1)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
             .defaultScrollAnchor(.bottom)
             .mask {
@@ -176,6 +178,37 @@ struct AgentFeedView: View {
                 )
             }
         }
+    }
+
+    /// Where the feed is read.
+    ///
+    /// On Cream card that is a pale card floating inside the ink panel; on the
+    /// other two skins the panel ground *is* the reading surface and this is
+    /// just the panel inset. Both branches of `body(for:)` go through here so
+    /// the empty state cannot end up outside the card — on Cream card its text
+    /// is resolved against cream and measures 2.05:1 on the ink ground.
+    ///
+    /// The card carries its own grain, keyed to the card's ground rather than
+    /// the panel's: the panel is ink so its flecks are light, and light flecks
+    /// on cream are invisible. Grain has to darken here to exist at all.
+    private func readingSurface<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        content()
+            // The card's own inset carries part of the distance to the panel
+            // edge, so the inner padding drops when there is a card to sit in.
+            .padding(.horizontal, theme.surface == nil ? sideInset : 13)
+            .padding(.vertical, theme.surface == nil ? 10 : 12)
+            .background {
+                if let surface = theme.surface {
+                    RoundedRectangle(cornerRadius: 13)
+                        .fill(surface.color)
+                        .feedGrain(
+                            tint: FeedTheme.grainTint(over: surface),
+                            opacity: FeedTheme.grainOpacity(over: surface)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 13))
+                }
+            }
+            .padding(.horizontal, theme.surface == nil ? 0 : sideInset - 9)
     }
 
     /// One turn: the prose the agent wrote, and the tool calls it triggered
@@ -341,27 +374,27 @@ struct AgentFeedView: View {
             if others.isEmpty {
                 Text("No other agents")
                     .font(.system(size: 10.5, weight: .medium))
-                    .foregroundStyle(theme.faint.color)
+                    .foregroundStyle(theme.chromeFaint.color)
             } else {
                 Text("\(others.count) other\(others.count == 1 ? "" : "s")")
                     .font(.system(size: 10.5, weight: .semibold, design: .rounded))
-                    .foregroundStyle(theme.dim.color)
+                    .foregroundStyle(theme.chromeDim.color)
                     .fixedSize()
                 ForEach(others.prefix(3), id: \.id) { other in
                     let attention = other.phase.requiresAttention
                     Text(other.jumpTarget?.workspaceName ?? other.title)
                         .font(.system(size: 9, weight: .semibold, design: .rounded))
                         .foregroundStyle(attention
-                            ? theme.color(for: .waitingForApproval)
-                            : theme.dim.color)
+                            ? theme.chromeColor(for: .waitingForApproval)
+                            : theme.chromeDim.color)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 1.5)
                         .overlay {
                             RoundedRectangle(cornerRadius: 9)
                                 .stroke(
                                     (attention
-                                        ? theme.color(for: .waitingForApproval)
-                                        : theme.dim.color).opacity(0.45),
+                                        ? theme.chromeColor(for: .waitingForApproval)
+                                        : theme.chromeDim.color).opacity(0.45),
                                     lineWidth: 1
                                 )
                         }
@@ -397,24 +430,27 @@ struct AgentFeedView: View {
     /// Drawn, not filled. A stroked contour is the reference's own way of
     /// bounding a label — a filled chip reads as a UI control, an outline reads
     /// as something someone drew around the word.
+    ///
+    /// Header-only, so it takes the chrome tier.
     private func tag(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 9, weight: .semibold, design: .rounded))
-            .foregroundStyle(theme.dim.color)
+            .foregroundStyle(theme.chromeDim.color)
             .padding(.horizontal, 6)
             .padding(.vertical, 1.5)
             .overlay {
                 RoundedRectangle(cornerRadius: 9)
-                    .stroke(theme.dim.color.opacity(0.45), lineWidth: 1)
+                    .stroke(theme.chromeDim.color.opacity(0.45), lineWidth: 1)
             }
             .lineLimit(1)
             .truncationMode(.middle)
     }
 
+    /// Header-only, so it takes the chrome tier.
     private func stat(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 9.5, weight: .medium, design: .monospaced))
-            .foregroundStyle(theme.faint.color)
+            .foregroundStyle(theme.chromeFaint.color)
             .lineLimit(1)
             .fixedSize()
     }

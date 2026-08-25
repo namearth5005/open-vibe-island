@@ -66,10 +66,26 @@ struct FeedTheme: Equatable, Sendable {
     let ground: FeedInk
     /// Inner reading card. `nil` when the ground IS the reading surface.
     let surface: FeedInk?
+    /// Text tiers for the reading surface -- the card body on Cream card,
+    /// the panel itself on the other two.
     let text: FeedInk
     let dim: FeedInk
     let faint: FeedInk
     let hairline: FeedInk
+
+    /// Text tiers for the chrome: the header and the footer, which sit on
+    /// `ground` even when the body has a card of its own.
+    ///
+    /// Separate tokens rather than a rule each call site has to remember.
+    /// Cream card is the only skin whose two grounds differ, and drawing its
+    /// chrome in the card's own ink measured 1.16:1 on the panel -- ink on
+    /// ink. Which ground a colour is legible against is a property of the
+    /// colour, so it belongs to the token, not to the view. On the two skins
+    /// where the ground IS the reading surface these are the same values as
+    /// `text`/`dim`/`faint`.
+    let chromeText: FeedInk
+    let chromeDim: FeedInk
+    let chromeFaint: FeedInk
 
     let approval: FeedInk
     let answer: FeedInk
@@ -86,15 +102,15 @@ struct FeedTheme: Equatable, Sendable {
         }
     }
 
-    /// Status colour for the header, which sits on `ground` even when the body
+    /// Status colour for the chrome, which sits on `ground` even when the body
     /// has its own surface. On Cream card those are different colours, so the
-    /// header keeps the ink tints while the body uses the paper ones.
-    func headerInk(for phase: SessionPhase) -> FeedInk {
+    /// chrome keeps the ink tints while the body uses the paper ones.
+    func chromeInk(for phase: SessionPhase) -> FeedInk {
         surface == nil ? ink(for: phase) : Self.inkTints.ink(for: phase)
     }
 
     func color(for phase: SessionPhase) -> Color { ink(for: phase).color }
-    func headerColor(for phase: SessionPhase) -> Color { headerInk(for: phase).color }
+    func chromeColor(for phase: SessionPhase) -> Color { chromeInk(for: phase).color }
 
     // MARK: Resolution
 
@@ -151,14 +167,47 @@ struct FeedTheme: Equatable, Sendable {
         }
     }
 
-    private static func onInk(ground: FeedInk, surface: FeedInk?) -> FeedTheme {
-        FeedTheme(
-            ground: ground,
-            surface: surface,
+    /// The four text weights for one ground, at the alphas §7.5 measured.
+    private struct TextTiers {
+        let text: FeedInk
+        let dim: FeedInk
+        let faint: FeedInk
+        let hairline: FeedInk
+    }
+
+    /// Paper pigment on a dark ground.
+    private static func inkTiers(on ground: FeedInk) -> TextTiers {
+        TextTiers(
             text: .blend(paperText, over: ground, alpha: 0.94),
             dim: .blend(paperText, over: ground, alpha: 0.66),
             faint: .blend(paperText, over: ground, alpha: 0.50),
-            hairline: .blend(paperText, over: ground, alpha: 0.14),
+            hairline: .blend(paperText, over: ground, alpha: 0.14)
+        )
+    }
+
+    /// Ink pigment on a light ground. `text` is opaque here: cream needs no
+    /// veil to come down to a readable weight.
+    private static func paperTiers(on ground: FeedInk) -> TextTiers {
+        TextTiers(
+            text: creamText,
+            dim: .blend(creamText, over: ground, alpha: 0.80),
+            faint: .blend(creamText, over: ground, alpha: 0.66),
+            hairline: .blend(creamText, over: ground, alpha: 0.20)
+        )
+    }
+
+    private static func onInk(ground: FeedInk, surface: FeedInk?) -> FeedTheme {
+        let tiers = inkTiers(on: ground)
+        return FeedTheme(
+            ground: ground,
+            surface: surface,
+            text: tiers.text,
+            dim: tiers.dim,
+            faint: tiers.faint,
+            hairline: tiers.hairline,
+            chromeText: tiers.text,
+            chromeDim: tiers.dim,
+            chromeFaint: tiers.faint,
             approval: inkTints.approval,
             answer: inkTints.answer,
             running: inkTints.running,
@@ -167,14 +216,21 @@ struct FeedTheme: Equatable, Sendable {
     }
 
     private static func onPaper(ground: FeedInk, surface: FeedInk?) -> FeedTheme {
-        let reading = surface ?? ground
+        let reading = paperTiers(on: surface ?? ground)
+        // With a card, the chrome is left standing on the ink panel and has to
+        // be written in the ink skin's own pigment; without one it is on the
+        // same cream the body is, and reads from the same tiers.
+        let chrome = surface == nil ? reading : inkTiers(on: ground)
         return FeedTheme(
             ground: ground,
             surface: surface,
-            text: creamText,
-            dim: .blend(creamText, over: reading, alpha: 0.80),
-            faint: .blend(creamText, over: reading, alpha: 0.66),
-            hairline: .blend(creamText, over: reading, alpha: 0.20),
+            text: reading.text,
+            dim: reading.dim,
+            faint: reading.faint,
+            hairline: reading.hairline,
+            chromeText: chrome.text,
+            chromeDim: chrome.dim,
+            chromeFaint: chrome.faint,
             approval: paperTints.approval,
             answer: paperTints.answer,
             running: paperTints.running,
