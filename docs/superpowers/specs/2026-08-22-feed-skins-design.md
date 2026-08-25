@@ -298,7 +298,8 @@ that drops a token below its bar fails the suite rather than shipping.
 | Turn summary + diff totals | Plain unit tests | 0 / 1 / n actions, with and without edits |
 | `isExpanded` defaulting | Plain unit tests | Newest open; touched turn keeps its choice as it ages |
 | Each skin on device | Launch, hover, screenshot, **look** | One capture per skin, per the handoff's §4 loop |
-| Regression | `swift build` / `swift test` | Zero warnings; 5 known issues, no more |
+| The panel with the feed off | Same, `showCompanion` false | The skin must not make the standard list unreadable |
+| Regression | `swift build` / `swift test` | Zero warnings; 0 issues |
 
 Any tint failing its bar is retuned before it ships. Shipping a measured
 failure with a caveat is not an option here — the whole reason three skins
@@ -307,7 +308,31 @@ exist is that the first measurement was taken seriously.
 Screenshot loop caveat from the handoff's §6 applies: move the pointer off the
 notch (`cliclick m:400,900`) before `swift test`, or
 `completionNotificationHoverCancelsPendingTimedCollapse` fails and the count
-reads 6.
+reads 1 instead of 0.
+
+### What the on-device pass found — 2026-08-25
+
+Three defects that every earlier check had passed, and none of which a test
+could have caught on its own:
+
+1. **Cream card's chrome was resolved for the card.** The header and footer sit
+   on the ink panel, and every text token was the cream-ground ink: 1.16:1 for
+   the workspace name. Fixed by a `chrome*` tier on `FeedTheme`. The suite was
+   green throughout, because `everyTextTokenClearsAA` measures against
+   `surface ?? ground` and could only ever see the card body.
+2. **The card hugged its content.** It sat inside the `ScrollView`, so a short
+   feed rendered as a small cream slab at the foot of a mostly empty ink panel.
+   The card belongs *around* the scroll view; it is the reading area.
+3. **Full cream made the rest of the panel unreadable.** The skin sets the
+   panel's ground, but the standard list, the room and the header are still
+   drawn in hardcoded light — and `showCompanion` is off by default, so that is
+   the first thing a user picking Full cream would see. The panel's own header
+   is now themed from the chrome tier, and a light ground applies only while the
+   feed is on screen (`IslandPanelView.panelTheme`).
+
+Theming the standard list and the notification cards so a light ground can apply
+to the whole panel is the obvious next round; ~80 hardcoded light colours sit in
+`IslandPanelView` alone.
 
 ---
 

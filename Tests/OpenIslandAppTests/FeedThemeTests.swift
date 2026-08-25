@@ -160,6 +160,17 @@ struct FeedThemeChromeResolutionTests {
         #expect(t.chromeFaint == t.faint)
     }
 
+    /// The predicate the panel uses to decide whether a colour tuned for ink
+    /// still works where it is putting it. Cream card is the interesting case:
+    /// its reading surface is cream but its chrome stands on the ink panel, so
+    /// it answers the same as Ink paper.
+    @Test
+    func chromeGroundIsLightOnlyWhereTheChromeStandsOnCream() {
+        #expect(FeedTheme.resolve(.inkPaper).chromeGroundIsLight == false)
+        #expect(FeedTheme.resolve(.creamCard).chromeGroundIsLight == false)
+        #expect(FeedTheme.resolve(.fullCream).chromeGroundIsLight)
+    }
+
     @Test
     func creamCardResolvesADistinctChromeTier() {
         let t = FeedTheme.resolve(.creamCard)

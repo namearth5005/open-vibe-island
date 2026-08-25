@@ -151,8 +151,8 @@ struct AgentFeedView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         } else {
-            ScrollView(.vertical) {
-                readingSurface {
+            readingSurface {
+                ScrollView(.vertical) {
                     // Turns are the unit of separation. Inside one, rows sit
                     // close together under a shared spine; between two, the gap
                     // is wide enough to read as a break without needing a box.
@@ -164,18 +164,19 @@ struct AgentFeedView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-            }
-            .defaultScrollAnchor(.bottom)
-            .mask {
-                LinearGradient(
-                    stops: [
-                        .init(color: .clear, location: 0),
-                        .init(color: .black, location: 0.055),
-                        .init(color: .black, location: 1),
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+                .defaultScrollAnchor(.bottom)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                .mask {
+                    LinearGradient(
+                        stops: [
+                            .init(color: .clear, location: 0),
+                            .init(color: .black, location: 0.055),
+                            .init(color: .black, location: 1),
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
             }
         }
     }

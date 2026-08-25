@@ -160,10 +160,12 @@ reading of the code. The only thing that catches them is looking.
 1. Make one change.
 2. `swift build 2>&1 | grep -E "error:|warning:"` — must be empty. This project
    is Swift 6 strict concurrency; a warning is a defect.
-3. `swift test 2>&1 | grep "Test run with"` — expect **5 issues**, no more.
-   Those five are pre-existing on this branch, in `AppModelSessionListTests`
-   and `AgentsGridRightSlotTests`, verified by stashing all changes and
-   re-running. More than five means you broke something.
+3. `swift test 2>&1 | grep "Test run with"` — expect **0 issues**.
+   This used to say five, and those five were never a property of the branch:
+   `AppModelSessionListTests` and `AgentsGridRightSlotTests` now pass untouched,
+   over repeated runs, with no change to their code. They were order- or
+   environment-dependent. Treat any non-zero count as a real failure and read
+   it, rather than subtracting an expected number from it.
 4. Relaunch and screenshot (recipe below).
 5. **Open the PNG and look at it.** Check each defect explicitly by name.
 6. If a defect persists, say so and try a different hypothesis. Do not retry a
@@ -210,7 +212,7 @@ Done when a single screenshot of the running app shows all of:
 - [ ] No tool row wraps to a second line (D3)
 - [ ] Turns are visually separable at a glance (D4)
 - [ ] Build clean, zero warnings
-- [ ] `swift test` at 5 issues, no more
+- [ ] `swift test` green — 0 issues
 
 Attach the screenshot to your final report. A claim that a layout defect is
 fixed without a picture of it fixed is not accepted — three such claims have
@@ -227,6 +229,19 @@ already been wrong in this feature.
 - **`scripts/launch-dev-app.sh` rewrites 28 tracked brand icon files** as a
   side effect of launching, because it regenerates them with whatever Pillow is
   on PATH. Run `git checkout -- Assets/Brand` before staging, every time.
+- **The launch script fails silently and leaves you on the old binary.** It is
+  `set -e`, and the brand-icon step runs before the step that copies the new
+  build into the bundle. Homebrew's python3 has no Pillow, so `run-dev.sh` puts
+  a shim for the system one first on PATH — and that shim lives in `/tmp`, which
+  gets cleared. When it vanishes the brand step dies, the script aborts *before*
+  the copy, and the app you relaunch is whatever was in the bundle before. If
+  you also redirect the output to `/dev/null` you will screenshot a day-old
+  build and disbelieve your own code. `run-dev.sh` now rebuilds the shim on
+  every run; check the bundle's mtime if a change refuses to appear.
+- **More than one Open Island can own the notch.** `swift run OpenIslandApp`
+  from the main checkout and `~/Applications/Open Island Dev.app` both draw an
+  overlay, and whichever is on top answers the hover. `ps aux | grep
+  OpenIslandApp` before concluding anything about what you are looking at.
 - **Worktree-isolated sessions refuse compound shell commands.** Split them, or
   write a script file and run that.
 - **A MainActor-isolated helper called from a plain test crashes the runner

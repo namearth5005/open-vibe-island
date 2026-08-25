@@ -112,6 +112,14 @@ struct FeedTheme: Equatable, Sendable {
     func color(for phase: SessionPhase) -> Color { ink(for: phase).color }
     func chromeColor(for phase: SessionPhase) -> Color { chromeInk(for: phase).color }
 
+    /// Whether the chrome stands on the light ground.
+    ///
+    /// The chrome tier is written in whichever pigment its ground takes, so the
+    /// tier is its own test -- no skin list to keep in sync when a fourth one
+    /// arrives. Callers outside the feed use this to decide whether a colour
+    /// tuned for ink still works where they are putting it.
+    var chromeGroundIsLight: Bool { chromeText.luminance < ground.luminance }
+
     // MARK: Resolution
 
     // Grounds. Ink is warmed from #0d0d0f so it reads as paper rather than

@@ -302,9 +302,9 @@ struct IslandPanelView: View {
 
         ZStack(alignment: .top) {
             surfaceShape
-                .fill(feedTheme.ground.color)
+                .fill(panelTheme.ground.color)
                 .frame(width: surfaceWidth, height: surfaceHeight)
-                .feedGrain(tint: feedTheme.grainTint, opacity: feedTheme.grainOpacity)
+                .feedGrain(tint: panelTheme.grainTint, opacity: panelTheme.grainOpacity)
                 .clipShape(surfaceShape)
 
             VStack(spacing: 0) {
@@ -382,18 +382,20 @@ struct IslandPanelView: View {
         HStack(spacing: Self.headerControlSpacing) {
             headerIconButton(
                 systemName: model.isSoundMuted ? "speaker.slash.fill" : "speaker.wave.2.fill",
-                tint: model.isSoundMuted ? .orange.opacity(0.92) : .white.opacity(0.62)
+                tint: model.isSoundMuted
+                    ? panelTheme.chromeColor(for: .waitingForAnswer)
+                    : panelTheme.chromeDim.color
             ) {
                 model.toggleSoundMuted()
             }
 
-            headerIconButton(systemName: "gearshape.fill", tint: .white.opacity(0.62)) {
+            headerIconButton(systemName: "gearshape.fill", tint: panelTheme.chromeDim.color) {
                 model.showSettings()
             }
 
             headerIconButton(
                 systemName: "power",
-                tint: .white.opacity(0.62),
+                tint: panelTheme.chromeDim.color,
                 accessibilityLabel: model.lang.t("island.quit.confirmTitle")
             ) {
                 showingQuitConfirmation = true
@@ -412,7 +414,7 @@ struct IslandPanelView: View {
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(tint)
                 .frame(width: Self.headerControlButtonSize, height: Self.headerControlButtonSize)
-                .background(.white.opacity(0.08), in: Circle())
+                .background(panelTheme.chromeText.color.opacity(0.08), in: Circle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(accessibilityLabel ?? systemName)
@@ -431,7 +433,7 @@ struct IslandPanelView: View {
                     session: focus,
                     others: model.islandListSessions.filter { $0.id != focus.id },
                     sideInset: sessionListSideInset,
-                    theme: FeedTheme.resolve(model.islandTheme)
+                    theme: panelTheme
                 )
             } else if model.showCompanion, model.hasAnyInstalledAgent {
                 CompanionRoomView(sessions: model.islandListSessions)
@@ -567,6 +569,28 @@ struct IslandPanelView: View {
     /// rather than two apps sharing a window.
     private var feedTheme: FeedTheme {
         FeedTheme.resolve(model.islandTheme)
+    }
+
+    /// Whether the feed is the thing on screen.
+    private var showsFeed: Bool {
+        model.showCompanion && model.feedFocusSession != nil
+    }
+
+    /// The theme the panel paints itself in.
+    ///
+    /// A skin is the feed's material. Everything else the panel can show -- the
+    /// standard list, the companion room, a notification card -- is still drawn
+    /// in hardcoded light, and Full cream's ground under those is unreadable:
+    /// row titles land near 1.3:1. `showCompanion` is off by default, so that
+    /// is the state a user picking Full cream would most likely see first.
+    ///
+    /// So a light ground applies only while the feed is up. Cream card is
+    /// unaffected either way -- its ground is the ink one. Theming the rest of
+    /// the panel is a real change worth making, and it is its own round.
+    private var panelTheme: FeedTheme {
+        let theme = feedTheme
+        guard theme.chromeGroundIsLight, !showsFeed else { return theme }
+        return FeedTheme.resolve(.inkPaper)
     }
 
     private var sessionListSideInset: CGFloat {
@@ -754,7 +778,7 @@ struct IslandPanelView: View {
             Text(lang.t("island.sessionList.title").uppercased())
                 .font(.system(size: 10.5, weight: .semibold, design: .monospaced))
                 .tracking(1.4)
-                .foregroundStyle(feedTheme.faint.color)
+                .foregroundStyle(panelTheme.chromeFaint.color)
 
             ViewThatFits(in: .horizontal) {
                 sessionOverviewView(overview, compact: false)
@@ -1091,11 +1115,11 @@ struct IslandPanelView: View {
         HStack(spacing: 5) {
             Text(usesShortTitle ? provider.shortTitle : provider.title)
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.74))
+                .foregroundStyle(panelTheme.chromeDim.color)
 
             Text(provider.peakWindowLabel)
                 .font(.system(size: 10.5, weight: .semibold, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.42))
+                .foregroundStyle(panelTheme.chromeFaint.color)
 
             Text("\(provider.peakUsagePercentage)%")
                 .font(.system(size: 11.5, weight: .bold, design: .monospaced))
@@ -1103,10 +1127,10 @@ struct IslandPanelView: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(.white.opacity(0.055), in: Capsule())
+        .background(panelTheme.chromeText.color.opacity(0.055), in: Capsule())
         .overlay(
             Capsule()
-                .strokeBorder(.white.opacity(0.06), lineWidth: 1)
+                .strokeBorder(panelTheme.chromeText.color.opacity(0.06), lineWidth: 1)
         )
         .help(usageHelpText(for: provider))
     }
@@ -1133,13 +1157,14 @@ struct IslandPanelView: View {
     }
 
     private func usageColor(for percentage: Double) -> Color {
+        let onLight = panelTheme.chromeGroundIsLight
         switch percentage {
         case 90...:
-            .red.opacity(0.95)
+            return onLight ? panelTheme.chromeColor(for: .waitingForApproval) : .red.opacity(0.95)
         case 70..<90:
-            .orange.opacity(0.95)
+            return onLight ? panelTheme.chromeColor(for: .waitingForAnswer) : .orange.opacity(0.95)
         default:
-            .green.opacity(0.95)
+            return onLight ? panelTheme.chromeColor(for: .completed) : .green.opacity(0.95)
         }
     }
 
