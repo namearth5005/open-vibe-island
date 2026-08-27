@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&amp;family=Patrick+Hand&amp;display=swap">
+<style>
+body { margin: 0; background: #e9e2d0; }
+a { color: #3f6d8e; } a:hover { color: #c4553f; }
+@keyframes oi-bob { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(1.6px) rotate(.5deg); } }
+@keyframes oi-tail { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(7deg); } }
+@keyframes oi-blink { 0%, 91%, 100% { transform: scaleY(1); } 94% { transform: scaleY(.12); } }
+</style>
+<script src="./image-slot.js"></script>
+<style>
+</style>
+</helmet>
+<div style="min-height:100vh;background:#e9e2d0;padding:52px 56px 96px;font-family:ui-rounded,-apple-system,system-ui,sans-serif;--catBody:{{ catBodyFill }};--catMark:{{ catMarkFill }};--annD:{{ annDisplay }}">
+<svg width="0" height="0" style="position:absolute"><defs><filter id="oig" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4"></feTurbulence></filter></defs></svg>
+
+<div style="max-width:1180px">
+  <div style="font-family:Caveat,'Patrick Hand',cursive;font-size:48px;font-weight:700;color:#2c2318;line-height:1">Open Island</div>
+  <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:17px;color:#6f6552;margin-top:6px;max-width:70ch">A panel that hangs from the MacBook notch and minds a fleet of coding agents. Collage is content, plain is chrome — and the seat is the contrast device.</div>
+  <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#8b8067;margin-top:12px;letter-spacing:.04em">5a–5c structure remix · 4a–4b asset production kit · 3a–3c the companion, built · 2a–2c terminals variations · 01–04 the four tabs · 05–07 key moments · 08–09 the pill · 10 the companion · 11 recap slip · 12 tokens</div>
+</div>
+
+<div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:21px;color:#2c2318;margin:48px 0 0">Turn 5 · Structure remix</div>
+<div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#8b8067;margin-top:4px">you're right — terminals and inbox are one list. these fold them together, then spend the freed tab on what the codebase already tracks</div>
+<div style="display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap;margin-top:12px">
+
+  <div id="5a" style="width:560px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="display:inline-flex;background:#2c2318;color:#f4ecd6;border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700">5a</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067">sessions — inbox folded in, allow/deny inline</span></div>
+    <div data-screen-label="5a Sessions merged" style="position:relative;width:560px;height:560px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:3;display:inline-flex;align-items:center;gap:5px">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Sessions</span>
+        <span style="position:relative;display:inline-flex;align-items:center;gap:2px;background:#f4a4a4;color:#2c2318;border-radius:6px;padding:1px 5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;font-weight:700"><svg width="7" height="7" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>2</span>
+      </span>
+      <span style="position:absolute;top:13px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Usage</span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Pet</span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Rules</span>
+      <div style="position:absolute;left:46px;right:46px;top:46px;bottom:40px;display:flex;flex-direction:column;gap:6px;z-index:2">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+          <div>
+            <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:19px;color:#ece5d5;line-height:1.1">One needs your say.</div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:3px">10 sessions · decisions land in place, not in a second tab</div>
+          </div>
+        </div>
+        <div style="position:relative;background:#e3a0a8;border:2.5px solid #c4553f;border-radius:13px;padding:6px;margin-top:2px">
+          <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.4;pointer-events:none;border-radius:inherit"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+          <div style="position:relative;background:rgba(255,253,247,.96);border-radius:9px;padding:9px 12px">
+            <div style="display:flex;align-items:baseline;gap:8px;justify-content:space-between">
+              <span style="font-size:14px;font-weight:600;color:#2c2318">find the cc history and reconcile it</span>
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#f4a4a4;color:#2c2318;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;white-space:nowrap;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg>needs decision</span>
+            </div>
+            <div style="font-size:12px;color:#4a2013;line-height:1.35;margin-top:4px">Wants to delete 3 test files it says are obsolete.</div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;margin-top:3px;display:flex;gap:6px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:#d97742;flex:none"></span><span>rudderfish · claude · 17m — waiting on you</span></div>
+            <div style="display:flex;gap:7px;margin-top:8px;align-items:center">
+              <span style="background:#17150f;color:#f4ecd6;border-radius:8px;padding:4px 13px;font-size:12px;font-weight:600">Allow</span>
+              <span style="border:1.5px solid rgba(23,21,15,.25);color:#2c2318;border-radius:8px;padding:2.5px 12px;font-size:12px;font-weight:600">Deny</span>
+              <span style="border:1.5px solid rgba(23,21,15,.25);color:#2c2318;border-radius:8px;padding:2.5px 12px;font-size:12px;font-weight:600">Look</span>
+              <span style="flex:1"></span>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067">⌘1</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;margin-top:8px;padding-top:7px;border-top:1px solid rgba(44,35,24,.1)">
+              <span style="width:12px;height:12px;border:1.5px solid rgba(44,35,24,.4);border-radius:3px;flex:none"></span>
+              <span style="font-size:11.5px;color:#6f6552;flex:1">Always allow Read in rudderfish</span>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067">its suggestion</span>
+            </div>
+          </div>
+        </div>
+        <div style="background:rgba(255,253,247,.96);border-radius:12px;padding:8px 12px;box-shadow:0 4px 10px rgba(8,6,3,.3)">
+          <div style="display:flex;align-items:baseline;gap:8px;justify-content:space-between">
+            <span style="font-size:13px;font-weight:600;color:#2c2318">rename the Bāo asset ids across targets</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:#ffd58a;color:#2c2318;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;white-space:nowrap;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M3.6 4.2 C3.6 2.2 5.1 1.3 6.1 1.3 C7.7 1.3 8.7 2.3 8.7 3.7 C8.7 5.2 6.1 5.5 6.1 7.3 M6.1 10.4 L6.1 10.6" stroke="#2c2318" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg>question</span>
+          </div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;margin-top:2px">zhende · gemini · 4m — which naming scheme wins?</div>
+          <div style="display:flex;gap:6px;margin-top:7px;align-items:center">
+            <span style="border:1.5px solid rgba(23,21,15,.25);color:#2c2318;border-radius:8px;padding:2.5px 11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px">bao-*</span>
+            <span style="border:1.5px solid rgba(23,21,15,.25);color:#2c2318;border-radius:8px;padding:2.5px 11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px">asset-*</span>
+            <span style="font-size:11.5px;color:#8b8067">or type a reply…</span>
+            <span style="flex:1"></span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067">⌘2</span>
+          </div>
+        </div>
+        <sc-for list="{{ workingRows }}" as="s" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,253,247,.96);border-radius:11px;padding:5px 12px;box-shadow:0 3px 8px rgba(8,6,3,.28)">
+            <span style="flex:1;min-width:0;font-size:12.5px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.t }}</span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;white-space:nowrap">{{ s.meta }}</span>
+            <svg width="10" height="10" viewBox="0 0 12 12" style="flex:none"><path d="M10.5 6 A4.5 4.5 0 1 1 6 1.5" stroke="#6ea7ff" stroke-width="2.2" fill="none" stroke-linecap="round"></path></svg>
+          </div>
+        </sc-for>
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(236,229,213,.07);border-radius:11px;padding:5px 12px">
+          <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#a89e8c;flex:1">2 done · 2 idle — collapsed</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:auto">
+          <svg width="10" height="10" viewBox="0 0 12 12" style="flex:none"><path d="M2 6.6 L4.9 9.4 L10 2.8" stroke="#6fb982" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;flex:1">214 handled this week without asking — the log lives here now</span>
+          <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#a89e8c">log ↗</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">The merge: inbox was a filter of this same list, so the decision card just sits in rank position — buttons, rule row and all. The freed corner goes to Usage (<a href="#5c">5c</a>). Answer chips make questions one-tap too.</div>
+  </div>
+
+  <div id="5b" style="width:560px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="display:inline-flex;background:#2c2318;color:#f4ecd6;border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700">5b</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067">grouped by place — every row jumps back</span></div>
+    <div data-screen-label="5b Grouped by place" style="position:relative;width:560px;height:560px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:3">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Sessions</span>
+      </span>
+      <span style="position:absolute;top:13px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Usage</span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Pet</span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Rules</span>
+      <div style="position:absolute;left:46px;right:46px;top:46px;bottom:40px;display:flex;flex-direction:column;gap:6px;z-index:2">
+        <div>
+          <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:19px;color:#ece5d5;line-height:1.1">Grouped by place.</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:3px">↵ jumps to most urgent · ⌘1–9 jump anywhere · the panel is a switchboard</div>
+        </div>
+        <sc-for list="{{ jumpGroups }}" as="g" hint-placeholder-count="4">
+          <div>
+            <div style="display:flex;align-items:baseline;gap:8px;padding:3px 2px 4px">
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700;color:#a89e8c">{{ g.repo }}</span>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#7c7466">{{ g.tag }}</span>
+              <span style="flex:1;border-top:1px solid rgba(236,229,213,.1);transform:translateY(-3px)"></span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:8px;background:{{ r.bg }};border:{{ r.bd }};border-radius:11px;padding:5px 11px">
+                  <span style="width:6px;height:6px;border-radius:50%;background:{{ r.ac }};flex:none"></span>
+                  <span style="flex:1;min-width:0;font-size:12.5px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.t }}</span>
+                  <span style="display:inline-flex;align-items:center;gap:4px;border:1.5px solid rgba(23,21,15,.22);color:#2c2318;border-radius:7px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;white-space:nowrap;flex:none"><svg width="9" height="9" viewBox="0 0 13 13"><path d="M11 2.5 L11 5 C11 6.6 9.9 7.5 8.5 7.5 L3.5 7.5 M5.7 5.2 L3.3 7.5 L5.7 9.8" stroke="#2c2318" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>{{ r.dest }}</span>
+                  <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;flex:none">{{ r.k }}</span>
+                  <svg width="10" height="10" viewBox="0 0 12 12" style="flex:none"><path d="{{ r.g }}" stroke="{{ r.gc }}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:auto">
+          <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;flex:1">2 idle collapsed · terminal names come from the jump service, not config</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">The honest tradeoff vs <a href="#5a">5a</a>: geography beats urgency rank. The seat still marks the decision row inside its repo. Worktrees get a group tag; the ssh group shows the real detect-only limit from the codebase.</div>
+  </div>
+
+  <div id="5c" style="width:560px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="display:inline-flex;background:#2c2318;color:#f4ecd6;border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700">5c</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067">usage — the freed tab, plus the wrist</span></div>
+    <div data-screen-label="5c Usage tab" style="position:relative;width:560px;height:560px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:13px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Sessions</span>
+      <span style="position:absolute;top:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:3">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Usage</span>
+      </span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Pet</span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Rules</span>
+      <div style="position:absolute;left:46px;right:46px;top:46px;bottom:40px;display:flex;flex-direction:column;gap:7px;z-index:2">
+        <div>
+          <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:19px;color:#ece5d5;line-height:1.1">Fuel, at a glance.</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:3px">today it hides in settings — the fleet's limits deserve a corner</div>
+        </div>
+        <div style="background:rgba(255,253,247,.96);border-radius:12px;padding:10px 13px;box-shadow:0 4px 10px rgba(8,6,3,.3)">
+          <sc-for list="{{ usageMeters }}" as="u" hint-placeholder-count="3">
+            <div style="padding:6px 0;border-top:1px solid rgba(44,35,24,.08)">
+              <div style="display:flex;align-items:baseline;gap:8px">
+                <span style="width:6px;height:6px;border-radius:50%;background:{{ u.h }};flex:none;transform:translateY(-1px)"></span>
+                <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#2c2318;flex:1">{{ u.n }} · {{ u.win }}</span>
+                <span style="font-family:Caveat,'Patrick Hand',cursive;font-size:20px;font-weight:700;color:#2c2318;line-height:1">{{ u.pct }}%</span>
+              </div>
+              <div style="height:8px;background:rgba(23,21,15,.08);border-radius:4px;margin-top:5px;overflow:hidden"><span style="display:block;height:100%;width:{{ u.w }}%;background:{{ u.h }};border-radius:4px"></span></div>
+              <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin-top:3px">{{ u.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:rgba(255,253,247,.96);border-radius:12px;padding:9px 13px;box-shadow:0 4px 10px rgba(8,6,3,.3)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <svg width="26" height="34" viewBox="0 0 26 34" style="flex:none"><rect x="4" y="7" width="18" height="20" rx="5" fill="#17150f"></rect><path d="M7 7 L8 2.5 L18 2.5 L19 7 M7 27 L8 31.5 L18 31.5 L19 27" stroke="#6f6552" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><path d="M9.5 15 L12 17.5 L16.5 12.5" stroke="#c9cc4e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <div style="flex:1">
+              <div style="font-size:12.5px;font-weight:600;color:#2c2318">Critical goes to the wrist</div>
+              <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;margin-top:2px">watch relay · allow / deny / hold from the watch — only held escalations buzz</div>
+            </div>
+            <span style="width:32px;height:19px;background:#17150f;border-radius:10px;position:relative;flex:none"><span style="position:absolute;top:2.5px;right:2.5px;width:14px;height:14px;background:#f4ecd6;border-radius:50%"></span></span>
+          </div>
+        </div>
+        <div style="display:flex;gap:7px">
+          <div style="flex:1;background:rgba(255,253,247,.96);border-radius:12px;padding:8px 12px">
+            <div style="font-family:Caveat,'Patrick Hand',cursive;font-size:24px;font-weight:700;color:#2c2318;line-height:1">6</div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin-top:2px">sessions at the 10–11am peak</div>
+          </div>
+          <div style="flex:1;background:rgba(255,253,247,.96);border-radius:12px;padding:8px 12px">
+            <div style="font-family:Caveat,'Patrick Hand',cursive;font-size:24px;font-weight:700;color:#3d7a45;line-height:1">41</div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin-top:2px">auto-approved in reelle-ios this wk</div>
+          </div>
+          <div style="flex:1;background:rgba(255,253,247,.96);border-radius:12px;padding:8px 12px">
+            <div style="font-family:Caveat,'Patrick Hand',cursive;font-size:24px;font-weight:700;color:#b04a34;line-height:1">1</div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin-top:2px">agent near its limit — gemini</div>
+          </div>
+        </div>
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:auto">quiet until 2:00 pm · critical still comes through</div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">Merging inbox into sessions (<a href="#5a">5a</a>) frees a corner — this spends it on what the code already measures: claude/codex usage windows, and the watch relay that's mid-build. The near-limit meter is what makes it a tab, not a settings pane: it changes where you route work.</div>
+  </div>
+</div>
+
+<div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:21px;color:#2c2318;margin:48px 0 0">Turn 4 · Asset production kit</div>
+<div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#8b8067;margin-top:4px">the design system's own verdict: the fibrous edge is a material, not CSS — so generate plates outside, drop them in here, judge at size</div>
+<div style="display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap;margin-top:12px">
+
+  <div id="4a" style="width:560px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="display:inline-flex;background:#2c2318;color:#f4ecd6;border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700">4a</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067">generation spec — image model + video model</span></div>
+    <div data-screen-label="4a Generation spec" style="background:rgba(255,253,247,.97);border-radius:12px;padding:18px 20px;box-shadow:0 14px 32px rgba(24,18,8,.22)">
+      <div style="font-size:12.5px;color:#2c2318;line-height:1.5">I can't run image or video models from here — this spec is written to hand to one (or to a designer with real paper). Everything in it is measured off the design system, so any model that follows it lands on-system.</div>
+      <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#8b8067;margin:14px 0 6px">still plates — image model, one prompt per mood</div>
+      <div style="background:#17150f;border-radius:9px;padding:11px 13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#ece5d5;line-height:1.65">A cat cut from torn black paper (#221f1c), one flat mass, no shading, no fur rendering, ragged fibrous white-paper edge showing tan backing paper (#b3956a) at the tear. Two crayon marks only: a closed-eye arc and one dot, chartreuse crayon (#c9cc4e). Silhouette: [MOOD — sitting upright, loaf, stretched tall…]. Flat collage style, children's book, no gradients, no outlines. Isolated on pure white for matting. 2048px.</div>
+      <div style="display:flex;flex-direction:column;gap:3px;margin-top:8px">
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;line-height:1.6">· 12 plates: 6 moods × dark + light body (light swaps #221f1c→#f0ead6, marks→#97923f)</div>
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;line-height:1.6">· same seed / character reference across all 12 — the animal must read as one animal</div>
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;line-height:1.6">· matte to true alpha (luminance key off the white), keep the fiber halo semi-transparent</div>
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;line-height:1.6">· reject: gradients, fur texture, pupils, whisker clusters, more than 5 interior marks</div>
+      </div>
+      <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#8b8067;margin:14px 0 6px">motion — video model, per loop, from the still plate</div>
+      <div style="background:#17150f;border-radius:9px;padding:11px 13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#ece5d5;line-height:1.65">Animate this paper-cutout cat in stop-motion collage style: the whole body bobs gently as one rigid piece (~3.5s loop), tail sways (~3s), one slow blink. The torn edge must NOT boil or redraw between frames — the paper is a physical object. Camera locked. 4s seamless loop, flat background for keying.</div>
+      <div style="display:flex;flex-direction:column;gap:3px;margin-top:8px">
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;line-height:1.6">· one loop per mood; export frames → sprite sheet or APNG, ~12fps is plenty for stop-motion feel</div>
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;line-height:1.6">· fallback if the video model boils the edge: animate the still plate rigidly in code — the <a href="#3a">3a</a> rig's transforms applied to the raster</div>
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;line-height:1.6">· pill never gets video: baked 28×32 light-body PNG per mood, flat, no halo</div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">The likeliest failure mode is the model over-rendering — fur, shading, expression. The spec's reject list is the quality gate; flat mass is the style.</div>
+  </div>
+
+  <div id="4b" style="width:560px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="display:inline-flex;background:#2c2318;color:#f4ecd6;border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700">4b</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067">plate test bench — drop generated assets here</span></div>
+    <div data-screen-label="4b Plate test bench" style="background:rgba(255,253,247,.97);border-radius:12px;padding:16px;box-shadow:0 14px 32px rgba(24,18,8,.22)">
+      <div style="font-size:12.5px;color:#2c2318;line-height:1.5;margin-bottom:12px">Drag a matted PNG onto any slot — it renders in the real context at real size, next to the vector stand-in it replaces.</div>
+      <div style="display:flex;gap:12px">
+        <div style="flex:none;width:280px">
+          <div style="position:relative;width:280px;height:210px;border-radius:12px;overflow:hidden">
+            <div style="position:absolute;inset:0;background:#6b8250"></div>
+            <div style="position:absolute;left:0;right:0;top:52%;bottom:0;background:#2a2b20"></div>
+            <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.38;pointer-events:none"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+            <div style="position:absolute;left:34px;bottom:26px;width:212px;height:64px;background:#e3a0a8;border:2.5px solid #c4553f;border-radius:13px"></div>
+            <div style="position:absolute;left:76px;bottom:76px;width:128px;height:96px">
+              <image-slot id="plate-room-dark" shape="rect" fit="contain" placeholder="dark plate, on the seat"></image-slot>
+            </div>
+          </div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#6f6552;margin-top:5px;text-align:center">room · dark body on the rose seat</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:10px;min-width:0">
+          <div>
+            <div style="position:relative;background:#080705;border-radius:10px;height:52px;display:flex;align-items:flex-start;justify-content:center">
+              <div style="width:170px;height:32px;background:#17150f;border:1px solid rgba(236,229,213,.1);border-top:none;border-radius:0 0 16px 16px;display:flex;align-items:center;gap:7px;padding:0 10px 0 7px">
+                <div style="width:28px;height:26px;flex:none"><image-slot id="plate-pill" shape="rect" fit="contain" placeholder="28×32"></image-slot></div>
+                <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#a89e8c">2 need you</span>
+              </div>
+            </div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#6f6552;margin-top:5px;text-align:center">pill · light body at true size — the brutal test</div>
+          </div>
+          <div>
+            <div style="position:relative;background:#17150f;border-radius:10px;height:96px;display:flex;align-items:center;justify-content:center;gap:14px">
+              <div style="width:96px;height:72px"><image-slot id="plate-ink-light" shape="rect" fit="contain" placeholder="light plate on ink"></image-slot></div>
+              <svg viewBox="0 0 128 80" width="96" height="60" style="opacity:.5"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="#f0ead6"></path><path d="M40 40 C52 34 66 34 78 40" stroke="#97923f" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="103" cy="38" r="2.8" fill="#97923f"></circle></svg>
+            </div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#6f6552;margin-top:5px;text-align:center">plate vs stand-in, side by side on ink</div>
+          </div>
+        </div>
+      </div>
+      <div style="border-top:1px solid rgba(44,35,24,.1);margin-top:12px;padding-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;line-height:1.6">acceptance: reads as one flat mass at 100% · edge fibers visible at 2× · marks legible at 28×32 · dark plate disappears on ink (that's correct — it needs the seat)</div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">Drops persist across reloads. Once a plate passes here, I swap it into every screen on the board — the rig keeps the same layout contract.</div>
+  </div>
+</div>
+
+<div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:21px;color:#2c2318;margin:48px 0 0">Turn 3 · The companion, built</div>
+<div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#8b8067;margin-top:4px">how the reference's torn-paper animal is replicated — a live rig, the layer stack, and the ship pipeline</div>
+<div style="display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap;margin-top:12px">
+
+  <div id="3a" style="width:560px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="display:inline-flex;background:#2c2318;color:#f4ecd6;border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700">3a</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067">the live rig — click a mood</span></div>
+    <div data-screen-label="3a Companion rig" style="background:rgba(255,253,247,.97);border-radius:12px;padding:16px;box-shadow:0 14px 32px rgba(24,18,8,.22)">
+      <div style="display:flex;gap:14px;align-items:stretch">
+        <div style="position:relative;width:320px;height:260px;border-radius:12px;overflow:hidden;flex:none">
+          <div style="position:absolute;inset:0;background:#6b8250"></div>
+          <div style="position:absolute;left:0;right:0;top:45%;bottom:0;background:#2a2b20"></div>
+          <svg style="position:absolute;left:0;right:0;top:45%;bottom:0;width:100%;height:55%;opacity:.24"><rect width="100%" height="100%" fill="url(#oiflr)"></rect></svg>
+          <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.38;pointer-events:none"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+          <div style="position:absolute;left:40px;bottom:36px;width:240px;height:84px;background:#e3a0a8;border:2.5px solid #c4553f;border-radius:13px"></div>
+          <svg viewBox="0 0 150 112" width="240" height="179" style="position:absolute;left:40px;bottom:104px;overflow:visible">
+            <defs>
+              <filter id="oiRoughA" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.055" numOctaves="4" seed="7" result="n"></feTurbulence><feDisplacementMap in="SourceGraphic" in2="n" scale="6"></feDisplacementMap></filter>
+              <filter id="oiRoughB" x="-18%" y="-18%" width="136%" height="136%"><feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="3" seed="3" result="m"></feTurbulence><feDisplacementMap in="SourceGraphic" in2="m" scale="10"></feDisplacementMap></filter>
+            </defs>
+            {{ demoCat }}
+          </svg>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:9px;min-width:0">
+          <div style="position:relative;background:#080705;border-radius:10px;height:46px;flex:none;display:flex;align-items:flex-start;justify-content:center">
+            <div style="width:170px;height:30px;background:#17150f;border:1px solid rgba(236,229,213,.1);border-top:none;border-radius:0 0 15px 15px;display:flex;align-items:center;gap:7px;padding:0 10px 0 7px">
+              <svg viewBox="0 0 150 112" width="26" height="19" style="flex:none">{{ demoPillCat }}</svg>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#a89e8c">same state, in the pill</span>
+            </div>
+          </div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin-top:-3px">28×32 · baked light plate · no filters</div>
+          <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#2c2318;margin-top:4px">{{ activeTrig }}</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;line-height:1.55;margin-top:auto">edge: seed-locked turbulence displacement — stable, never shimmers. idle loop is rigid transforms only: bob 3.4s · tail 2.9s · blink ~6s.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:4px;margin-top:12px;flex-wrap:wrap;align-items:center">
+        <sc-for list="{{ moodBtns }}" as="b" hint-placeholder-count="6">
+          <span onClick="{{ b.set }}" style="position:relative;cursor:pointer;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:14px;color:#2c2318;padding:3px 11px;white-space:nowrap">
+            <sc-if value="{{ b.active }}" hint-placeholder-val="{{ false }}">
+              <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#3f6d8e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+            </sc-if>
+            <span style="position:relative">{{ b.name }}</span>
+          </span>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">Mood change is a plate crossfade (200ms, at rest) — a silhouette swap, never a morph. The tan core peeking past the mass is what sells torn paper.</div>
+  </div>
+
+  <div id="3b" style="width:560px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="display:inline-flex;background:#2c2318;color:#f4ecd6;border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700">3b</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067">the stack, exploded</span></div>
+    <div data-screen-label="3b Layer stack" style="background:rgba(255,253,247,.97);border-radius:12px;padding:16px;box-shadow:0 14px 32px rgba(24,18,8,.22)">
+      <div style="display:flex;gap:9px">
+        <div style="flex:1">
+          <div style="background:#17150f;border-radius:9px;height:82px;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 128 80" width="94" height="59"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="#f0ead6"></path></svg></div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#6f6552;margin-top:5px;text-align:center">1 flat mass</div>
+        </div>
+        <div style="flex:1">
+          <div style="background:#17150f;border-radius:9px;height:82px;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 128 80" width="94" height="59"><g filter="url(#oiRoughA)"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="#f0ead6"></path></g></svg></div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#6f6552;margin-top:5px;text-align:center">2 torn edge</div>
+        </div>
+        <div style="flex:1">
+          <div style="background:#17150f;border-radius:9px;height:82px;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 128 80" width="94" height="59"><g filter="url(#oiRoughB)" transform="translate(64 53) scale(1.06) translate(-64 -53)"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="#b3956a"></path></g><g filter="url(#oiRoughA)"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="#f0ead6"></path></g></svg></div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#6f6552;margin-top:5px;text-align:center">3 tan core</div>
+        </div>
+        <div style="flex:1">
+          <div style="background:#17150f;border-radius:9px;height:82px;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 128 80" width="94" height="59"><g filter="url(#oiRoughB)" transform="translate(64 53) scale(1.06) translate(-64 -53)"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="#b3956a"></path></g><g filter="url(#oiRoughA)"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="#f0ead6"></path></g><path d="M58 30 C64 26 72 26 78 30" stroke="#97923f" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="87" cy="26" r="2.8" fill="#97923f"></circle></svg></div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#6f6552;margin-top:5px;text-align:center">4 marks</div>
+        </div>
+        <div style="flex:1">
+          <div style="background:#17150f;border-radius:9px;height:82px;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 128 80" width="94" height="59"><g filter="url(#oiRoughB)" transform="translate(64 53) scale(1.06) translate(-64 -53)"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="#b3956a"></path></g><g filter="url(#oiRoughA)"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="#f0ead6"></path></g><path d="M58 30 C64 26 72 26 78 30" stroke="#97923f" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="87" cy="26" r="2.8" fill="#97923f"></circle><path d="M14 52 C8 44 10 34 18 28" stroke="#8b8067" stroke-width="1.4" fill="none" stroke-dasharray="3 3" stroke-linecap="round"></path><path d="M15 30 L18 28 L18 32" stroke="#8b8067" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><path d="M100 14 C106 18 108 24 106 30" stroke="#8b8067" stroke-width="1.4" fill="none" stroke-dasharray="3 3" stroke-linecap="round"></path><path d="M103 28 L106 30 L107 26" stroke="#8b8067" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#6f6552;margin-top:5px;text-align:center">5 motion — bob · tail · blink</div>
+        </div>
+      </div>
+      <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;line-height:1.6;margin-top:12px">Three layers per plate — tan core (coarse tear, scaled 1.06), the mass (fine tear), marks on top. The displacement seed is locked so the edge is a material, not a flicker. Motion never touches the edge: the layers move as one rigid group.</div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">Marks stay crisp — only the paper tears. A value + saturation jump (#f0ead6 body, #97923f marks), never a hue clash.</div>
+  </div>
+
+  <div id="3c" style="width:560px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="display:inline-flex;background:#2c2318;color:#f4ecd6;border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700">3c</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067">the ship pipeline — plates, not rigs</span></div>
+    <div data-screen-label="3c Pipeline" style="background:rgba(255,253,247,.97);border-radius:12px;padding:18px 20px;box-shadow:0 14px 32px rgba(24,18,8,.22)">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:Caveat,'Patrick Hand',cursive;font-size:20px;font-weight:700;color:#2c2318;width:20px;flex:none">1</span><span style="font-size:12.5px;color:#2c2318;line-height:1.45">Paint the animal once in real media — ink and torn paper, one flat mass per mood. Six silhouettes, not six expressions.</span></div>
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:Caveat,'Patrick Hand',cursive;font-size:20px;font-weight:700;color:#2c2318;width:20px;flex:none">2</span><span style="font-size:12.5px;color:#2c2318;line-height:1.45">Scan at 3× and cut per-mood plates keeping the true fibrous alpha. Keep the warm tan backing as its own layer.</span></div>
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:Caveat,'Patrick Hand',cursive;font-size:20px;font-weight:700;color:#2c2318;width:20px;flex:none">3</span><span style="font-size:12.5px;color:#2c2318;line-height:1.45">Rig three layers — core, mass, marks — plus the tail as its own plate. That is the whole skeleton.</span></div>
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:Caveat,'Patrick Hand',cursive;font-size:20px;font-weight:700;color:#2c2318;width:20px;flex:none">4</span><span style="font-size:12.5px;color:#2c2318;line-height:1.45">Idle loop is rigid transforms only — bob 3.4s, tail 2.9s, blink ~6s. The torn edge itself never animates; animated tearing reads as boiling.</span></div>
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:Caveat,'Patrick Hand',cursive;font-size:20px;font-weight:700;color:#2c2318;width:20px;flex:none">5</span><span style="font-size:12.5px;color:#2c2318;line-height:1.45">Mood change is a plate crossfade, 160ms, only at rest — never mid-decision, never mid-scroll.</span></div>
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:Caveat,'Patrick Hand',cursive;font-size:20px;font-weight:700;color:#2c2318;width:20px;flex:none">6</span><span style="font-size:12.5px;color:#2c2318;line-height:1.45">The pill gets pre-baked 28×32 light-body PNGs — no filters, no shading. Flat mass survives downsampling; rendered fur does not.</span></div>
+      </div>
+      <div style="border-top:1px solid rgba(44,35,24,.1);margin-top:14px;padding-top:11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;line-height:1.6">dev stand-in until plates land: the seed-locked turbulence rig in <a href="#3a">3a</a> — same layers, same timings, swap-in-place. if the loop ever outgrows transforms, Rive with raster meshes — never crisp vectors.</div>
+    </div>
+  </div>
+</div>
+
+<div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:21px;color:#2c2318;margin:48px 0 0">Turn 2 · Terminals, three arrangements</div>
+<div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#8b8067;margin-top:4px">same tokens, same ten sessions — the arrangement is the variable</div>
+<div style="display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap;margin-top:12px">
+
+  <div id="2a" style="width:560px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="display:inline-flex;background:#2c2318;color:#f4ecd6;border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700">2a</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067">the ledger — one plain card</span></div>
+    <div data-screen-label="2a Terminals ledger" style="position:relative;width:560px;height:560px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:3">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Terminals</span>
+      </span>
+      <span style="position:absolute;top:13px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3;display:inline-flex;align-items:center;gap:5px">Inbox<span style="display:inline-flex;align-items:center;gap:2px;background:#f4a4a4;color:#2c2318;border-radius:6px;padding:1px 5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;font-weight:700"><svg width="7" height="7" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>2</span></span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Pet</span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Rules</span>
+      <div style="position:absolute;left:46px;right:46px;top:46px;bottom:40px;display:flex;flex-direction:column;gap:7px;z-index:2">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+          <div>
+            <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:19px;color:#ece5d5;line-height:1.1">One needs your say.</div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:3px">10 sessions · 2 need you · 4 working · 2 done · 2 idle</div>
+          </div>
+          <span style="position:relative;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:14.5px;color:#ece5d5;padding:5px 15px;white-space:nowrap;flex:none">
+            <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#e26d4f" stroke-width="2.3" stroke-linecap="round"></path></svg>
+            <span style="position:relative">Jump to most urgent</span>
+          </span>
+        </div>
+        <div style="position:relative;background:#e3a0a8;border:2.5px solid #c4553f;border-radius:13px;padding:6px;margin-top:3px">
+          <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.4;pointer-events:none;border-radius:inherit"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+          <svg width="54" height="39" viewBox="0 0 126 90" style="position:absolute;right:8px;bottom:7px"><path d="M26 78 C16 78 12 68 16 58 C20 44 30 36 44 34 C48 22 60 14 74 16 C90 18 100 30 98 44 C110 48 116 60 112 74 L104 78 L98 66 L40 66 L34 78 Z" fill="var(--catBody,#221f1c)"></path><path d="M60 33 C66 28 76 28 83 33" stroke="var(--catMark,#c9cc4e)" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="90" cy="27" r="2.8" fill="var(--catMark,#c9cc4e)"></circle></svg>
+          <div style="position:relative;background:rgba(255,253,247,.96);border-radius:9px;padding:8px 12px;margin-right:64px">
+            <div style="display:flex;align-items:baseline;gap:8px;justify-content:space-between">
+              <span style="font-size:14px;font-weight:600;color:#2c2318">find the cc history and reconcile it</span>
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#f4a4a4;color:#2c2318;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;white-space:nowrap;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg>needs decision</span>
+            </div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:3px;display:flex;gap:6px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:#d97742;flex:none"></span><span>rudderfish · claude · 17m — waiting on you</span></div>
+          </div>
+        </div>
+        <div style="background:rgba(255,253,247,.96);border-radius:12px;padding:4px 13px 6px;box-shadow:0 5px 14px rgba(8,6,3,.32)">
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:none">
+            <span style="flex:1;min-width:0;font-size:13px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">rename the Bāo asset ids across targets</span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;white-space:nowrap">zhende · gemini · 4m</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:#ffd58a;color:#2c2318;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M3.6 4.2 C3.6 2.2 5.1 1.3 6.1 1.3 C7.7 1.3 8.7 2.3 8.7 3.7 C8.7 5.2 6.1 5.5 6.1 7.3 M6.1 10.4 L6.1 10.6" stroke="#2c2318" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg>question</span>
+          </div>
+          <sc-for list="{{ workingRows }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid rgba(44,35,24,.09)">
+              <span style="flex:1;min-width:0;font-size:13px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.t }}</span>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;white-space:nowrap">{{ s.meta }}</span>
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#6ea7ff;color:#0e1b2e;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M10.5 6 A4.5 4.5 0 1 1 6 1.5" stroke="#0e1b2e" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>working</span>
+            </div>
+          </sc-for>
+          <sc-for list="{{ doneRows }}" as="s" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid rgba(44,35,24,.09)">
+              <span style="flex:1;min-width:0;font-size:13px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.t }}</span>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;white-space:nowrap">{{ s.meta }}</span>
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#6fb982;color:#0e2415;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M2 6.6 L4.9 9.4 L10 2.8" stroke="#0e2415" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>done</span>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid rgba(44,35,24,.09)">
+            <svg width="10" height="10" viewBox="0 0 12 12" style="flex:none"><path d="M2.6 6 L9.4 6" stroke="#8b8067" stroke-width="2" stroke-linecap="round"></path></svg>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;flex:none">2 idle</span>
+            <span style="flex:1;min-width:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ idleLine }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">One plain ledger — the reference's todo-list card verbatim. The seat is the only interruption on the surface; everything running is just rows with dividers.</div>
+  </div>
+
+  <div id="2b" style="width:560px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="display:inline-flex;background:#2c2318;color:#f4ecd6;border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700">2b</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067">the room rides along — charm as header</span></div>
+    <div data-screen-label="2b Terminals room strip" style="position:relative;width:560px;height:560px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;left:0;right:0;top:0;height:148px">
+        <div style="position:absolute;inset:0;background:#6b8250"></div>
+        <div style="position:absolute;left:0;right:0;top:62%;bottom:0;background:#2a2b20"></div>
+        <svg style="position:absolute;left:0;right:0;top:62%;bottom:0;width:100%;height:38%;opacity:.24"><rect width="100%" height="100%" fill="url(#oiflr)"></rect></svg>
+        <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.38;pointer-events:none"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+        <svg width="126" height="72" viewBox="0 0 210 120" style="position:absolute;left:74px;bottom:10px">
+          <path d="M30 106 L30 118 M180 106 L180 118" stroke="#4d3557" stroke-width="5" stroke-linecap="round"></path>
+          <rect x="16" y="20" width="178" height="64" rx="16" fill="#e3a0a8" stroke="#c4553f" stroke-width="3"></rect>
+          <rect x="8" y="66" width="194" height="40" rx="12" fill="#e3a0a8" stroke="#c4553f" stroke-width="3"></rect>
+        </svg>
+        <svg width="62" height="39" viewBox="0 0 128 80" style="position:absolute;left:104px;bottom:40px"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="var(--catBody,#221f1c)"></path><path d="M58 30 C64 26 72 26 78 30" stroke="var(--catMark,#c9cc4e)" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="87" cy="26" r="2.8" fill="var(--catMark,#c9cc4e)"></circle></svg>
+        <svg width="24" height="13" viewBox="0 0 34 18" style="position:absolute;left:250px;bottom:16px;transform:rotate(-8deg)"><path d="M7 4.5 A3.6 3.6 0 1 0 7 12.5 L27 12.5 A3.6 3.6 0 1 0 27 4.5 A3.6 3.6 0 0 0 24 6.2 L10 6.2 A3.6 3.6 0 0 0 7 4.5 Z" fill="#ece4cd" stroke="#c4553f" stroke-width="1.8"></path></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" style="position:absolute;left:292px;bottom:12px"><path d="M12 12 m-9.5 0 a9.5 9.5 0 1 0 19 0 a9.5 9.5 0 1 0 -19 0" fill="#3f6d8e" stroke="#d9a03f" stroke-width="1.8"></path></svg>
+        <svg width="19" height="17" viewBox="0 0 24 22" style="position:absolute;left:322px;bottom:18px"><path d="M12 13 C6 10 5 4 11 2 C14 7 14 10 12 13 Z M12 13 C12 6 16 2 20 4 C20 9 16 12 12 13 Z" fill="#6f7a54" stroke="#47543a" stroke-width="1.8"></path><path d="M7 13 L17 13 L15.6 20 L8.4 20 Z" fill="#e26d4f" stroke="#7d3b1f" stroke-width="1.8"></path></svg>
+        <div style="position:absolute;right:46px;top:48px;text-align:right">
+          <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:17px;color:#f4ecd6;text-shadow:0 1px 0 rgba(0,0,0,.18)">{{ shippedLine }}</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:rgba(244,236,214,.75);margin-top:2px">the room keeps score</div>
+        </div>
+      </div>
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:3;text-shadow:0 1px 0 rgba(0,0,0,.2)">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Terminals</span>
+      </span>
+      <span style="position:absolute;top:13px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#f4ecd6;z-index:3;text-shadow:0 1px 0 rgba(0,0,0,.2);display:inline-flex;align-items:center;gap:5px">Inbox<span style="display:inline-flex;align-items:center;gap:2px;background:#f4a4a4;color:#2c2318;border-radius:6px;padding:1px 5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;font-weight:700"><svg width="7" height="7" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>2</span></span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Pet</span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Rules</span>
+      <div style="position:absolute;left:46px;right:46px;top:160px;bottom:40px;display:flex;flex-direction:column;gap:6px;z-index:2">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+          <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:18px;color:#ece5d5;line-height:1.1">One needs your say.</div>
+          <span style="position:relative;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:13.5px;color:#ece5d5;padding:4px 14px;white-space:nowrap;flex:none">
+            <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#e26d4f" stroke-width="2.3" stroke-linecap="round"></path></svg>
+            <span style="position:relative">Jump to most urgent</span>
+          </span>
+        </div>
+        <div style="position:relative;background:#e3a0a8;border:2.5px solid #c4553f;border-radius:13px;padding:6px;margin-top:2px">
+          <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.4;pointer-events:none;border-radius:inherit"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+          <div style="position:relative;background:rgba(255,253,247,.96);border-radius:9px;padding:8px 12px">
+            <div style="display:flex;align-items:baseline;gap:8px;justify-content:space-between">
+              <span style="font-size:14px;font-weight:600;color:#2c2318">find the cc history and reconcile it</span>
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#f4a4a4;color:#2c2318;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;white-space:nowrap;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg>needs decision</span>
+            </div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:3px;display:flex;gap:6px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:#d97742;flex:none"></span><span>rudderfish · claude · 17m — waiting on you</span></div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(255,253,247,.96);border-radius:11px;padding:5.5px 12px;box-shadow:0 3px 8px rgba(8,6,3,.28)">
+          <span style="flex:1;min-width:0;font-size:12.5px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">rename the Bāo asset ids across targets</span>
+          <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;white-space:nowrap">zhende · gemini · 4m</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;background:#ffd58a;color:#2c2318;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M3.6 4.2 C3.6 2.2 5.1 1.3 6.1 1.3 C7.7 1.3 8.7 2.3 8.7 3.7 C8.7 5.2 6.1 5.5 6.1 7.3 M6.1 10.4 L6.1 10.6" stroke="#2c2318" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg>question</span>
+        </div>
+        <sc-for list="{{ workingRows }}" as="s" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,253,247,.96);border-radius:11px;padding:5.5px 12px;box-shadow:0 3px 8px rgba(8,6,3,.28)">
+            <span style="flex:1;min-width:0;font-size:12.5px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.t }}</span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;white-space:nowrap">{{ s.meta }}</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:#6ea7ff;color:#0e1b2e;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M10.5 6 A4.5 4.5 0 1 1 6 1.5" stroke="#0e1b2e" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>working</span>
+          </div>
+        </sc-for>
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(255,253,247,.9);border-radius:11px;padding:5.5px 12px">
+          <span style="flex:1;min-width:0;font-size:12.5px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">2 done — probe recording · PR #148 suite green</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;background:#6fb982;color:#0e2415;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M2 6.6 L4.9 9.4 L10 2.8" stroke="#0e2415" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>done</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(236,229,213,.07);border-radius:11px;padding:5.5px 12px">
+          <svg width="10" height="10" viewBox="0 0 12 12" style="flex:none"><path d="M2.6 6 L9.4 6" stroke="#b7b1a4" stroke-width="2" stroke-linecap="round"></path></svg>
+          <span style="flex:1;min-width:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">2 idle — {{ idleLine }}</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">The room rides along as a header strip — the day's score stays visible without leaving the work. Hard horizon, grain on the strip only; the list below never gets any.</div>
+  </div>
+
+  <div id="2c" style="width:560px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="display:inline-flex;background:#2c2318;color:#f4ecd6;border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700">2c</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067">spatial triage — the seat is a column</span></div>
+    <div data-screen-label="2c Terminals two column" style="position:relative;width:560px;height:560px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:3">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Terminals</span>
+      </span>
+      <span style="position:absolute;top:13px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3;display:inline-flex;align-items:center;gap:5px">Inbox<span style="display:inline-flex;align-items:center;gap:2px;background:#f4a4a4;color:#2c2318;border-radius:6px;padding:1px 5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;font-weight:700"><svg width="7" height="7" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>2</span></span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Pet</span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Rules</span>
+      <div style="position:absolute;left:46px;right:46px;top:46px;bottom:40px;display:flex;flex-direction:column;gap:8px;z-index:2">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+          <div>
+            <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:19px;color:#ece5d5;line-height:1.1">One needs your say.</div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:3px">10 sessions · 2 need you · 4 working · 2 done · 2 idle</div>
+          </div>
+          <span style="position:relative;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:14.5px;color:#ece5d5;padding:5px 15px;white-space:nowrap;flex:none">
+            <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#e26d4f" stroke-width="2.3" stroke-linecap="round"></path></svg>
+            <span style="position:relative">Jump to most urgent</span>
+          </span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;flex:1;min-height:0">
+          <div style="position:relative;width:212px;flex:none;background:#e3a0a8;border:2.5px solid #c4553f;border-radius:13px;padding:8px;display:flex;flex-direction:column;gap:7px">
+            <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.4;pointer-events:none;border-radius:inherit"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+            <div style="position:relative;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:14px;color:#4a1f18;padding:1px 4px 0">needs your say</div>
+            <div style="position:relative;background:rgba(255,253,247,.96);border-radius:9px;padding:8px 10px">
+              <div style="font-size:12.5px;font-weight:600;color:#2c2318;line-height:1.3">find the cc history and reconcile it</div>
+              <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;margin-top:3px;display:flex;gap:5px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:#d97742;flex:none"></span><span>rudderfish · claude · 17m</span></div>
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#f4a4a4;color:#2c2318;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;margin-top:6px"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg>needs decision</span>
+            </div>
+            <div style="position:relative;background:rgba(255,253,247,.96);border-radius:9px;padding:8px 10px">
+              <div style="font-size:12.5px;font-weight:600;color:#2c2318;line-height:1.3">rename the Bāo asset ids across targets</div>
+              <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;margin-top:3px;display:flex;gap:5px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:#42e86b;flex:none"></span><span>zhende · gemini · 4m</span></div>
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#ffd58a;color:#2c2318;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;margin-top:6px"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M3.6 4.2 C3.6 2.2 5.1 1.3 6.1 1.3 C7.7 1.3 8.7 2.3 8.7 3.7 C8.7 5.2 6.1 5.5 6.1 7.3 M6.1 10.4 L6.1 10.6" stroke="#2c2318" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg>question</span>
+            </div>
+            <div style="position:relative;flex:1;display:flex;align-items:flex-end;justify-content:center;min-height:56px">
+              <svg width="92" height="61" viewBox="0 0 126 90"><path d="M26 78 C16 78 12 68 16 58 C20 44 30 36 44 34 C48 22 60 14 74 16 C90 18 100 30 98 44 C110 48 116 60 112 74 L104 78 L98 66 L40 66 L34 78 Z" fill="var(--catBody,#221f1c)"></path><path d="M60 33 C66 28 76 28 83 33" stroke="var(--catMark,#c9cc4e)" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="90" cy="27" r="2.8" fill="var(--catMark,#c9cc4e)"></circle></svg>
+            </div>
+          </div>
+          <div style="flex:1;min-width:0;background:rgba(255,253,247,.96);border-radius:12px;padding:4px 12px 6px;box-shadow:0 5px 14px rgba(8,6,3,.32)">
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;letter-spacing:.11em;text-transform:uppercase;color:#8b8067;padding:7px 0 3px">running</div>
+            <sc-for list="{{ workingRows }}" as="s" hint-placeholder-count="4">
+              <div style="padding:6.5px 0;border-top:1px solid rgba(44,35,24,.09)">
+                <div style="display:flex;align-items:center;gap:7px">
+                  <span style="flex:1;min-width:0;font-size:12px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.t }}</span>
+                  <svg width="9" height="9" viewBox="0 0 12 12" style="flex:none"><path d="M10.5 6 A4.5 4.5 0 1 1 6 1.5" stroke="#6ea7ff" stroke-width="2.4" fill="none" stroke-linecap="round"></path></svg>
+                </div>
+                <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.meta }}</div>
+              </div>
+            </sc-for>
+            <sc-for list="{{ doneRows }}" as="s" hint-placeholder-count="2">
+              <div style="padding:6.5px 0;border-top:1px solid rgba(44,35,24,.09)">
+                <div style="display:flex;align-items:center;gap:7px">
+                  <span style="flex:1;min-width:0;font-size:12px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.t }}</span>
+                  <svg width="9" height="9" viewBox="0 0 12 12" style="flex:none"><path d="M2 6.6 L4.9 9.4 L10 2.8" stroke="#3d7a45" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.meta }}</div>
+              </div>
+            </sc-for>
+            <div style="display:flex;align-items:center;gap:7px;padding:7px 0;border-top:1px solid rgba(44,35,24,.09)">
+              <svg width="9" height="9" viewBox="0 0 12 12" style="flex:none"><path d="M2.6 6 L9.4 6" stroke="#8b8067" stroke-width="2.4" stroke-linecap="round"></path></svg>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#6f6552">2 idle, collapsed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">Spatial triage — everything that needs a human lives on the one seat, left; the right ledger just runs. The cat holds the seat, never the list. Shape-only status on the ledger keeps it quiet.</div>
+  </div>
+</div>
+
+<div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:21px;color:#2c2318;margin:48px 0 0">The four tabs</div>
+<div style="display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap;margin-top:12px">
+
+  <div style="width:560px">
+    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067;margin-bottom:8px">01 · terminals — ten sessions, ranked by urgency</div>
+    <div data-screen-label="01 Terminals x10" style="position:relative;width:560px;height:560px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:3">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Terminals</span>
+      </span>
+      <span style="position:absolute;top:13px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3;display:inline-flex;align-items:center;gap:5px">Inbox<span style="display:inline-flex;align-items:center;gap:2px;background:#f4a4a4;color:#2c2318;border-radius:6px;padding:1px 5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;font-weight:700"><svg width="7" height="7" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>2</span></span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Pet</span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Rules</span>
+      <div style="position:absolute;left:46px;right:46px;top:46px;bottom:40px;display:flex;flex-direction:column;gap:5px;z-index:2">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+          <div>
+            <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:19px;color:#ece5d5;line-height:1.1">One needs your say.</div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:3px">10 sessions · 2 need you · 4 working · 2 done · 2 idle</div>
+          </div>
+          <span style="position:relative;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:14.5px;color:#ece5d5;padding:5px 15px;white-space:nowrap;flex:none">
+            <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#e26d4f" stroke-width="2.3" stroke-linecap="round"></path></svg>
+            <span style="position:relative">Jump to most urgent</span>
+          </span>
+        </div>
+        <div style="position:relative;background:#e3a0a8;border:2.5px solid #c4553f;border-radius:13px;padding:6px;margin-top:3px">
+          <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.4;pointer-events:none;border-radius:inherit"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+          <svg width="54" height="39" viewBox="0 0 126 90" style="position:absolute;right:8px;bottom:7px"><path d="M26 78 C16 78 12 68 16 58 C20 44 30 36 44 34 C48 22 60 14 74 16 C90 18 100 30 98 44 C110 48 116 60 112 74 L104 78 L98 66 L40 66 L34 78 Z" fill="var(--catBody,#221f1c)"></path><path d="M60 33 C66 28 76 28 83 33" stroke="var(--catMark,#c9cc4e)" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="90" cy="27" r="2.8" fill="var(--catMark,#c9cc4e)"></circle></svg>
+          <div style="position:relative;background:rgba(255,253,247,.96);border-radius:9px;padding:8px 12px;margin-right:64px">
+            <div style="display:flex;align-items:baseline;gap:8px;justify-content:space-between">
+              <span style="font-size:14px;font-weight:600;color:#2c2318">find the cc history and reconcile it</span>
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#f4a4a4;color:#2c2318;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;white-space:nowrap;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg>needs decision</span>
+            </div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:3px;display:flex;gap:6px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:#d97742;flex:none"></span><span>rudderfish · claude · 17m — waiting on you</span></div>
+          </div>
+        </div>
+        <div style="background:rgba(255,253,247,.96);border-radius:12px;padding:7px 12px;box-shadow:0 4px 10px rgba(8,6,3,.3)">
+          <div style="display:flex;align-items:baseline;gap:8px;justify-content:space-between">
+            <span style="font-size:13.5px;font-weight:600;color:#2c2318">rename the Bāo asset ids across targets</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:#ffd58a;color:#2c2318;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;white-space:nowrap;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M3.6 4.2 C3.6 2.2 5.1 1.3 6.1 1.3 C7.7 1.3 8.7 2.3 8.7 3.7 C8.7 5.2 6.1 5.5 6.1 7.3 M6.1 10.4 L6.1 10.6" stroke="#2c2318" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg>question</span>
+          </div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:2px;display:flex;gap:6px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:#42e86b;flex:none"></span><span>zhende · gemini · 4m — asked which naming scheme wins</span></div>
+        </div>
+        <sc-for list="{{ workingRows }}" as="s" hint-placeholder-count="4">
+          <div style="background:rgba(255,253,247,.96);border-radius:12px;padding:6px 12px;box-shadow:0 3px 8px rgba(8,6,3,.28)">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="flex:1;min-width:0;font-size:13px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.t }}</span>
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#6ea7ff;color:#0e1b2e;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M10.5 6 A4.5 4.5 0 1 1 6 1.5" stroke="#0e1b2e" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>working</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:2px">
+              <span style="width:6px;height:6px;border-radius:50%;background:{{ s.ac }};flex:none"></span><span>{{ s.meta }}</span>
+            </div>
+          </div>
+        </sc-for>
+        <sc-for list="{{ doneRows }}" as="s" hint-placeholder-count="2">
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,253,247,.9);border-radius:12px;padding:5px 12px">
+            <span style="flex:1;min-width:0;font-size:12.5px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.t }}</span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;white-space:nowrap">{{ s.meta }}</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:#6fb982;color:#0e2415;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M2 6.6 L4.9 9.4 L10 2.8" stroke="#0e2415" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>done</span>
+          </div>
+        </sc-for>
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(236,229,213,.07);border-radius:12px;padding:6px 12px">
+          <svg width="10" height="10" viewBox="0 0 12 12" style="flex:none"><path d="M2.6 6 L9.4 6" stroke="#b7b1a4" stroke-width="2" stroke-linecap="round"></path></svg>
+          <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#a89e8c;flex:none">2 idle</span>
+          <span style="flex:1;min-width:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ idleLine }}</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">Ranked by urgency; colour + shape carry status together. Working and done stay one glance deep; idle collapses to a count — nothing that needs you can fall below the fold.</div>
+  </div>
+
+  <div style="width:560px">
+    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067;margin-bottom:8px">02 · inbox — the concierge's queue</div>
+    <div data-screen-label="02 Inbox" style="position:relative;width:560px;height:560px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:13px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Terminals</span>
+      <span style="position:absolute;top:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:3">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Inbox</span>
+      </span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Pet</span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Rules</span>
+      <div style="position:absolute;left:46px;right:46px;top:46px;bottom:40px;display:flex;flex-direction:column;gap:8px;z-index:2">
+        <div style="display:flex;align-items:center;gap:10px">
+          <svg width="40" height="29" viewBox="0 0 126 90" style="flex:none"><path d="M26 78 C16 78 12 68 16 58 C20 44 30 36 44 34 C48 22 60 14 74 16 C90 18 100 30 98 44 C110 48 116 60 112 74 L104 78 L98 66 L40 66 L34 78 Z" fill="#f0ead6"></path><path d="M60 33 C66 28 76 28 83 33" stroke="#97923f" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="90" cy="27" r="2.8" fill="#97923f"></circle></svg>
+          <div>
+            <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:19px;color:#ece5d5;line-height:1.1">Two decisions, both small.</div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:3px">everything else was handled — log below</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,253,247,.96);border-radius:12px;padding:11px 13px;box-shadow:0 4px 10px rgba(8,6,3,.3)">
+          <div style="font-size:13.5px;font-weight:600;color:#2c2318;line-height:1.3">Session 3 wants to delete 3 test files it says are obsolete.</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:3px;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#d97742;flex:none"></span><span>stuck-clips · claude · asked 1m ago</span></div>
+          <div style="display:flex;gap:7px;margin-top:9px;align-items:center">
+            <span style="background:#17150f;color:#f4ecd6;border-radius:8px;padding:5px 14px;font-size:12.5px;font-weight:600">Allow</span>
+            <span style="border:1.5px solid rgba(23,21,15,.25);color:#2c2318;border-radius:8px;padding:3.5px 13px;font-size:12.5px;font-weight:600">Deny</span>
+            <span style="border:1.5px solid rgba(23,21,15,.25);color:#2c2318;border-radius:8px;padding:3.5px 13px;font-size:12.5px;font-weight:600">Look</span>
+            <span style="flex:1"></span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067">⌘1</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:9px;padding-top:8px;border-top:1px solid rgba(44,35,24,.1)">
+            <span style="width:13px;height:13px;border:1.5px solid rgba(44,35,24,.4);border-radius:3.5px;flex:none"></span>
+            <span style="font-size:12px;color:#6f6552;flex:1">Always allow Read in this project</span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067">its suggestion</span>
+          </div>
+        </div>
+        <div style="background:rgba(255,253,247,.96);border-radius:12px;padding:11px 13px;box-shadow:0 4px 10px rgba(8,6,3,.3)">
+          <div style="font-size:13.5px;font-weight:600;color:#2c2318;line-height:1.3">zhende wants to run npm install — two dev deps for the asset survey.</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:3px;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#42e86b;flex:none"></span><span>zhende · gemini · asked 4m ago</span></div>
+          <div style="display:flex;gap:7px;margin-top:9px;align-items:center">
+            <span style="background:#17150f;color:#f4ecd6;border-radius:8px;padding:5px 14px;font-size:12.5px;font-weight:600">Allow</span>
+            <span style="border:1.5px solid rgba(23,21,15,.25);color:#2c2318;border-radius:8px;padding:3.5px 13px;font-size:12.5px;font-weight:600">Deny</span>
+            <span style="border:1.5px solid rgba(23,21,15,.25);color:#2c2318;border-radius:8px;padding:3.5px 13px;font-size:12.5px;font-weight:600">Look</span>
+            <span style="flex:1"></span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067">⌘2</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:9px;padding-top:8px;border-top:1px solid rgba(44,35,24,.1)">
+            <span style="width:13px;height:13px;border:1.5px solid rgba(44,35,24,.4);border-radius:3.5px;flex:none"></span>
+            <span style="font-size:12px;color:#6f6552;flex:1">Always allow npm install in zhende</span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067">its suggestion</span>
+          </div>
+        </div>
+        <div style="margin-top:4px">
+          <div style="display:flex;align-items:baseline;gap:7px">
+            <span style="font-family:Caveat,'Patrick Hand',cursive;font-size:28px;font-weight:700;color:#6fb982;line-height:1">214</span>
+            <span style="font-size:12.5px;color:#a89e8c">interruptions handled this week.</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+            <sc-for list="{{ logs }}" as="g" hint-placeholder-count="3">
+              <div style="display:flex;align-items:baseline;gap:8px">
+                <svg width="10" height="10" viewBox="0 0 12 12" style="flex:none;transform:translateY(1px)"><path d="M2 6.6 L4.9 9.4 L10 2.8" stroke="#6fb982" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span style="flex:1;font-size:12.5px;color:#a89e8c;line-height:1.4">{{ g.t }}</span>
+                <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466">{{ g.time }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">Every card names who, what, and why it claims it's fine. The rule row is the agent's own suggestion — accepting it is how the leash loosens.</div>
+  </div>
+
+  <div style="width:560px">
+    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067;margin-bottom:8px">03 · pet — the room, and the only slow tab</div>
+    <div data-screen-label="03 Pet" style="position:relative;width:560px;height:560px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;inset:0">
+        <div style="position:absolute;inset:0;background:#6b8250"></div>
+        <div style="position:absolute;left:0;right:0;top:46%;bottom:0;background:#2a2b20"></div>
+        <svg style="position:absolute;left:0;right:0;top:46%;bottom:0;width:100%;height:54%;opacity:.24"><defs><pattern id="oiflr" width="46" height="46" patternUnits="userSpaceOnUse" patternTransform="skewX(-12)"><path d="M0 0h46M0 0v46" stroke="#8d9470" stroke-width="1.4"></path></pattern></defs><rect width="100%" height="100%" fill="url(#oiflr)"></rect></svg>
+        <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.38;pointer-events:none"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+        <div style="position:absolute;left:64px;bottom:168px;width:310px;height:84px;background:#7b5b8a;border:3px solid #4d3557;border-radius:10px"></div>
+        <svg width="210" height="120" viewBox="0 0 210 120" style="position:absolute;left:86px;bottom:184px">
+          <defs><clipPath id="oisofa"><rect x="16" y="20" width="178" height="64" rx="16"></rect><rect x="8" y="66" width="194" height="40" rx="12"></rect></clipPath></defs>
+          <path d="M30 106 L30 118 M180 106 L180 118" stroke="#4d3557" stroke-width="5" stroke-linecap="round"></path>
+          <rect x="16" y="20" width="178" height="64" rx="16" fill="#e3a0a8" stroke="#c4553f" stroke-width="3"></rect>
+          <rect x="8" y="66" width="194" height="40" rx="12" fill="#e3a0a8" stroke="#c4553f" stroke-width="3"></rect>
+          <rect width="210" height="120" clip-path="url(#oisofa)" filter="url(#oig)" style="mix-blend-mode:multiply" opacity=".35"></rect>
+        </svg>
+        <svg width="104" height="65" viewBox="0 0 128 80" style="position:absolute;left:136px;bottom:234px"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="var(--catBody,#221f1c)"></path><path d="M58 30 C64 26 72 26 78 30" stroke="var(--catMark,#c9cc4e)" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="87" cy="26" r="2.8" fill="var(--catMark,#c9cc4e)"></circle></svg>
+        <sc-for list="{{ floorItems }}" as="i" hint-placeholder-count="3">
+          <svg width="{{ i.w }}" height="{{ i.h }}" viewBox="{{ i.vb }}" style="position:absolute;left:{{ i.x }}px;bottom:{{ i.b }}px;transform:rotate({{ i.r }}deg);overflow:visible">
+            <path d="{{ i.d1 }}" fill="{{ i.f1 }}" stroke="{{ i.s1 }}" stroke-width="1.8" stroke-linejoin="round"></path>
+            <path d="{{ i.d2 }}" fill="{{ i.f2 }}" stroke="{{ i.s2 }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </sc-for>
+        <div style="position:absolute;left:46px;top:50px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:18px;color:#f4ecd6;text-shadow:0 1px 0 rgba(0,0,0,.18)">{{ shippedLine }}</div>
+        <div style="position:absolute;right:44px;top:60px;transform:rotate(4deg);background:#f4ecd6;border-radius:3px;padding:9px 13px 10px;box-shadow:0 7px 16px rgba(15,12,6,.34);width:128px">
+          <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.35;pointer-events:none;border-radius:inherit"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+          <div style="position:relative">
+            <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:12px;color:#8b8067">this week</div>
+            <div style="font-family:Caveat,'Patrick Hand',cursive;font-size:30px;font-weight:700;color:#3d7a45;line-height:1.1;margin-top:4px">+221</div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin-top:3px">the full slip →</div>
+          </div>
+        </div>
+        <div style="position:absolute;left:46px;right:46px;bottom:40px;background:rgba(255,253,247,.96);border-radius:12px;padding:10px 12px;box-shadow:0 6px 16px rgba(8,6,3,.35)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:12.5px;font-weight:600;color:#2c2318;flex:1">Shelf — earned from ships</span>
+            <div style="display:flex;background:rgba(23,21,15,.07);border-radius:8px;padding:2px">
+              <span style="background:#fff;border-radius:6px;padding:2px 10px;font-size:11px;font-weight:600;color:#2c2318;box-shadow:0 1px 3px rgba(0,0,0,.15)">Hats</span>
+              <span style="padding:2px 10px;font-size:11px;color:#6f6552">Desk</span>
+              <span style="padding:2px 10px;font-size:11px;color:#6f6552">Floor</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:9px;margin-top:9px">
+            <sc-for list="{{ shelf }}" as="c" hint-placeholder-count="4">
+              <div style="flex:1;opacity:{{ c.op }}">
+                <div style="position:relative;background:#ece4cd;border-radius:8px;height:52px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+                  <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.32;pointer-events:none"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+                  <svg width="32" height="30" viewBox="0 0 24 22" style="position:relative"><path d="{{ c.d1 }}" fill="{{ c.f1 }}" stroke="{{ c.s1 }}" stroke-width="1.6" stroke-linejoin="round"></path><path d="{{ c.d2 }}" fill="{{ c.f2 }}" stroke="{{ c.s2 }}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#6f6552;margin-top:4px;text-align:center">{{ c.label }}</div>
+                <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8px;color:#8b8067;text-align:center">{{ c.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:13px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#f4ecd6;z-index:3;text-shadow:0 1px 0 rgba(0,0,0,.2)">Terminals</span>
+      <span style="position:absolute;top:13px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#f4ecd6;z-index:3;text-shadow:0 1px 0 rgba(0,0,0,.2);display:inline-flex;align-items:center;gap:5px">Inbox<span style="display:inline-flex;align-items:center;gap:2px;background:#f4a4a4;color:#2c2318;border-radius:6px;padding:1px 5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;font-weight:700"><svg width="7" height="7" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>2</span></span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:5">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Pet</span>
+      </span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:5">Rules</span>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">The only slow tab. One drawn thing lands on the floor per ship today; the shelf pays out for real outcomes only — turns, lines, days with a ship.</div>
+  </div>
+
+  <div style="width:560px">
+    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067;margin-bottom:8px">04 · rules — where trust is won</div>
+    <div data-screen-label="04 Rules" style="position:relative;width:560px;height:560px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:13px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Terminals</span>
+      <span style="position:absolute;top:13px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3;display:inline-flex;align-items:center;gap:5px">Inbox<span style="display:inline-flex;align-items:center;gap:2px;background:#f4a4a4;color:#2c2318;border-radius:6px;padding:1px 5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;font-weight:700"><svg width="7" height="7" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>2</span></span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Pet</span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:3">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Rules</span>
+      </span>
+      <div style="position:absolute;left:46px;right:46px;top:46px;bottom:40px;display:flex;flex-direction:column;gap:5px;z-index:2">
+        <div style="display:flex;align-items:center;gap:10px">
+          <svg width="40" height="25" viewBox="0 0 128 80" style="flex:none"><path d="M16 66 C10 52 20 44 40 43 C62 42 88 42 106 46 C120 49 124 60 118 66 Z" fill="#f0ead6"></path><path d="M44 54 C50 50 58 50 64 54" stroke="#97923f" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="98" cy="53" r="2.8" fill="#97923f"></circle></svg>
+          <div>
+            <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:19px;color:#ece5d5;line-height:1.1">Loose leash, fewer questions.</div>
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:3px">trust is per repo — the inbox obeys it</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,253,247,.96);border-radius:12px;padding:9px 13px;box-shadow:0 4px 10px rgba(8,6,3,.3)">
+          <div style="font-size:12.5px;font-weight:600;color:#2c2318;margin-bottom:1px">Leash, per repo</div>
+          <sc-for list="{{ leash }}" as="l" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:10px;padding:4px 0;border-top:1px solid rgba(44,35,24,.08)">
+              <span style="width:112px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;color:#2c2318;flex:none">{{ l.repo }}</span>
+              <svg width="150" height="18" viewBox="0 0 184 26" preserveAspectRatio="none" style="flex:none"><path d="{{ l.d }}" stroke="#6f6552" stroke-width="2" fill="none" stroke-linecap="round"></path><circle cx="{{ l.cx }}" cy="{{ l.cy }}" r="4" fill="none" stroke="#6f6552" stroke-width="2"></circle></svg>
+              <span style="flex:1;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;text-align:right;white-space:nowrap">{{ l.note }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:rgba(255,253,247,.96);border-radius:12px;padding:9px 13px;box-shadow:0 4px 10px rgba(8,6,3,.3)">
+          <div style="font-size:12.5px;font-weight:600;color:#2c2318;margin-bottom:1px">Auto-approve</div>
+          <sc-for list="{{ patterns }}" as="p" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:10px;padding:4px 0;border-top:1px solid rgba(44,35,24,.08)">
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#2c2318;flex:1">{{ p.pat }}</span>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067">{{ p.scope }}</span>
+              <span style="width:32px;height:19px;background:#17150f;border-radius:10px;position:relative;flex:none"><span style="position:absolute;top:2.5px;right:2.5px;width:14px;height:14px;background:#f4ecd6;border-radius:50%"></span></span>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:center;gap:10px;padding:4px 0;border-top:1px solid rgba(44,35,24,.08)">
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#b04a34;flex:1">git push --force</span>
+            <svg width="11" height="11" viewBox="0 0 12 12" style="flex:none"><path d="M3.5 5.5 L3.5 4 A2.5 2.5 0 0 1 8.5 4 L8.5 5.5" stroke="#b04a34" stroke-width="1.6" fill="none"></path><rect x="2.5" y="5.5" width="7" height="5" rx="1.2" fill="#b04a34"></rect></svg>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#b04a34">always asks — not a setting</span>
+          </div>
+        </div>
+        <div style="background:rgba(255,253,247,.96);border-radius:12px;padding:9px 13px;box-shadow:0 4px 10px rgba(8,6,3,.3)">
+          <div style="font-size:12.5px;font-weight:600;color:#2c2318;margin-bottom:1px">Quiet &amp; batching</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:4.5px 0;border-top:1px solid rgba(44,35,24,.08)">
+            <div style="flex:1"><div style="font-size:12.5px;color:#2c2318">Quiet hours</div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin-top:1px">until 2:00 pm — critical still comes through</div></div>
+            <span style="width:32px;height:19px;background:#17150f;border-radius:10px;position:relative;flex:none"><span style="position:absolute;top:2.5px;right:2.5px;width:14px;height:14px;background:#f4ecd6;border-radius:50%"></span></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:4.5px 0;border-top:1px solid rgba(44,35,24,.08)">
+            <span style="font-size:12.5px;color:#2c2318;flex:1">Batch the non-urgent</span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#2c2318;background:rgba(23,21,15,.07);border-radius:7px;padding:3px 9px">every 25m</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:4.5px 0;border-top:1px solid rgba(44,35,24,.08)">
+            <span style="font-size:12.5px;color:#2c2318;flex:1">Escalation sound</span>
+            <span style="width:32px;height:19px;background:rgba(23,21,15,.18);border-radius:10px;position:relative;flex:none"><span style="position:absolute;top:2.5px;left:2.5px;width:14px;height:14px;background:#fff;border-radius:50%"></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">The boring tab done plainly — this is where the automation earns belief. Leash length is the trust model, drawn. rudderfish stays tight; it earned it.</div>
+  </div>
+</div>
+
+<div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:21px;color:#2c2318;margin:52px 0 0">Key moments</div>
+<div style="display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap;margin-top:12px">
+
+  <div style="width:560px">
+    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067;margin-bottom:8px">05 · a critical escalation — urgent without panic</div>
+    <div data-screen-label="05 Critical escalation" style="position:relative;width:560px;height:560px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:3">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Terminals</span>
+      </span>
+      <span style="position:absolute;top:13px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Inbox</span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Pet</span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Rules</span>
+      <div style="position:absolute;left:46px;right:46px;top:46px;bottom:40px;display:flex;flex-direction:column;gap:6px;z-index:2">
+        <div>
+          <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:19px;color:#ece5d5;line-height:1.1">rudderfish needs you.</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:3px">held 40s ago · the rest of the fleet is fine</div>
+        </div>
+        <div style="position:relative;background:#e26d4f;border:2.5px solid #7d3b1f;border-radius:13px;padding:13px 15px;margin-top:2px">
+          <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.38;pointer-events:none;border-radius:inherit"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+          <div style="position:relative;display:flex;gap:12px">
+            <svg width="76" height="47" viewBox="0 0 136 84" style="flex:none;align-self:flex-end"><path d="M30 78 C18 78 12 66 17 54 C22 42 32 34 46 32 C49 20 61 12 75 14 C89 16 99 28 97 41 L128 24 L123 41 C112 45 108 50 106 58 C104 68 99 76 90 78 Z" fill="var(--catBody,#221f1c)"></path><path d="M55 30 C61 25 71 25 78 30" stroke="var(--catMark,#c9cc4e)" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="86" cy="24" r="2.8" fill="var(--catMark,#c9cc4e)"></circle></svg>
+            <div style="flex:1;min-width:0">
+              <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(23,21,15,.16);color:#2e1409;border-radius:6px;padding:2px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase"><svg width="8" height="9" viewBox="0 0 12 12"><path d="M4 2 L4 10 M8 2 L8 10" stroke="#2e1409" stroke-width="2.4" stroke-linecap="round"></path></svg>held · needs you</span>
+              <div style="font-size:15.5px;font-weight:700;color:#2e1409;line-height:1.25;margin-top:6px">It wants to force-push over origin/main.</div>
+              <div style="font-size:12.5px;color:#4a2013;line-height:1.4;margin-top:4px">The same test failed three turns in a row and it blames the remote history. I paused it and kept the diff — nothing was pushed.</div>
+              <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
+                <span style="position:relative;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:14.5px;color:#17150f;padding:4px 16px">
+                  <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#17150f" stroke-width="2.4" stroke-linecap="round"></path></svg>
+                  <span style="position:relative">Look now</span>
+                </span>
+                <span style="border:1.5px solid rgba(23,21,15,.4);color:#2e1409;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600">Keep holding</span>
+                <span style="border:1.5px solid rgba(23,21,15,.4);color:#2e1409;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600">Roll back the turn</span>
+              </div>
+              <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:rgba(46,20,9,.75);margin-top:8px">diff saved · .oi/holds/rudderfish-341 · nothing left the machine</div>
+            </div>
+          </div>
+        </div>
+        <div style="opacity:.35;display:flex;flex-direction:column;gap:5px;margin-top:4px">
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,253,247,.9);border-radius:11px;padding:5px 12px">
+            <span style="flex:1;min-width:0;font-size:12px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">rename the Bāo asset ids across targets</span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;white-space:nowrap">zhende · gemini · 4m</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:#ffd58a;color:#2c2318;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;flex:none">question</span>
+          </div>
+          <sc-for list="{{ workingRows }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:8px;background:rgba(255,253,247,.9);border-radius:11px;padding:5px 12px">
+              <span style="flex:1;min-width:0;font-size:12px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.t }}</span>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;white-space:nowrap">{{ s.meta }}</span>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(236,229,213,.07);border-radius:11px;padding:5px 12px">
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#a89e8c">2 done · 2 idle</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">One clay seat; everything else dims but stays. No red screen, no pulse, no sound. The hold already happened, so urgency carries no time pressure — the character points, it doesn't plead.</div>
+  </div>
+
+  <div style="width:560px">
+    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067;margin-bottom:8px">06 · terminals — one session</div>
+    <div data-screen-label="06 Terminals x1" style="position:relative;width:560px;height:560px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:3">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Terminals</span>
+      </span>
+      <span style="position:absolute;top:13px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Inbox</span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Pet</span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Rules</span>
+      <div style="position:absolute;left:46px;right:46px;top:46px;bottom:40px;display:flex;flex-direction:column;gap:7px;z-index:2">
+        <div>
+          <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:19px;color:#ece5d5;line-height:1.1">All quiet — one agent working.</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:3px">1 session · nothing needs you</div>
+        </div>
+        <div style="background:rgba(255,253,247,.96);border-radius:12px;padding:8px 12px;box-shadow:0 4px 10px rgba(8,6,3,.3)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="flex:1;min-width:0;font-size:13.5px;color:#2c2318;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">swift build</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:#6ea7ff;color:#0e1b2e;border-radius:7px;padding:2px 7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;flex:none"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M10.5 6 A4.5 4.5 0 1 1 6 1.5" stroke="#0e1b2e" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>working</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:2px">
+            <span style="width:6px;height:6px;border-radius:50%;background:#d97742;flex:none"></span><span>open-vibe-island · feat/companion-pill · claude · &lt;1m</span>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px">
+          <svg width="90" height="56" viewBox="0 0 128 80"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="#f0ead6"></path><path d="M58 30 C64 26 72 26 78 30" stroke="#97923f" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="87" cy="26" r="2.8" fill="#97923f"></circle></svg>
+          <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c">Nothing needs you here.</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:-6px">sessions appear as your terminals start agents</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">Same geometry at one session. Emptiness is direction, not decoration — no filler cards, no prompts to add more.</div>
+  </div>
+
+  <div style="width:560px">
+    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067;margin-bottom:8px">07 · inbox — empty state</div>
+    <div data-screen-label="07 Inbox empty" style="position:relative;width:560px;height:340px;background:#17150f;border-radius:0 0 26px 26px;overflow:hidden;box-shadow:0 20px 44px rgba(24,18,8,.38)">
+      <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:24px;background:#000;border-radius:0 0 12px 12px;z-index:4"></div>
+      <span style="position:absolute;top:13px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Terminals</span>
+      <span style="position:absolute;top:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#ece5d5;z-index:3">
+        <svg viewBox="0 0 120 46" preserveAspectRatio="none" style="position:absolute;left:-13px;top:-7px;width:calc(100% + 26px);height:calc(100% + 14px)"><path d="M96 9 C74 2 36 3 16 12 C2 18 3 31 18 37 C40 45 84 44 103 36 C115 31 114 18 99 12 C92 9 84 8 78 8" fill="none" stroke="#c9cc4e" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span style="position:relative">Inbox</span>
+      </span>
+      <span style="position:absolute;bottom:12px;left:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Pet</span>
+      <span style="position:absolute;bottom:12px;right:46px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15px;color:#a89e8c;z-index:3">Rules</span>
+      <div style="position:absolute;inset:46px 46px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;z-index:2">
+        <svg width="84" height="53" viewBox="0 0 128 80"><path d="M16 66 C10 52 20 44 40 43 C62 42 88 42 106 46 C120 49 124 60 118 66 Z" fill="#f0ead6"></path><path d="M44 54 C50 50 58 50 64 54" stroke="#97923f" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="98" cy="53" r="2.8" fill="#97923f"></circle></svg>
+        <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:19px;color:#ece5d5">Nothing needs you. Go build something.</div>
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#7c7466;margin-top:-4px">214 handled this week · quiet until 2:00 pm</div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">Emptiness as direction, not mood. The counter keeps earning trust even when the queue is clear; the panel is shorter because there is less to say.</div>
+  </div>
+</div>
+
+<div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:21px;color:#2c2318;margin:52px 0 0">The pill</div>
+<div style="display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap;margin-top:12px">
+
+  <div style="width:660px" data-screen-label="08 The pill">
+    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067;margin-bottom:8px">08 · collapsed — 180 × 32 in the notch</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="position:relative;width:430px;height:64px;background:#080705;border-radius:12px;overflow:hidden;box-shadow:0 10px 26px rgba(24,18,8,.35);flex:none">
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:136px;height:18px;background:#000;border-radius:0 0 9px 9px;box-shadow:0 0 0 1px rgba(236,229,213,.05)"></div>
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:180px;height:32px;background:#17150f;border:1px solid rgba(236,229,213,.1);border-top:none;border-radius:0 0 16px 16px;display:flex;align-items:center;gap:7px;padding:0 12px 0 8px">
+            <svg width="26" height="16" viewBox="0 0 128 80" style="flex:none"><path d="M16 66 C10 52 20 44 40 43 C62 42 88 42 106 46 C120 49 124 60 118 66 Z" fill="#f0ead6"></path><path d="M44 54 C50 50 58 50 64 54" stroke="#97923f" stroke-width="3" fill="none" stroke-linecap="round"></path><circle cx="98" cy="53" r="3" fill="#97923f"></circle></svg>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#7c7466">all quiet</span>
+          </div>
+        </div>
+        <div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;font-weight:700;color:#2c2318">asleep — nothing running</div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:2px">no count, no glow — the pill earns silence</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="position:relative;width:430px;height:64px;background:#080705;border-radius:12px;overflow:hidden;box-shadow:0 10px 26px rgba(24,18,8,.35);flex:none">
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:136px;height:18px;background:#000;border-radius:0 0 9px 9px;box-shadow:0 0 0 1px rgba(236,229,213,.05)"></div>
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:180px;height:32px;background:#17150f;border:1px solid rgba(236,229,213,.1);border-top:none;border-radius:0 0 16px 16px;display:flex;align-items:center;gap:7px;padding:0 12px 0 8px">
+            <svg width="24" height="15" viewBox="0 0 128 80" style="flex:none"><path d="M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z" fill="#f0ead6"></path><path d="M58 30 C64 26 72 26 78 30" stroke="#97923f" stroke-width="3" fill="none" stroke-linecap="round"></path><circle cx="87" cy="26" r="3" fill="#97923f"></circle></svg>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#a89e8c">5 working</span>
+            <span style="flex:1"></span>
+            <svg width="10" height="10" viewBox="0 0 12 12"><path d="M10.5 6 A4.5 4.5 0 1 1 6 1.5" stroke="#6ea7ff" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>
+          </div>
+        </div>
+        <div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;font-weight:700;color:#2c2318">working — agents busy</div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:2px">count stays grey; the arc says busy</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="position:relative;width:430px;height:64px;background:#080705;border-radius:12px;overflow:hidden;box-shadow:0 10px 26px rgba(24,18,8,.35);flex:none">
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:136px;height:18px;background:#000;border-radius:0 0 9px 9px;box-shadow:0 0 0 1px rgba(236,229,213,.05)"></div>
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:180px;height:32px;background:#17150f;border:1px solid rgba(236,229,213,.1);border-top:none;border-radius:0 0 16px 16px;display:flex;align-items:center;gap:7px;padding:0 10px 0 8px">
+            <svg width="24" height="15" viewBox="0 0 136 84" style="flex:none"><path d="M30 78 C18 78 12 66 17 54 C22 42 32 34 46 32 C49 20 61 12 75 14 C89 16 99 28 97 41 L128 24 L123 41 C112 45 108 50 106 58 C104 68 99 76 90 78 Z" fill="#f0ead6"></path><path d="M55 30 C61 25 71 25 78 30" stroke="#97923f" stroke-width="3" fill="none" stroke-linecap="round"></path><circle cx="86" cy="24" r="3" fill="#97923f"></circle></svg>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;font-weight:700;color:#ece5d5">2 need you</span>
+            <span style="flex:1"></span>
+            <span style="display:inline-flex;align-items:center;gap:3px;background:#f4a4a4;color:#2c2318;border-radius:6px;padding:1.5px 6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;font-weight:700"><svg width="7" height="7" viewBox="0 0 12 12"><path d="M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2" stroke="#2c2318" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>2</span>
+          </div>
+        </div>
+        <div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;font-weight:700;color:#2c2318">needs you — count + asterisk</div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:2px">never colour alone · click, hold, or ⌘⇧O expands</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="position:relative;width:430px;height:64px;background:#080705;border-radius:12px;overflow:hidden;box-shadow:0 10px 26px rgba(24,18,8,.35);flex:none">
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:136px;height:18px;background:#000;border-radius:0 0 9px 9px;box-shadow:0 0 0 1px rgba(236,229,213,.05)"></div>
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:180px;height:32px;background:#17150f;border:1px solid rgba(236,229,213,.1);border-top:none;border-radius:0 0 16px 16px;display:flex;align-items:center;gap:7px;padding:0 10px 0 8px">
+            <svg width="20" height="15" viewBox="0 0 150 112" style="flex:none"><path d="M52 104 C40 104 34 94 36 82 C38 66 44 56 56 50 C54 34 60 20 74 16 C90 11 106 20 110 34 C114 48 110 60 102 66 C110 76 114 90 110 104 Z" fill="#f0ead6"></path><path d="M70 32 C77 27 87 27 94 32" stroke="#97923f" stroke-width="3" fill="none" stroke-linecap="round"></path><circle cx="101" cy="26" r="3" fill="#97923f"></circle></svg>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#a89e8c;white-space:nowrap">shipped</span>
+            <span style="flex:1"></span>
+            <span style="display:inline-flex;align-items:center;gap:3px;background:#6fb982;color:#0e2415;border-radius:6px;padding:1.5px 6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;font-weight:700"><svg width="7" height="7" viewBox="0 0 12 12"><path d="M2 6.6 L4.9 9.4 L10 2.8" stroke="#0e2415" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>+1</span>
+          </div>
+        </div>
+        <div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;font-weight:700;color:#2c2318">celebrating — a session shipped</div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:2px">one beat of stretch, then back to work</div></div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552;max-width:560px">Dark in the room, light in the pill — a dark silhouette vanishes on near-black, and 28×32 has no room for furniture. The character occupies 28×32 of the 180×32 shape.</div>
+  </div>
+
+  <div style="width:800px" data-screen-label="09 Expand transition">
+    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067;margin-bottom:8px">09 · expanding — pill to panel</div>
+    <div style="display:flex;align-items:flex-start;gap:14px">
+      <div style="width:236px">
+        <div style="position:relative;width:236px;height:170px;background:#080705;border-radius:12px;overflow:hidden;box-shadow:0 10px 26px rgba(24,18,8,.35)">
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:92px;height:13px;background:#000;border-radius:0 0 7px 7px;box-shadow:0 0 0 1px rgba(236,229,213,.05)"></div>
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:124px;height:23px;background:#17150f;border:1px solid rgba(236,229,213,.1);border-top:none;border-radius:0 0 12px 12px;display:flex;align-items:center;gap:5px;padding:0 8px 0 6px">
+            <svg width="17" height="11" viewBox="0 0 136 84" style="flex:none"><path d="M30 78 C18 78 12 66 17 54 C22 42 32 34 46 32 C49 20 61 12 75 14 C89 16 99 28 97 41 L128 24 L123 41 C112 45 108 50 106 58 C104 68 99 76 90 78 Z" fill="#f0ead6"></path></svg>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:7.5px;font-weight:700;color:#ece5d5">2 need you</span>
+            <span style="flex:1"></span>
+            <span style="background:#f4a4a4;color:#2c2318;border-radius:4px;padding:1px 4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:7px;font-weight:700">2</span>
+          </div>
+        </div>
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;margin-top:7px">0ms — click, hold, or ⌘⇧O</div>
+      </div>
+      <span style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:22px;color:#8b8067;margin-top:64px">→</span>
+      <div style="width:236px">
+        <div style="position:relative;width:236px;height:170px;background:#080705;border-radius:12px;overflow:hidden;box-shadow:0 10px 26px rgba(24,18,8,.35)">
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:92px;height:13px;background:#000;border-radius:0 0 7px 7px;box-shadow:0 0 0 1px rgba(236,229,213,.05);z-index:2"></div>
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:186px;height:112px;background:#17150f;border:1px solid rgba(236,229,213,.1);border-top:none;border-radius:0 0 18px 18px;padding:20px 16px 12px">
+            <div style="background:#e3a0a8;border:2px solid #c4553f;border-radius:8px;height:30px;padding:4px 7px">
+              <span style="display:block;width:70%;height:5px;background:rgba(23,21,15,.5);border-radius:3px"></span>
+              <span style="display:block;width:45%;height:4px;background:rgba(23,21,15,.3);border-radius:3px;margin-top:4px"></span>
+            </div>
+            <span style="display:block;height:9px;background:rgba(236,229,213,.14);border-radius:4px;margin-top:7px"></span>
+            <span style="display:block;height:9px;background:rgba(236,229,213,.1);border-radius:4px;margin-top:5px"></span>
+            <span style="display:block;height:9px;background:rgba(236,229,213,.06);border-radius:4px;margin-top:5px"></span>
+          </div>
+        </div>
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;margin-top:7px">~120ms — unfurls from the notch; the needs-you card lands first</div>
+      </div>
+      <span style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:22px;color:#8b8067;margin-top:64px">→</span>
+      <div style="width:236px">
+        <div style="position:relative;width:236px;height:170px;background:#080705;border-radius:12px;overflow:hidden;box-shadow:0 10px 26px rgba(24,18,8,.35)">
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:92px;height:13px;background:#000;border-radius:0 0 7px 7px;box-shadow:0 0 0 1px rgba(236,229,213,.05);z-index:2"></div>
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:212px;height:154px;background:#17150f;border:1px solid rgba(236,229,213,.1);border-top:none;border-radius:0 0 18px 18px;padding:18px 18px 10px">
+            <span style="position:absolute;top:6px;left:16px;width:24px;height:4px;background:rgba(236,229,213,.35);border-radius:2px"></span>
+            <span style="position:absolute;top:6px;right:16px;width:16px;height:4px;background:rgba(236,229,213,.16);border-radius:2px"></span>
+            <span style="position:absolute;bottom:6px;left:16px;width:12px;height:4px;background:rgba(236,229,213,.16);border-radius:2px"></span>
+            <span style="position:absolute;bottom:6px;right:16px;width:16px;height:4px;background:rgba(236,229,213,.16);border-radius:2px"></span>
+            <div style="background:#e3a0a8;border:2px solid #c4553f;border-radius:8px;height:34px;padding:4px 7px;margin-top:2px">
+              <span style="display:block;width:70%;height:5px;background:rgba(23,21,15,.5);border-radius:3px"></span>
+              <span style="display:block;width:45%;height:4px;background:rgba(23,21,15,.3);border-radius:3px;margin-top:4px"></span>
+            </div>
+            <span style="display:block;height:10px;background:rgba(255,253,247,.9);border-radius:4px;margin-top:6px"></span>
+            <span style="display:block;height:10px;background:rgba(255,253,247,.82);border-radius:4px;margin-top:4px"></span>
+            <span style="display:block;height:10px;background:rgba(255,253,247,.74);border-radius:4px;margin-top:4px"></span>
+            <span style="display:block;height:8px;background:rgba(236,229,213,.08);border-radius:4px;margin-top:5px"></span>
+          </div>
+        </div>
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#6f6552;margin-top:7px">220ms — settled; idle stays collapsed</div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552;max-width:640px">One spring, 220ms, no bounce; collapse reverses instantly. Escalations never auto-expand the panel — the pill asks first, the human opens it.</div>
+  </div>
+</div>
+
+<div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:21px;color:#2c2318;margin:52px 0 0">The companion</div>
+<div style="display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap;margin-top:12px">
+  <div data-screen-label="10 Character sheet" style="background:rgba(255,253,247,.97);border-radius:12px;padding:22px 24px;width:1164px;box-shadow:0 14px 32px rgba(24,18,8,.22)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><span style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:18px;color:#2c2318">10 · Six moods, six silhouettes</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067">dark body only where a seat sits behind it · light body everywhere else and in the pill · marks jump in value + saturation, never hue</span></div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:14px">
+      <sc-for list="{{ moods }}" as="m" hint-placeholder-count="6">
+        <div>
+          <div style="position:relative;background:#e3a0a8;border:2.5px solid #c4553f;border-radius:13px;height:96px;display:flex;align-items:flex-end;justify-content:center;padding:8px;overflow:hidden">
+            <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.35;pointer-events:none"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+            <svg width="{{ m.rw }}" height="{{ m.rh }}" viewBox="{{ m.vb }}" style="position:relative"><path d="{{ m.d }}" fill="var(--catBody,#221f1c)"></path><path d="{{ m.eye }}" stroke="var(--catMark,#c9cc4e)" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="{{ m.dx }}" cy="{{ m.dy }}" r="2.8" fill="var(--catMark,#c9cc4e)"></circle></svg>
+          </div>
+          <div style="background:#17150f;border-radius:9px;height:52px;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px">
+            <span style="width:28px;height:32px;border:1px dashed rgba(236,229,213,.22);border-radius:4px;display:flex;align-items:flex-end;justify-content:center;padding:2px 1px"><svg width="{{ m.pw }}" height="{{ m.ph }}" viewBox="{{ m.vb }}"><path d="{{ m.d }}" fill="#f0ead6"></path><path d="{{ m.eye }}" stroke="#97923f" stroke-width="3.5" fill="none" stroke-linecap="round"></path><circle cx="{{ m.dx }}" cy="{{ m.dy }}" r="3.5" fill="#97923f"></circle></svg></span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8px;color:#7c7466">28×32</span>
+          </div>
+          <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15.5px;color:#2c2318;margin-top:7px;line-height:1">{{ m.name }}</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;margin-top:3px">{{ m.trig }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:18px;padding-top:14px;border-top:1px solid rgba(44,35,24,.1);flex-wrap:wrap">
+      <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#8b8067;width:72px">transitions</span>
+      <sc-for list="{{ strip }}" as="t" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:9px">
+          <sc-if value="{{ t.has }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;white-space:nowrap">{{ t.cap }}</span>
+              <svg width="30" height="8" viewBox="0 0 30 8"><path d="M1 4 L26 4 M22 1 L27 4 L22 7" stroke="#8b8067" stroke-width="1.4" fill="none" stroke-linecap="round"></path></svg>
+            </div>
+          </sc-if>
+          <div style="background:#17150f;border-radius:8px;width:58px;height:46px;display:flex;align-items:flex-end;justify-content:center;padding:5px"><svg width="{{ t.sw }}" height="{{ t.sh }}" viewBox="{{ t.vb }}"><path d="{{ t.d }}" fill="#f0ead6"></path><path d="{{ t.eye }}" stroke="#97923f" stroke-width="2.8" fill="none" stroke-linecap="round"></path><circle cx="{{ t.dx }}" cy="{{ t.dy }}" r="2.8" fill="#97923f"></circle></svg></div>
+        </div>
+      </sc-for>
+      <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin-left:4px;max-width:170px;line-height:1.5">crossfade 160ms · silhouettes morph only at rest, never mid-decision</span>
+    </div>
+    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b8067;margin-top:12px;line-height:1.5">The animal arrives once and stays; the idle loop is a tail move and a head tilt. These are clean vector stand-ins — the shipped edge is torn, fibrous and semi-transparent, which needs matted raster assets.</div>
+  </div>
+</div>
+
+<div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:21px;color:#2c2318;margin:52px 0 0">Paper &amp; tokens</div>
+<div style="display:flex;gap:56px;align-items:flex-start;flex-wrap:wrap;margin-top:16px">
+
+  <div style="width:400px" data-screen-label="11 Weekly recap">
+    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067;margin-bottom:10px">11 · the weekly recap — shareable</div>
+    <div style="position:relative;width:380px;transform:rotate(-2.5deg);background:#f4ecd6;padding:22px 26px 20px;filter:drop-shadow(0 14px 26px rgba(24,18,8,.3));clip-path:polygon(0% 1.6%, 3% 0.6%, 7% 1.9%, 12% 0.4%, 17% 1.7%, 23% 0.7%, 28% 1.8%, 34% 0.5%, 40% 1.6%, 46% 0.6%, 52% 1.9%, 58% 0.5%, 64% 1.7%, 70% 0.8%, 76% 1.8%, 82% 0.5%, 88% 1.6%, 94% 0.7%, 100% 1.5%, 100% 98.4%, 95% 99.5%, 89% 98.3%, 83% 99.6%, 77% 98.4%, 71% 99.4%, 65% 98.3%, 59% 99.6%, 53% 98.4%, 47% 99.4%, 41% 98.3%, 35% 99.6%, 29% 98.5%, 23% 99.4%, 17% 98.3%, 11% 99.5%, 5% 98.4%, 0% 99.3%)">
+      <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.35;pointer-events:none"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+      <div style="position:relative">
+        <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:20px;color:#2c2318">the week, settled</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067">AUG 17–23</span></div>
+        <div style="border-top:1.5px dashed rgba(44,35,24,.28);margin:10px 0 6px"></div>
+        <sc-for list="{{ recap }}" as="r" hint-placeholder-count="6">
+          <div style="display:flex;align-items:baseline;gap:10px;padding:2.5px 0">
+            <span style="flex:1;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:15.5px;color:#2c2318">{{ r.l }}</span>
+            <span style="font-family:Caveat,'Patrick Hand',cursive;font-size:22px;font-weight:700;line-height:1;color:{{ r.c }}">{{ r.v }}</span>
+          </div>
+        </sc-for>
+        <div style="border-top:1.5px dashed rgba(44,35,24,.28);margin:8px 0 8px"></div>
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <span style="flex:1;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:16px;font-weight:700;letter-spacing:.03em;color:#2c2318">TOTAL, handled without you</span>
+          <span style="font-family:Caveat,'Patrick Hand',cursive;font-size:34px;font-weight:700;line-height:1;color:#3d7a45">+221</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:16px">
+          <svg width="34" height="21" viewBox="0 0 128 80"><path d="M16 66 C10 52 20 44 40 43 C62 42 88 42 106 46 C120 49 124 60 118 66 Z" fill="#2c2318"></path><path d="M44 54 C50 50 58 50 64 54" stroke="#c9cc4e" stroke-width="2.6" fill="none" stroke-linecap="round"></path><circle cx="98" cy="53" r="2.8" fill="#c9cc4e"></circle></svg>
+          <span style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:12.5px;color:#6f6552;line-height:1.2">your fleet, minded —<br>open island</span>
+          <span style="flex:1"></span>
+          <svg width="92" height="20" viewBox="0 0 116 22" style="opacity:.8"><path d="M3 1V21M9 1V21M13 1V21M22 1V21M31 1V21M36 1V21M48 1V21M57 1V21M66 1V21M74 1V21M83 1V21M92 1V21M101 1V21M110 1V21" stroke="#2c2318" stroke-width="1.4"></path><path d="M6 1V21M17 1V21M27 1V21M42 1V21M53 1V21M62 1V21M70 1V21M88 1V21M97 1V21M106 1V21" stroke="#2c2318" stroke-width="3"></path></svg>
+        </div>
+      </div>
+    </div>
+    <div style="display:var(--annD,block);margin-top:14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#6f6552">Torn ends, itemised, bold TOTAL — gains green, losses red. Rewards celebrate shipping, never app-opening. Exports at 2× on paper, no chrome.</div>
+  </div>
+
+  <div style="width:724px" data-screen-label="12 Token sheet">
+    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#8b8067;margin-bottom:10px">12 · tokens — one page</div>
+    <div style="background:rgba(255,253,247,.97);border-radius:12px;padding:20px 24px;box-shadow:0 14px 32px rgba(24,18,8,.22)">
+      <div style="display:grid;grid-template-columns:1fr 1.15fr 1.1fr 1.35fr;gap:22px">
+        <div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#8b8067;margin-bottom:7px">grounds</div>
+          <sc-for list="{{ grounds }}" as="g" hint-placeholder-count="6">
+            <div style="display:flex;align-items:center;gap:8px;padding:2.5px 0">
+              <span style="width:26px;height:17px;border-radius:4px;background:{{ g.h }};border:1px solid rgba(0,0,0,.14);flex:none"></span>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#2c2318;flex:1">{{ g.n }}</span>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067">{{ g.h }}</span>
+            </div>
+          </sc-for>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#8b8067;margin:12px 0 7px">text on ink</div>
+          <div style="background:#17150f;border-radius:8px;padding:8px 10px">
+            <div style="color:#ece5d5;font-size:11px">primary #ece5d5 · 13.9:1</div>
+            <div style="color:#a89e8c;font-size:11px;margin-top:2px">secondary #a89e8c · 7.3:1</div>
+            <div style="color:#7c7466;font-size:11px;margin-top:2px">tertiary #7c7466 · 4.6:1</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#8b8067;margin-bottom:7px">seats — fill + clashing contour</div>
+          <sc-for list="{{ seats }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:9px;padding:3px 0">
+              <span style="width:38px;height:22px;border-radius:8px;background:{{ s.f }};border:2.5px solid {{ s.c }};flex:none"></span>
+              <div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#2c2318">{{ s.n }}</div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8px;color:#8b8067">{{ s.f }} / {{ s.c }}</div></div>
+            </div>
+          </sc-for>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067;margin-top:8px;line-height:1.5">a fill never ships without its contour — matched borders read as UI and break the reference</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#8b8067;margin:12px 0 7px">character marks</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#6f6552;line-height:1.55">body #221f1c / #f0ead6<br>mark #c9cc4e · warm #97923f<br>a value + saturation jump, not a hue clash</div>
+        </div>
+        <div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#8b8067;margin-bottom:7px">status — colour + shape</div>
+          <sc-for list="{{ statusLegend }}" as="s" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:8px;padding:2.5px 0">
+              <span style="width:20px;height:20px;border-radius:6px;background:{{ s.h }};display:inline-flex;align-items:center;justify-content:center;flex:none"><svg width="10" height="10" viewBox="0 0 12 12"><path d="{{ s.d }}" stroke="#2c2318" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#2c2318;flex:1">{{ s.n }}</span>
+              <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067">{{ s.h }}</span>
+            </div>
+          </sc-for>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#8b8067;margin:12px 0 7px">agents</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <sc-for list="{{ agents }}" as="a" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:8px"><span style="width:9px;height:9px;border-radius:50%;background:{{ a.h }};flex:none"></span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#2c2318;flex:1">{{ a.n }}</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8b8067">{{ a.h }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#8b8067;margin-bottom:7px">type — three faces</div>
+          <div style="font-family:Caveat,'Patrick Hand',cursive;font-size:32px;font-weight:700;color:#2c2318;line-height:1">+221</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin:2px 0 8px">hand numerals — Caveat (stand-in)</div>
+          <div style="font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:17px;color:#2c2318">needs your say</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin:2px 0 8px">hand display — Patrick Hand (stand-in)</div>
+          <div style="font-size:13px;color:#2c2318">Session 3 wants to delete 3 test files.</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin:2px 0 8px">running UI — system rounded sans</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#2c2318">rudderfish · claude · 17m · +189 −23</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8.5px;color:#8b8067;margin-top:2px">mono — only data that lines up</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:24px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(44,35,24,.1);flex-wrap:wrap">
+        <div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#8b8067;margin-bottom:6px">rhythm</div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#2c2318;line-height:1.7">side inset 46 · row pad 11<br>title→meta 3 · stack 8 · contour 2.5</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-end">
+          <div style="text-align:center"><div style="width:52px;height:34px;background:#e3a0a8;border:2.5px solid #c4553f;border-radius:13px"></div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8px;color:#8b8067;margin-top:4px">seat 13</div></div>
+          <div style="text-align:center"><div style="width:52px;height:34px;background:#fff;border:1px solid rgba(44,35,24,.16);border-radius:12px"></div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8px;color:#8b8067;margin-top:4px">card 12</div></div>
+          <div style="text-align:center"><div style="width:52px;height:34px;background:#f4ecd6;border:1px solid rgba(44,35,24,.16);border-radius:3px"></div><div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8px;color:#8b8067;margin-top:4px">paper 3</div></div>
+        </div>
+        <div style="flex:1;min-width:260px;display:flex;align-items:center;gap:14px">
+          <div style="position:relative;background:#e3a0a8;border:2.5px solid #c4553f;border-radius:13px;padding:6px;flex:none">
+            <svg style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.35;pointer-events:none;border-radius:inherit"><rect width="100%" height="100%" filter="url(#oig)"></rect></svg>
+            <div style="position:relative;background:rgba(255,253,247,.96);border-radius:8px;padding:5px 12px;font-family:'Patrick Hand',ui-rounded,sans-serif;font-size:13px;color:#2c2318">needs your say</div>
+          </div>
+          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#6f6552;line-height:1.5"><b style="color:#2c2318">the signature element</b> — a saturated seat with a clashing contour behind anything that must be read. grain rides art fills only, 0.42 multiply.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;catBody&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;black&quot;, &quot;white&quot;, &quot;gray&quot;], &quot;default&quot;: &quot;black&quot;, &quot;tsType&quot;: &quot;'black' | 'white' | 'gray'&quot;, &quot;section&quot;: &quot;Character&quot; },
+  &quot;shippedToday&quot;: { &quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 3, &quot;min&quot;: 0, &quot;max&quot;: 6, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Pet room&quot; },
+  &quot;showAnnotations&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Board&quot; }
+}">
+class Component extends DCLogic {
+  state = { mood: 'working' };
+  renderVals() {
+    const bodyKey = this.props.catBody ?? 'black';
+    const bodies = { black: '#221f1c', white: '#f0ead6', gray: '#6e6a60' };
+    const markMap = { black: '#c9cc4e', white: '#97923f', gray: '#f0ead6' };
+    const shipped = Math.max(0, Math.min(6, this.props.shippedToday ?? 3));
+
+    const rawMoods = [
+      { name: 'asleep', trig: 'nothing running', vb: '0 0 128 80', d: 'M16 66 C10 52 20 44 40 43 C62 42 88 42 106 46 C120 49 124 60 118 66 Z', eye: 'M44 54 C50 50 58 50 64 54', dx: 98, dy: 53 },
+      { name: 'working', trig: 'agents busy', vb: '0 0 128 80', d: 'M26 66 C16 66 12 56 16 46 C22 34 34 28 48 28 C52 18 64 12 76 15 C90 18 98 30 96 42 C108 46 114 56 110 66 L102 68 L96 58 L42 58 L36 68 Z', eye: 'M58 30 C64 26 72 26 78 30', dx: 87, dy: 26 },
+      { name: 'anxious, pointing', trig: 'a session is erroring', vb: '0 0 136 84', d: 'M30 78 C18 78 12 66 17 54 C22 42 32 34 46 32 C49 20 61 12 75 14 C89 16 99 28 97 41 L128 24 L123 41 C112 45 108 50 106 58 C104 68 99 76 90 78 Z', eye: 'M55 30 C61 25 71 25 78 30', dx: 86, dy: 24 },
+      { name: 'bored', trig: 'idle, nothing queued', vb: '0 0 128 80', d: 'M18 68 C10 58 18 48 38 46 C58 44 84 44 102 48 C116 51 120 62 112 68 L58 68 Z', eye: 'M44 57 C50 54 58 54 64 57', dx: 95, dy: 55 },
+      { name: 'celebrating', trig: 'a session shipped', vb: '0 0 150 112', d: 'M52 104 C40 104 34 94 36 82 C38 66 44 56 56 50 C54 34 60 20 74 16 C90 11 106 20 110 34 C114 48 110 60 102 66 C110 76 114 90 110 104 Z', eye: 'M70 32 C77 27 87 27 94 32', dx: 101, dy: 26 },
+      { name: 'delivering', trig: 'the concierge has news', vb: '0 0 126 90', d: 'M26 78 C16 78 12 68 16 58 C20 44 30 36 44 34 C48 22 60 14 74 16 C90 18 100 30 98 44 C110 48 116 60 112 74 L104 78 L98 66 L40 66 L34 78 Z', eye: 'M60 33 C66 28 76 28 83 33', dx: 90, dy: 27 }
+    ];
+    const fit = (vb, W, H) => {
+      const p = vb.split(' ').map(Number);
+      const s = Math.min(W / p[2], H / p[3]);
+      return { w: Math.round(p[2] * s), h: Math.round(p[3] * s) };
+    };
+    const moods = rawMoods.map(m => {
+      const r = fit(m.vb, 112, 74), pl = fit(m.vb, 24, 27), st = fit(m.vb, 48, 34);
+      return { ...m, rw: r.w, rh: r.h, pw: pl.w, ph: pl.h, sw: st.w, sh: st.h };
+    });
+    const caps = ['', 'fleet starts', 'rudderfish fails ×3', 'decision ready', 'PR merged'];
+    const strip = [0, 1, 2, 5, 4].map((idx, i) => ({ ...moods[idx], cap: caps[i], has: caps[i] !== '' }));
+
+    const workingRows = [
+      { t: 'swift build', meta: 'open-vibe-island · feat/companion-pill · claude · <1m', ac: '#d97742' },
+      { t: 'bake the contour at three weights', meta: 'bao-motion · claude · 34m', ac: '#d97742' },
+      { t: 'chase the flaky auth retry test', meta: 'reelle-ios · cursor · 23m', ac: '#7a5cff' },
+      { t: 'bump the lockfile and rerun ci', meta: 'open-vibe-island · codex · 2m', ac: '#4aa3df' }
+    ];
+    const doneRows = [
+      { t: 'relaunched on the same build, probe recording', meta: 'stuck-clips · claude · 1m', ac: '#d97742' },
+      { t: 'opened PR #148 — suite green', meta: 'reelle-ios · codex · 12m', ac: '#4aa3df' }
+    ];
+    const logs = [
+      { t: "Held rudderfish's force-push and paused the session.", time: '40s' },
+      { t: 'Approved 12 file reads in reelle-ios. Nothing looked unusual.', time: '2m' },
+      { t: 'Ran swift build in open-vibe-island, six times, all clean.', time: '26m' }
+    ];
+    const leash = [
+      { repo: 'reelle-ios', d: 'M8 5 L8 19 M8 9 C56 33 128 33 176 11', cx: 176, cy: 11, note: 'loose · 41 auto this wk' },
+      { repo: 'open-vibe-island', d: 'M8 5 L8 19 M8 9 C48 27 108 27 150 10', cx: 150, cy: 10, note: 'builds & reads pass' },
+      { repo: 'zhende', d: 'M8 5 L8 19 M8 9 C40 21 84 21 116 9', cx: 116, cy: 9, note: 'asks before edits' },
+      { repo: 'rudderfish', d: 'M8 5 L8 19 M8 9 L58 11', cx: 58, cy: 11, note: 'escalates everything' }
+    ];
+    const patterns = [
+      { pat: 'Read **/*', scope: 'everywhere' },
+      { pat: 'Edit src/**', scope: 'reelle-ios' },
+      { pat: 'npm test', scope: 'everywhere' }
+    ];
+    const shelf = [
+      { label: 'paper crown', sub: '3-ship day', op: 1, d1: 'M4 17 L4 8 L9 12 L12 4 L15 12 L20 8 L20 17 Z', f1: '#ffd58a', s1: '#b8862e', d2: 'M4 17 L20 17', f2: 'none', s2: '#b8862e' },
+      { label: 'tiny monstera', sub: '7-day streak', op: 1, d1: 'M12 13 C6 10 5 4 11 2 C14 7 14 10 12 13 Z M12 13 C12 6 16 2 20 4 C20 9 16 12 12 13 Z', f1: '#6f7a54', s1: '#47543a', d2: 'M7 13 L17 13 L15.6 20 L8.4 20 Z', f2: '#e26d4f', s2: '#7d3b1f' },
+      { label: 'studio mug', sub: '100 turns', op: 1, d1: 'M5 6 L16 6 L15.2 18 L5.8 18 Z', f1: '#ddb14a', s1: '#3f6d8e', d2: 'M16 8 C20.5 8 20.5 14 15.6 14', f2: 'none', s2: '#3f6d8e' },
+      { label: 'brass cup', sub: '2 ships away', op: 0.45, d1: 'M6 4 L18 4 L17.2 10 C16.6 13 14.2 15 12 15 C9.8 15 7.4 13 6.8 10 Z M9.5 15 L14.5 15 L15.5 19 L8.5 19 Z', f1: '#ddb14a', s1: '#8a6a1f', d2: 'M6 5 C2.5 5.5 3 10 7 10 M18 5 C21.5 5.5 21 10 17 10', f2: 'none', s2: '#8a6a1f' }
+    ];
+    const floorAll = [
+      { vb: '0 0 34 18', w: 34, h: 18, x: 336, b: 214, r: -8, d1: 'M7 4.5 A3.6 3.6 0 1 0 7 12.5 L27 12.5 A3.6 3.6 0 1 0 27 4.5 A3.6 3.6 0 0 0 24 6.2 L10 6.2 A3.6 3.6 0 0 0 7 4.5 Z', f1: '#ece4cd', s1: '#c4553f', d2: 'M11 9.5 L23 9.5', f2: 'none', s2: '#c4553f' },
+      { vb: '0 0 24 24', w: 22, h: 22, x: 396, b: 182, r: 0, d1: 'M12 12 m-9.5 0 a9.5 9.5 0 1 0 19 0 a9.5 9.5 0 1 0 -19 0', f1: '#3f6d8e', s1: '#d9a03f', d2: 'M3.5 9 C9 13.5 15 13.5 20.5 9', f2: 'none', s2: '#d9a03f' },
+      { vb: '0 0 24 22', w: 26, h: 24, x: 448, b: 205, r: 0, d1: 'M12 13 C6 10 5 4 11 2 C14 7 14 10 12 13 Z M12 13 C12 6 16 2 20 4 C20 9 16 12 12 13 Z', f1: '#6f7a54', s1: '#47543a', d2: 'M7 13 L17 13 L15.6 20 L8.4 20 Z', f2: '#e26d4f', s2: '#7d3b1f' },
+      { vb: '0 0 22 20', w: 20, h: 18, x: 310, b: 172, r: 6, d1: 'M4 4 L15 4 L14.2 16 L4.8 16 Z', f1: '#ddb14a', s1: '#3f6d8e', d2: 'M15 6 C19.5 6 19.5 12 14.6 12', f2: 'none', s2: '#3f6d8e' },
+      { vb: '0 0 24 18', w: 26, h: 20, x: 470, b: 168, r: -5, d1: 'M2.5 9 C6.5 4 13 4 17 9 C13 14 6.5 14 2.5 9 Z M17 9 L22.5 5 L21.5 9 L22.5 13 Z', f1: '#7b5b8a', s1: '#4d3557', d2: 'M7.5 8 a1.3 1.3 0 1 0 0.1 0', f2: '#f4ecd6', s2: 'none' },
+      { vb: '0 0 24 22', w: 22, h: 20, x: 502, b: 224, r: 10, d1: 'M12 2 L14.6 8 L21 8.6 L16.2 12.8 L17.8 19 L12 15.6 L6.2 19 L7.8 12.8 L3 8.6 L9.4 8 Z', f1: '#ffd58a', s1: '#b8862e', d2: 'M12 5.5 L12 7.5', f2: 'none', s2: '#b8862e' }
+    ];
+    const recap = [
+      { l: 'turns shipped', v: '+9', c: '#3d7a45' },
+      { l: 'prs merged', v: '+4', c: '#3d7a45' },
+      { l: 'interruptions handled', v: '+214', c: '#3d7a45' },
+      { l: 'escalated to you', v: '12', c: '#2c2318' },
+      { l: 'lines, net', v: '+3,841', c: '#3d7a45' },
+      { l: 'rolled back', v: '−2', c: '#b04a34' }
+    ];
+    const grounds = [
+      { n: 'wall', h: '#59703f' }, { n: 'wall lit', h: '#6b8250' }, { n: 'floor', h: '#2a2b20' },
+      { n: 'rug', h: '#7b5b8a' }, { n: 'paper', h: '#f4ecd6' }, { n: 'ink', h: '#17150f' }
+    ];
+    const seats = [
+      { n: 'rose — needs your say', f: '#e3a0a8', c: '#c4553f' },
+      { n: 'amber — question', f: '#ddb14a', c: '#3f6d8e' },
+      { n: 'sage — resting', f: '#6f7a54', c: '#47543a' },
+      { n: 'clay — critical', f: '#e26d4f', c: '#7d3b1f' }
+    ];
+    const statusLegend = [
+      { n: 'needs decision', h: '#f4a4a4', d: 'M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2' },
+      { n: 'question', h: '#ffd58a', d: 'M3.6 4.2 C3.6 2.2 5.1 1.3 6.1 1.3 C7.7 1.3 8.7 2.3 8.7 3.7 C8.7 5.2 6.1 5.5 6.1 7.3 M6.1 10.4 L6.1 10.6' },
+      { n: 'working', h: '#6ea7ff', d: 'M10.5 6 A4.5 4.5 0 1 1 6 1.5' },
+      { n: 'done', h: '#6fb982', d: 'M2 6.6 L4.9 9.4 L10 2.8' },
+      { n: 'idle', h: '#b7b1a4', d: 'M2.6 6 L9.4 6' }
+    ];
+    const agents = [
+      { n: 'claude', h: '#d97742' }, { n: 'codex', h: '#4aa3df' },
+      { n: 'cursor', h: '#7a5cff' }, { n: 'gemini', h: '#42e86b' }
+    ];
+    const R = React.createElement;
+    const mood = this.state.mood;
+    const offs = { 'asleep': [11, 32], 'working': [11, 32], 'anxious, pointing': [7, 28], 'bored': [11, 32], 'celebrating': [0, 0], 'delivering': [12, 22] };
+    const tails = { 'asleep': [22, 64], 'working': [24, 62], 'anxious, pointing': [26, 74], 'bored': [24, 66], 'celebrating': [44, 100], 'delivering': [24, 74] };
+    const tailD = 'M0 0 C-13 -2 -19 -15 -10 -25 C-8 -27 -3 -26 -5 -21 C-10 -13 -6 -5 5 -5 Z';
+    const centerScale = (m, s) => {
+      const p = m.vb.split(' ').map(Number); const cx = p[2] / 2, cy = p[3] * 0.66;
+      return 'translate(' + cx + ' ' + cy + ') scale(' + s + ') translate(' + (-cx) + ' ' + (-cy) + ')';
+    };
+    const demoCat = R('g', null, rawMoods.map(m => {
+      const o = offs[m.name], t = tails[m.name], act = m.name === mood;
+      return R('g', { key: m.name, style: { opacity: act ? 1 : 0, transition: 'opacity 200ms ease' }, transform: 'translate(' + o[0] + ' ' + o[1] + ')' },
+        R('g', { style: { animation: 'oi-bob 3.4s ease-in-out infinite', transformOrigin: '75px 95px' } },
+          R('g', { style: { animation: 'oi-tail 2.9s ease-in-out infinite', transformOrigin: t[0] + 'px ' + t[1] + 'px' } },
+            R('g', { filter: 'url(#oiRoughA)' }, R('path', { d: tailD, transform: 'translate(' + t[0] + ' ' + t[1] + ')', fill: 'var(--catBody, #221f1c)' }))),
+          R('g', { filter: 'url(#oiRoughB)', transform: centerScale(m, 1.055) }, R('path', { d: m.d, fill: '#b3956a' })),
+          R('g', { filter: 'url(#oiRoughA)' }, R('path', { d: m.d, fill: 'var(--catBody, #221f1c)' })),
+          R('g', { style: { animation: 'oi-blink 6.2s ease-in-out infinite', transformOrigin: (m.dx - 18) + 'px ' + (m.dy + 5) + 'px' } },
+            R('path', { d: m.eye, stroke: 'var(--catMark, #c9cc4e)', strokeWidth: 2.8, fill: 'none', strokeLinecap: 'round' }),
+            R('circle', { cx: m.dx, cy: m.dy, r: 3, fill: 'var(--catMark, #c9cc4e)' }))));
+    }));
+    const demoPillCat = R('g', null, rawMoods.map(m => {
+      const o = offs[m.name], act = m.name === mood;
+      return R('g', { key: m.name, style: { opacity: act ? 1 : 0, transition: 'opacity 200ms ease' }, transform: 'translate(' + o[0] + ' ' + o[1] + ')' },
+        R('path', { d: m.d, fill: '#f0ead6' }),
+        R('path', { d: m.eye, stroke: '#97923f', strokeWidth: 3.5, fill: 'none', strokeLinecap: 'round' }),
+        R('circle', { cx: m.dx, cy: m.dy, r: 3.5, fill: '#97923f' }));
+    }));
+    const moodBtns = rawMoods.map(m => ({ name: m.name.split(',')[0], active: m.name === mood, set: () => this.setState({ mood: m.name }) }));
+    const activeTrig = (rawMoods.find(m => m.name === mood) || rawMoods[1]).trig;
+    const jumpGroups = [
+      { repo: 'open-vibe-island', tag: 'worktree · feat/companion-pill', rows: [
+        { t: 'swift build', dest: 'ghostty · tab 3', k: '⌘1', ac: '#d97742', g: 'M10.5 6 A4.5 4.5 0 1 1 6 1.5', gc: '#6ea7ff', bg: 'rgba(255,253,247,.96)', bd: '1px solid transparent' },
+        { t: 'bake the contour at three weights', dest: 'tmux · oi:1.2', k: '⌘2', ac: '#d97742', g: 'M10.5 6 A4.5 4.5 0 1 1 6 1.5', gc: '#6ea7ff', bg: 'rgba(255,253,247,.96)', bd: '1px solid transparent' } ] },
+      { repo: 'rudderfish', tag: '', rows: [
+        { t: 'find the cc history and reconcile it', dest: 'iterm2 · w1 t2', k: '⌘3', ac: '#d97742', g: 'M6 1.5 L6 10.5 M2 3.8 L10 8.2 M10 3.8 L2 8.2', gc: '#c4553f', bg: '#e3a0a8', bd: '2px solid #c4553f' } ] },
+      { repo: 'reelle-ios', tag: '', rows: [
+        { t: 'chase the flaky auth retry test', dest: 'kaku · pane 2', k: '⌘4', ac: '#7a5cff', g: 'M10.5 6 A4.5 4.5 0 1 1 6 1.5', gc: '#6ea7ff', bg: 'rgba(255,253,247,.96)', bd: '1px solid transparent' },
+        { t: 'opened PR #148 — suite green', dest: 'wezterm · main', k: '⌘5', ac: '#4aa3df', g: 'M2 6.6 L4.9 9.4 L10 2.8', gc: '#3d7a45', bg: 'rgba(255,253,247,.96)', bd: '1px solid transparent' } ] },
+      { repo: 'build-server, over ssh', tag: 'remote — detect only, jump needs setup', rows: [
+        { t: 'rename the Bāo asset ids across targets', dest: 'ssh · mbp→build', k: '', ac: '#42e86b', g: 'M3.6 4.2 C3.6 2.2 5.1 1.3 6.1 1.3 C7.7 1.3 8.7 2.3 8.7 3.7 C8.7 5.2 6.1 5.5 6.1 7.3 M6.1 10.4 L6.1 10.6', gc: '#b8862e', bg: 'rgba(255,253,247,.96)', bd: '1px solid transparent' } ] }
+    ];
+    const usageMeters = [
+      { n: 'claude', h: '#d97742', win: '5h window', pct: 62, w: 62, note: 'resets 2:40 pm' },
+      { n: 'codex', h: '#4aa3df', win: 'weekly', pct: 31, w: 31, note: 'resets monday' },
+      { n: 'gemini', h: '#42e86b', win: 'daily free tier', pct: 84, w: 84, note: 'near limit — route new work to claude' }
+    ];
+    return {
+      jumpGroups, usageMeters,
+      demoCat, demoPillCat, moodBtns, activeTrig,
+      catBodyFill: bodies[bodyKey] || bodies.black,
+      catMarkFill: markMap[bodyKey] || markMap.black,
+      annDisplay: (this.props.showAnnotations ?? true) ? 'block' : 'none',
+      shippedLine: shipped === 0 ? 'nothing shipped yet today' : shipped + ' shipped today',
+      floorItems: floorAll.slice(0, shipped),
+      idleLine: 'write the PreToolUse contention guard (codex · 51m) · survey the fifteen Bāo assets (claude · 1h)',
+      moods, strip, workingRows, doneRows, logs, leash, patterns, shelf, recap, grounds, seats, statusLegend, agents
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -223,6 +223,10 @@ struct GeneralSettingsPane: View {
                     get: { model.suppressFrontmostNotifications },
                     set: { model.suppressFrontmostNotifications = $0 }
                 ))
+                Toggle(lang.t("settings.general.v7CollagePanel"), isOn: Binding(
+                    get: { model.v7CollagePanelEnabled },
+                    set: { model.v7CollagePanelEnabled = $0 }
+                ))
             }
 
         }

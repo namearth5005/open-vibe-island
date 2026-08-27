@@ -273,17 +273,33 @@ struct IslandPanelView: View {
     private func v6ClosedSurface() -> some View {
         let layout: V6ClosedLayout = isExternalDisplayPlacement ? .external : .macbook
         let physicalNotchWidth: CGFloat = targetOverlayScreen?.notchSize.width ?? 180
-        V6ClosedPill(
-            mode: model.islandClosedMode,
-            label: layout == .external ? model.islandClosedLabel() : nil,
-            rightSlot: model.islandClosedRightSlotContent(),
-            layout: layout,
-            height: closedNotchHeight,
-            physicalNotchWidth: layout == .macbook ? physicalNotchWidth : 0,
-            minWidth: 70
-        )
-        .scaleEffect(isPopping ? 1.04 : 1, anchor: .top)
-        .animation(popAnimation, value: isPopping)
+
+        if model.v7CollagePanelEnabled {
+            let state = V7ClosedPill.state(for: model.islandListSessions)
+            V7ClosedPill(
+                mood: state.mood,
+                label: state.label,
+                attentionCount: state.attention,
+                trailingGlyph: state.glyph.map { (glyph: $0.0, color: $0.1) },
+                height: closedNotchHeight,
+                layout: layout,
+                physicalNotchWidth: layout == .macbook ? physicalNotchWidth : 0
+            )
+            .scaleEffect(isPopping ? 1.04 : 1, anchor: .top)
+            .animation(popAnimation, value: isPopping)
+        } else {
+            V6ClosedPill(
+                mode: model.islandClosedMode,
+                label: layout == .external ? model.islandClosedLabel() : nil,
+                rightSlot: model.islandClosedRightSlotContent(),
+                layout: layout,
+                height: closedNotchHeight,
+                physicalNotchWidth: layout == .macbook ? physicalNotchWidth : 0,
+                minWidth: 70
+            )
+            .scaleEffect(isPopping ? 1.04 : 1, anchor: .top)
+            .animation(popAnimation, value: isPopping)
+        }
     }
 
     // MARK: - Opened surface
@@ -414,7 +430,25 @@ struct IslandPanelView: View {
         .accessibilityLabel(accessibilityLabel ?? systemName)
     }
 
+    @ViewBuilder
     private var openedContent: some View {
+        if model.v7CollagePanelEnabled {
+            // The v7 collage panel owns the whole surface: it draws its own
+            // corner navigation and its own empty states, so none of the v6
+            // hints or placeholders below apply.
+            V7PanelView(model: model, board: v7BoardState)
+        } else {
+            v6OpenedContent
+        }
+    }
+
+    /// State the v7 board designs but the app does not record yet. Empty until
+    /// a store exists — see `V7BoardState`, which every v7 surface degrades
+    /// against rather than showing invented figures.
+    private var v7BoardState: V7BoardState { .empty }
+
+    @ViewBuilder
+    private var v6OpenedContent: some View {
         VStack(spacing: 8) {
             if !model.hasAnyInstalledAgent {
                 installHooksHint

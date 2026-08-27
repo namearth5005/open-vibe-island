@@ -18,8 +18,22 @@ struct V7ClosedPill: View {
     var attentionCount: Int
     /// The quiet status shape shown when nothing needs a human.
     var trailingGlyph: (glyph: V7StatusGlyph, color: Color)?
-    var width: CGFloat = 180
     var height: CGFloat = 32
+    /// Mirrors `V6ClosedPill`: on a MacBook the pill wraps the physical notch,
+    /// so its outer width is locked to the cutout plus a reserve each side and
+    /// the content flanks it. On an external display it is the board's
+    /// standalone 180pt shape.
+    var layout: V6ClosedLayout = .external
+    var physicalNotchWidth: CGFloat = 0
+    /// The board's collapsed pill: roughly 180 x 32.
+    var externalWidth: CGFloat = 180
+
+    private var width: CGFloat {
+        switch layout {
+        case .external: externalWidth
+        case .macbook:  44 + physicalNotchWidth + 44
+        }
+    }
 
     var body: some View {
         HStack(spacing: 7) {

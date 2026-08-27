@@ -28,6 +28,7 @@ final class AppModel {
     private static let legacyIslandSessionSortDefaultsKey = "appearance.island.v8.sessionSort"
     private static let legacyCompletedStaleThresholdDefaultsKey = "appearance.island.v8.completedStaleThreshold"
     private static let appearanceProfileSettingsDefaultsKey = "appearance.island.v8.settingsProfile"
+    private static let v7CollagePanelDefaultsKey = "appearance.island.v7.collagePanel"
 
     private static let syntheticClaudeSessionPrefix = "claude-process:"
     private static let liveSessionStalenessWindow: TimeInterval = 15 * 60
@@ -263,6 +264,20 @@ final class AppModel {
         didSet {
             guard hasFinishedInit, suppressFrontmostNotifications != oldValue else { return }
             UserDefaults.standard.set(suppressFrontmostNotifications, forKey: Self.suppressFrontmostNotificationsDefaultsKey)
+        }
+    }
+
+    /// Renders the expanded panel and the closed pill using the v7 collage
+    /// design (`design/v7-bundle`) instead of the shipping v6 surface.
+    ///
+    /// Off by default. The v7 panel is a full redesign — four tabs, a
+    /// companion, a different art direction — so it stays opt-in until it has
+    /// been reviewed on a real machine against real sessions.
+    var v7CollagePanelEnabled: Bool = false {
+        didSet {
+            guard hasFinishedInit, v7CollagePanelEnabled != oldValue else { return }
+            UserDefaults.standard.set(v7CollagePanelEnabled, forKey: Self.v7CollagePanelDefaultsKey)
+            refreshOverlayPlacementIfVisible()
         }
     }
     var launchAtLoginEnabled: Bool = false {
@@ -595,6 +610,7 @@ final class AppModel {
             Self.hapticFeedbackEnabledDefaultsKey: false,
             Self.completionReplyEnabledDefaultsKey: false,
             Self.suppressFrontmostNotificationsDefaultsKey: true,
+            Self.v7CollagePanelDefaultsKey: false,
         ])
         isSoundMuted = UserDefaults.standard.bool(forKey: Self.soundMutedDefaultsKey)
         selectedSoundName = NotificationSoundService.selectedSoundName
@@ -609,6 +625,7 @@ final class AppModel {
             )
         }
         completionReplyEnabled = UserDefaults.standard.bool(forKey: Self.completionReplyEnabledDefaultsKey)
+        v7CollagePanelEnabled = UserDefaults.standard.bool(forKey: Self.v7CollagePanelDefaultsKey)
         launchAtLoginEnabled = LaunchAtLoginService.shared.isEnabled
         appearanceSettingsProfile = IslandAppearanceDisplayProfile(
             rawValue: UserDefaults.standard.string(forKey: Self.appearanceProfileSettingsDefaultsKey) ?? ""
