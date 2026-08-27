@@ -9,7 +9,7 @@ import SwiftUI
 /// copy-paste rather than a re-draw.
 ///
 /// Supports the commands the board actually uses: `M/m`, `L/l`, `H/h`, `V/v`,
-/// `C/c`, `Q/q`, `Z/z`. Anything else is ignored rather than trapped, so a
+/// `C/c`, `Q/q`, `A/a`, `Z/z`. Anything else is ignored rather than trapped, so a
 /// path that picks up an unsupported command degrades to a partial shape
 /// instead of crashing the panel.
 enum V7VectorPath {
@@ -140,6 +140,27 @@ enum V7VectorPath {
                     current = point
                     cursor += 4
                 }
+            case "A", "a":
+                var cursor = 0
+                while cursor + 6 < numbers.count {
+                    let origin = base()
+                    let end = CGPoint(
+                        x: origin.x + numbers[cursor + 5],
+                        y: origin.y + numbers[cursor + 6]
+                    )
+                    appendArc(
+                        to: &path,
+                        from: current,
+                        to: end,
+                        rx: numbers[cursor],
+                        ry: numbers[cursor + 1],
+                        xAxisRotationDegrees: numbers[cursor + 2],
+                        largeArc: numbers[cursor + 3] != 0,
+                        sweep: numbers[cursor + 4] != 0
+                    )
+                    current = end
+                    cursor += 7
+                }
             case "Z", "z":
                 path.closeSubpath()
                 current = subpathStart
@@ -166,6 +187,111 @@ enum V7VectorPath {
         }
         flush()
         return path
+    }
+
+    /// Converts an SVG elliptical-arc segment to cubic béziers.
+    ///
+    /// `Path` has no endpoint-parameterised arc, so this does the standard
+    /// endpoint → centre conversion from the SVG spec's implementation notes
+    /// and then approximates each ≤90° sweep with one cubic. Written against
+    /// `addCurve` only, so it depends on nothing beyond the core Path API.
+    private static func appendArc(
+        to path: inout Path,
+        from start: CGPoint,
+        to end: CGPoint,
+        rx rxIn: CGFloat,
+        ry ryIn: CGFloat,
+        xAxisRotationDegrees: CGFloat,
+        largeArc: Bool,
+        sweep: Bool
+    ) {
+        // Degenerate radii mean a straight line, per the spec.
+        var rx = abs(rxIn)
+        var ry = abs(ryIn)
+        guard rx > .ulpOfOne, ry > .ulpOfOne else {
+            path.addLine(to: end)
+            return
+        }
+        if start == end { return }
+
+        let phi = xAxisRotationDegrees * .pi / 180
+        let cosPhi = cos(phi), sinPhi = sin(phi)
+
+        let dx2 = (start.x - end.x) / 2
+        let dy2 = (start.y - end.y) / 2
+        let x1p = cosPhi * dx2 + sinPhi * dy2
+        let y1p = -sinPhi * dx2 + cosPhi * dy2
+
+        // Scale the radii up if they are too small to span the endpoints.
+        let lambda = (x1p * x1p) / (rx * rx) + (y1p * y1p) / (ry * ry)
+        if lambda > 1 {
+            let scale = sqrt(lambda)
+            rx *= scale
+            ry *= scale
+        }
+
+        let sign: CGFloat = (largeArc == sweep) ? -1 : 1
+        let numerator = max(0, rx * rx * ry * ry - rx * rx * y1p * y1p - ry * ry * x1p * x1p)
+        let denominator = rx * rx * y1p * y1p + ry * ry * x1p * x1p
+        let coefficient = denominator > .ulpOfOne ? sign * sqrt(numerator / denominator) : 0
+
+        let cxp = coefficient * rx * y1p / ry
+        let cyp = -coefficient * ry * x1p / rx
+        let cx = cosPhi * cxp - sinPhi * cyp + (start.x + end.x) / 2
+        let cy = sinPhi * cxp + cosPhi * cyp + (start.y + end.y) / 2
+
+        func angle(_ ux: CGFloat, _ uy: CGFloat, _ vx: CGFloat, _ vy: CGFloat) -> CGFloat {
+            let dot = ux * vx + uy * vy
+            let len = sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy))
+            guard len > .ulpOfOne else { return 0 }
+            let value = min(1, max(-1, dot / len))
+            return (ux * vy - uy * vx < 0 ? -1 : 1) * acos(value)
+        }
+
+        let ux = (x1p - cxp) / rx, uy = (y1p - cyp) / ry
+        let vx = (-x1p - cxp) / rx, vy = (-y1p - cyp) / ry
+        let theta1 = angle(1, 0, ux, uy)
+        var delta = angle(ux, uy, vx, vy)
+        if !sweep, delta > 0 { delta -= 2 * .pi }
+        if sweep, delta < 0 { delta += 2 * .pi }
+
+        // One cubic per quarter turn keeps the error below a tenth of a point
+        // at the sizes these shapes are drawn.
+        let segments = max(1, Int(ceil(abs(delta) / (.pi / 2))))
+        let step = delta / CGFloat(segments)
+        let alpha = 4.0 / 3.0 * tan(step / 4)
+
+        var theta = theta1
+        for _ in 0..<segments {
+            let cosT1 = cos(theta), sinT1 = sin(theta)
+            let theta2 = theta + step
+            let cosT2 = cos(theta2), sinT2 = sin(theta2)
+
+            func point(_ cosT: CGFloat, _ sinT: CGFloat) -> CGPoint {
+                CGPoint(
+                    x: cx + rx * cosPhi * cosT - ry * sinPhi * sinT,
+                    y: cy + rx * sinPhi * cosT + ry * cosPhi * sinT
+                )
+            }
+            func derivative(_ cosT: CGFloat, _ sinT: CGFloat) -> CGVector {
+                CGVector(
+                    dx: -rx * cosPhi * sinT - ry * sinPhi * cosT,
+                    dy: -rx * sinPhi * sinT + ry * cosPhi * cosT
+                )
+            }
+
+            let p1 = point(cosT1, sinT1)
+            let p2 = point(cosT2, sinT2)
+            let d1 = derivative(cosT1, sinT1)
+            let d2 = derivative(cosT2, sinT2)
+
+            path.addCurve(
+                to: p2,
+                control1: CGPoint(x: p1.x + alpha * d1.dx, y: p1.y + alpha * d1.dy),
+                control2: CGPoint(x: p2.x - alpha * d2.dx, y: p2.y - alpha * d2.dy)
+            )
+            theta = theta2
+        }
     }
 }
 
