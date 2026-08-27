@@ -85,7 +85,6 @@ struct V7RecapSlip: View {
                 Text("your fleet, minded —\nopen island")
                     .font(V7Tokens.Typeface.hand(size: 12.5))
                     .foregroundStyle(V7Tokens.Text.onCard.opacity(0.75))
-                    .lineSpacing(-1)
                 Spacer(minLength: 0)
                 V7Barcode().frame(width: 92, height: 20).opacity(0.8)
             }
@@ -103,18 +102,20 @@ struct V7RecapSlip: View {
         .shadow(color: .black.opacity(0.30), radius: 14, y: 14)
     }
 
+    /// The tear-off rule. A dashed line drawn directly — stroking a 1pt-high
+    /// rectangle insets it out of existence.
     private var perforation: some View {
-        Rectangle()
-            .fill(.clear)
-            .frame(height: 1.5)
-            .overlay {
-                Rectangle()
-                    .strokeBorder(
-                        V7Tokens.Text.onCard.opacity(0.28),
-                        style: StrokeStyle(lineWidth: 1.5, dash: [4, 4])
-                    )
-                    .frame(height: 1)
+        GeometryReader { geometry in
+            Path { path in
+                path.move(to: CGPoint(x: 0, y: 0.75))
+                path.addLine(to: CGPoint(x: geometry.size.width, y: 0.75))
             }
+            .stroke(
+                V7Tokens.Text.onCard.opacity(0.28),
+                style: StrokeStyle(lineWidth: 1.5, dash: [4, 4])
+            )
+        }
+        .frame(height: 1.5)
     }
 }
 

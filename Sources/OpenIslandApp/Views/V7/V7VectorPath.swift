@@ -149,7 +149,7 @@ enum V7VectorPath {
                         y: origin.y + numbers[cursor + 6]
                     )
                     appendArc(
-                        to: &path,
+                        into: &path,
                         from: current,
                         to: end,
                         rx: numbers[cursor],
@@ -196,7 +196,7 @@ enum V7VectorPath {
     /// and then approximates each ≤90° sweep with one cubic. Written against
     /// `addCurve` only, so it depends on nothing beyond the core Path API.
     private static func appendArc(
-        to path: inout Path,
+        into path: inout Path,
         from start: CGPoint,
         to end: CGPoint,
         rx rxIn: CGFloat,

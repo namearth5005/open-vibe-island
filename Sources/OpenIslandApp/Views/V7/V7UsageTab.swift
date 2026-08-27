@@ -28,7 +28,7 @@ struct V7UsageTab: View {
             if meters.isEmpty {
                 emptyState
             } else {
-                V7Card(verticalPadding: 10, horizontalPadding: 13) {
+                V7Card(horizontalPadding: 13, verticalPadding: 10) {
                     VStack(spacing: 0) {
                         ForEach(Array(meters.enumerated()), id: \.element.id) { index, meter in
                             V7UsageMeterRow(meter: meter, showsDivider: index > 0)

@@ -139,7 +139,7 @@ struct V7Headline: View {
     var title: String
     var meta: String
     /// An optional prominent action — at most one per screen.
-    var action: (title: String, run: () -> Void)?
+    var action: V7HeadlineAction?
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 12) {
@@ -163,4 +163,14 @@ struct V7Headline: View {
             }
         }
     }
+}
+
+/// The single prominent verb a screen may carry.
+///
+/// A named type rather than a tuple: a tuple holding a closure is awkward to
+/// build through `Optional.map`, which is exactly how callers derive it from
+/// "is there anything urgent to jump to".
+struct V7HeadlineAction {
+    var title: String
+    var run: () -> Void
 }

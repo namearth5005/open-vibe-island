@@ -48,7 +48,9 @@ struct V7SessionsTab: View {
                     ? "\(summary.breakdown) · decisions land in place, not in a second tab"
                     : summary.breakdown,
                 action: attention.first.map { session in
-                    (title: "Jump to most urgent", run: { model.jumpToSession(session) })
+                    V7HeadlineAction(title: "Jump to most urgent") {
+                        model.jumpToSession(session)
+                    }
                 }
             )
 

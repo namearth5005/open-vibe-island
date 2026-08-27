@@ -15,6 +15,10 @@ import AppKit
 /// The reference's grain is a physical property of the paper, so it must never
 /// shimmer between frames. The tile is generated once from a fixed seed and
 /// cached; every surface draws the same pixels forever.
+///
+/// MainActor-isolated so the cache needs no `nonisolated(unsafe)`: the only
+/// readers are view bodies, which are already on the main actor.
+@MainActor
 enum V7Grain {
     private static let tileSize = 128
 

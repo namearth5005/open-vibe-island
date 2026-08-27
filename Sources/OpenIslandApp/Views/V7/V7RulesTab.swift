@@ -55,7 +55,7 @@ struct V7RulesTab: View {
     }
 
     private var leashCard: some View {
-        V7Card(verticalPadding: 9, horizontalPadding: 13) {
+        V7Card(horizontalPadding: 13, verticalPadding: 9) {
             VStack(alignment: .leading, spacing: 0) {
                 Text("Leash, per repo")
                     .font(V7Tokens.Typeface.ui(size: 12.5, weight: .semibold))
@@ -90,7 +90,7 @@ struct V7RulesTab: View {
     }
 
     private var patternsCard: some View {
-        V7Card(verticalPadding: 9, horizontalPadding: 13) {
+        V7Card(horizontalPadding: 13, verticalPadding: 9) {
             VStack(alignment: .leading, spacing: 0) {
                 Text("Auto-approve")
                     .font(V7Tokens.Typeface.ui(size: 12.5, weight: .semibold))
@@ -134,7 +134,7 @@ struct V7RulesTab: View {
     }
 
     private var quietCard: some View {
-        V7Card(verticalPadding: 9, horizontalPadding: 13) {
+        V7Card(horizontalPadding: 13, verticalPadding: 9) {
             VStack(alignment: .leading, spacing: 0) {
                 Text("Quiet & batching")
                     .font(V7Tokens.Typeface.ui(size: 12.5, weight: .semibold))

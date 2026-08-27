@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import OpenIslandCore
 
 /// v7 "Open Island" collage design system.
